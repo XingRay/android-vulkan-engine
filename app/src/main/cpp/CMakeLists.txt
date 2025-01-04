@@ -1,0 +1,63 @@
+cmake_minimum_required(VERSION 3.22.1)
+project("vulkan_demo")
+set(CMAKE_CXX_STANDARD 20)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -DVK_USE_PLATFORM_ANDROID_KHR -std=c++20")
+
+# glm
+# https://github.com/g-truc/glm
+set(GLM_INSTALL_DIR D:/develop/opengl/glm/glm-1.0.1-light)
+
+
+# vulkan
+# https://www.vulkan.org/
+#set(VULKAN_INSTALL_DIR D:/develop/vulkan/VulkanSDK/1.3.296.0)
+#set(VULKAN_INCLUDE_DIR ${VULKAN_INSTALL_DIR}/Include)
+
+# Vulkan-Headers
+# https://github.com/KhronosGroup/Vulkan-Headers
+set(VULKAN_HEADERS_INSTALL_DIR D:/develop/vulkan/Vulkan-Headers/Vulkan-Headers-1.3.275)
+set(VULKAN_HEADERS_INCLUDE_DIR ${VULKAN_HEADERS_INSTALL_DIR}/include)
+
+
+# Integrate GameActivity, refer to
+#     https://developer.android.com/games/agdk/game-activity/get-started#static-library
+# for the detailed instructions.
+#find_package(game-activity REQUIRED CONFIG)
+
+file(GLOB_RECURSE PROJECT_SOURCES
+        "code/src/*.c"
+        "code/src/*.cpp"
+        "code/src/*.cc"
+        "code/third_party/game_activity/*.c"
+        "code/third_party/game_activity/*.cpp"
+        "code/third_party/game_activity/*.cc"
+)
+
+add_library(${PROJECT_NAME} SHARED
+        ${PROJECT_SOURCES}
+)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
+        "${LIB_MPTASK_DIR}/include"
+        "code/include"
+        "code/src"
+        "code/src/engine"
+        "code/src/android"
+        "code/third_party/game_activity"
+
+        # vulkan
+        # ${VULKAN_INCLUDE_DIR}
+
+        # Vulkan-Hpp
+        ${VULKAN_HEADERS_INCLUDE_DIR}
+
+        # glm
+        ${GLM_INSTALL_DIR}
+)
+
+target_link_libraries(${PROJECT_NAME}
+        android
+        log
+        vulkan
+)
