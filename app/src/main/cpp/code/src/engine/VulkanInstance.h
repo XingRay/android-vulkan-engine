@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/22.
 //
 
-#ifndef VULKANDEMO_VULKANINSTANCE_H
-#define VULKANDEMO_VULKANINSTANCE_H
+#pragma once
 
 #ifndef VULKAN_HPP_DISPATCH_LOADER_DYNAMIC
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
@@ -66,6 +65,3 @@ namespace engine {
                                                 vk::DebugUtilsMessengerEXT *pDebugMessenger);
     };
 }
-
-
-#endif //VULKANDEMO_VULKANINSTANCE_H

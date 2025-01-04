@@ -18,83 +18,28 @@
 #include "pthread.h"
 
 #include "Log.h"
-
-// Vulkan 更新函数
-//void VulkanUpdateColor(float r, float g, float b) {
-//	// 假设通过 Push Constants 更新颜色
-//	vkCmdPushConstants(commandBuffer, pipelineLayout, VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(float) * 3, &color);
-//}
-
-// 更新三角形颜色
-//void UpdateTriangleColor(uint32_t color) {
-//	float r = ((color >> 16) & 0xFF) / 255.0f;
-//	float g = ((color >> 8) & 0xFF) / 255.0f;
-//	float b = (color & 0xFF) / 255.0f;
-//	VulkanUpdateColor(r, g, b);
-//}
+#include "test/Test01SimpleTriangle.h"
 
 // Process the next main command.
-std::vector<char> loadFile(AAssetManager *assetManager, const char *filePath) {
-    // 打开文件
-    AAsset *file = AAssetManager_open(assetManager, filePath, AASSET_MODE_BUFFER);
-    if (!file) {
-        throw std::runtime_error("Failed to open file: " + std::string(filePath));
-    }
 
-    // 获取文件大小
-    size_t fileLength = AAsset_getLength(file);
-
-    // 读取文件内容
-    std::vector<char> fileContent(fileLength); // 自动管理内存
-    AAsset_read(file, fileContent.data(), fileLength);
-
-    // 关闭文件
-    AAsset_close(file);
-
-    // 返回文件内容和大小
-    return fileContent;
-}
 
 void handle_cmd(android_app *app, int32_t cmd) {
     LOG_D("AndroidMain#handle_cmd, cmd:%d", cmd);
 
     switch (cmd) {
         case APP_CMD_INIT_WINDOW: {
-
-            std::vector<const char *> instanceExtensions = {
-                    VK_KHR_SURFACE_EXTENSION_NAME,
-                    "VK_KHR_android_surface",
-
-                    // old version
-                    VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
-                    // new version
-                    VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
-            };
-
-            std::vector<const char *> layers = {
-                    "VK_LAYER_KHRONOS_validation"
-            };
-
-            const std::vector<const char *> deviceExtensions = {
-                    VK_KHR_SWAPCHAIN_EXTENSION_NAME
-            };
-
-            // The window is being shown, get it ready.
-            app->vulkanEngine = new engine::VulkanEngine(instanceExtensions, layers);
-
-            std::vector<char> vertexShader = loadFile(app->activity->assetManager, "shaders/01_triangle.vert.spv");
-            std::vector<char> fragmentShader = loadFile(app->activity->assetManager, "shaders/01_triangle.frag.spv");
-
-            std::unique_ptr<engine::VulkanSurface> surface = std::make_unique<engine::AndroidVulkanSurface>(app->vulkanEngine->getVKInstance(), app->window);
-            app->vulkanEngine->initVulkan(surface, deviceExtensions, vertexShader, fragmentShader);
+            app->test = new test::Test01SimpleTriangle(*app, "Test01SimpleTriangle");
+            app->test->init();
         }
             break;
 
         case APP_CMD_TERM_WINDOW:
             // The window is being hidden or closed, clean it up.
-            app->vulkanEngine->deleteVulkan();
-            delete app->vulkanEngine;
-            app->vulkanEngine = nullptr;
+            if (app->test != nullptr) {
+                app->test->cleanup();
+                delete app->test;
+                app->test = nullptr;
+            }
             break;
 
         default:
@@ -113,15 +58,15 @@ void android_main(struct android_app *app) {
 
     // Main loop
     do {
-        if (ALooper_pollOnce((app->vulkanEngine != nullptr && app->vulkanEngine->isVulkanReady()) ? 1 : 0, nullptr, &events, (void **) &source) >= 0) {
+        if (ALooper_pollOnce((app->test != nullptr && app->test->isReady()) ? 1 : 0, nullptr, &events, (void **) &source) >= 0) {
             if (source != nullptr) {
                 source->process(app, source);
             }
         }
 
         // render if vulkan is ready
-        if ((app->vulkanEngine != nullptr && app->vulkanEngine->isVulkanReady())) {
-            app->vulkanEngine->drawFrame();
+        if ((app->test != nullptr && app->test->isReady())) {
+            app->test->drawFrame();
         }
     } while (app->destroyRequested == 0);
 }
@@ -136,18 +81,17 @@ void runInLooper(const android_app *app, int color) {
     LOG_D("AndroidMain#runInLooper, thread:%ld", pthread_self());
     LOG_D("AndroidMain#runInLooper, color:%d", color);
 
-    if (app->vulkanEngine != nullptr) {
+    if (app->test != nullptr) {
 //        VkCommandPool &commandPool = app->vulkanEngine->render.cmdPool_;
-        LOG_D("vulkanEngine:%p", app->vulkanEngine);
+        LOG_D("vulkan test:%p", app->test);
         // 将32位颜色值转换为浮点RGB
         float r = ((color >> 16) & 0xFF) / 255.0f;
         float g = ((color >> 8) & 0xFF) / 255.0f;
         float b = (color & 0xFF) / 255.0f;
 
         // 调用VulkanEngine中的更新颜色方法
-        app->vulkanEngine->UpdateColor(r, g, b);
+//        app->test->UpdateColor(r, g, b);
     }
-
 }
 
 extern "C"

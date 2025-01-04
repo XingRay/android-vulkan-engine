@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/22.
 //
 
-#ifndef VULKANDEMO_VULKANSURFACE_H
-#define VULKANDEMO_VULKANSURFACE_H
+#pragma once
 
 #include "vulkan/vulkan.hpp"
 
@@ -26,6 +25,3 @@ namespace engine {
     };
 
 } // namespace engine
-
-
-#endif //VULKANDEMO_VULKANSURFACE_H

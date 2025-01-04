@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/16.
 //
 
-#ifndef VULKANDEMO_GLM_H
-#define VULKANDEMO_GLM_H
+#pragma once
 
 // 强制 GLM 所有接受角度参数的函数都使用弧度，而不是度数, 以避免任何可能的混淆。
 #define GLM_FORCE_RADIANS
@@ -17,6 +16,3 @@
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include <glm/gtx/hash.hpp>
-
-
-#endif //VULKANDEMO_GLM_H

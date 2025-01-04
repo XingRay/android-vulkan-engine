@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/23.
 //
 
-#ifndef VULKANDEMO_VULKANDEVICE_H
-#define VULKANDEMO_VULKANDEVICE_H
+#pragma once
 
 #include <vulkan/vulkan.hpp>
 #include <optional>
@@ -120,5 +119,3 @@ namespace engine {
 
     };
 } // engine
-
-#endif //VULKANDEMO_VULKANDEVICE_H

@@ -8,10 +8,8 @@
 #include "VkCheckCpp.h"
 
 namespace engine {
-    VulkanIndexBuffer::VulkanIndexBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize) : mDevice(vulkanDevice) {
-        std::tie(mIndexBuffer, mIndexBufferMemory) = VulkanUtil::createBuffer(vulkanDevice, bufferSize,
-                                                                              vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
-                                                                              vk::MemoryPropertyFlagBits::eDeviceLocal);
+    VulkanIndexBuffer::VulkanIndexBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize) : mDevice(vulkanDevice), mBufferSize(bufferSize) {
+
     }
 
     VulkanIndexBuffer::~VulkanIndexBuffer() {
@@ -29,27 +27,53 @@ namespace engine {
         return mIndexBufferMemory;
     }
 
-    void VulkanIndexBuffer::update(void *data, size_t size) {
+    uint32_t VulkanIndexBuffer::getIndicesCount() const {
+        return mIndicesCount;
+    }
+
+
+    DirectlyTransferIndexBuffer::DirectlyTransferIndexBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize)
+            : VulkanIndexBuffer(vulkanDevice, bufferSize) {
+        std::tie(mIndexBuffer, mIndexBufferMemory) = VulkanUtil::createBuffer(vulkanDevice, bufferSize,
+                                                                              vk::BufferUsageFlagBits::eVertexBuffer,
+                                                                              vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
+    }
+
+    void DirectlyTransferIndexBuffer::update(std::vector<uint32_t> indices) {
+        size_t size = indices.size() * sizeof(uint32_t);
+        mIndicesCount = indices.size();
+
         vk::Device device = mDevice.getDevice();
         void *mapped;
         CALL_VK_CPP(device.mapMemory(mIndexBufferMemory, 0, size, vk::MemoryMapFlags{}, &mapped));
-        memcpy(mapped, data, size);
+        memcpy(mapped, indices.data(), size);
         device.unmapMemory(mIndexBufferMemory);
     }
 
-    void VulkanIndexBuffer::updateByStageBuffer(const VulkanCommandPool &commandPool, const void *indices, vk::DeviceSize bufferSize) {
+
+    StagingTransferIndexBuffer::StagingTransferIndexBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &vulkanCommandPool, vk::DeviceSize bufferSize)
+            : VulkanIndexBuffer(vulkanDevice, bufferSize), mCommandPool(vulkanCommandPool) {
+        std::tie(mIndexBuffer, mIndexBufferMemory) = VulkanUtil::createBuffer(vulkanDevice, bufferSize,
+                                                                              vk::BufferUsageFlagBits::eTransferDst | vk::BufferUsageFlagBits::eIndexBuffer,
+                                                                              vk::MemoryPropertyFlagBits::eDeviceLocal);
+    }
+
+    void StagingTransferIndexBuffer::update(std::vector<uint32_t> indices) {
+        size_t size = indices.size() * sizeof(uint32_t);
+        mIndicesCount = indices.size();
+
         vk::Device device = mDevice.getDevice();
 
-        auto [stagingBuffer, stagingBufferMemory] = VulkanUtil::createBuffer(mDevice, bufferSize, vk::BufferUsageFlagBits::eTransferSrc,
+        auto [stagingBuffer, stagingBufferMemory] = VulkanUtil::createBuffer(mDevice, size, vk::BufferUsageFlagBits::eTransferSrc,
                                                                              vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-        void *data = device.mapMemory(stagingBufferMemory, 0, bufferSize, vk::MemoryMapFlags{});
+        void *data = device.mapMemory(stagingBufferMemory, 0, size, vk::MemoryMapFlags{});
         {
-            memcpy(data, indices, (size_t) bufferSize);
+            memcpy(data, indices.data(), size);
         }
         device.unmapMemory(stagingBufferMemory);
 
-        commandPool.submitOneTimeCommand([&](const vk::CommandBuffer &commandBuffer) {
-            VulkanUtil::recordCopyBufferCommand(commandBuffer, stagingBuffer, mIndexBuffer, bufferSize);
+        mCommandPool.submitOneTimeCommand([&](const vk::CommandBuffer &commandBuffer) {
+            VulkanUtil::recordCopyBufferCommand(commandBuffer, stagingBuffer, mIndexBuffer, size);
         });
 
         device.destroy(stagingBuffer);

@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/16.
 //
 
-#ifndef VULKANDEMO_VULKANENGINE_H
-#define VULKANDEMO_VULKANENGINE_H
+#pragma once
 
 #include <vector>
 
@@ -27,12 +26,9 @@ namespace engine {
 
     class VulkanEngine {
     public:
-        bool mInitialized = false;
         bool mFrameBufferResized = false;
-        const int MAX_FRAMES_IN_FLIGHT = 2;
+        const int mFrameCount = 2;
         uint32_t mCurrentFrame = 0;
-        std::vector<app::Vertex> mVertices;
-        std::vector<uint32_t> mIndices;
 
         const std::array<float, 4> mClearColor = {0.2f, 0.4f, 0.6f, 1.0f};
         const std::array<float, 4> mDepthStencil = {1.0f, 0, 0, 0};
@@ -48,7 +44,10 @@ namespace engine {
         std::unique_ptr<VulkanCommandPool> mCommandPool;
         std::unique_ptr<VulkanFrameBuffer> mFrameBuffer;
 
-        std::unique_ptr<VulkanVertexBuffer> mVertexBuffer;
+        std::vector<std::unique_ptr<VulkanVertexBuffer>> mVulkanVertexBuffers;
+        std::vector<vk::Buffer> mVertexBuffers;
+        std::vector<vk::DeviceSize> mVertexBufferOffsets;
+
         std::unique_ptr<VulkanIndexBuffer> mIndexBuffer;
 
         std::vector<VulkanUniformBuffer> mTransformUniformBuffers;
@@ -59,7 +58,7 @@ namespace engine {
     public:
         explicit VulkanEngine(const std::vector<const char *> &instanceExtensions,
                               const std::vector<const char *> &layers,
-                              int framesInFlight = 2);
+                              int frameCount = 2);
 
         ~VulkanEngine();
 
@@ -76,21 +75,25 @@ namespace engine {
                         const std::vector<char> &vertexShaderCode,
                         const std::vector<char> &fragmentShaderCode);
 
-        // delete vulkan device context when application goes away
-        void deleteVulkan();
-
-        // Check if vulkan is ready to draw
-        [[nodiscard]]
-        bool isVulkanReady() const;
-
-        // Ask Vulkan to Render a frame
         void drawFrame();
 
-        void UpdateColor(float r, float g, float b);
+        void createDirectlyTransferVertexBuffer(size_t size);
 
+        void createStagingTransferVertexBuffer(size_t size);
+
+        void updateVertexBuffer(const void *data, size_t size);
+
+        template<typename T>
+        void updateVertexBuffer(const std::vector<T> &data);
+
+        void createDirectlyTransferIndexBuffer(size_t size);
+
+        void createStagingTransferIndexBuffer(size_t size);
+
+        void updateIndexBuffer(std::vector<uint32_t> indices) const;
+
+    private:
         void recreateSwapChain();
     };
 
 } // engine
-
-#endif //VULKANDEMO_VULKANENGINE_H

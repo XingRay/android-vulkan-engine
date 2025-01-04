@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/26.
 //
 
-#ifndef VULKANDEMO_VULKANRENDERPASS_H
-#define VULKANDEMO_VULKANRENDERPASS_H
+#pragma once
 
 #include "vulkan/vulkan.hpp"
 
@@ -32,5 +31,3 @@ namespace engine {
                                               vk::FormatFeatureFlags features);
     };
 }
-
-#endif //VULKANDEMO_VULKANRENDERPASS_H

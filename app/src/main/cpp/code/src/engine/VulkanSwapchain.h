@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/24.
 //
 
-#ifndef VULKANDEMO_VULKANSWAPCHAIN_H
-#define VULKANDEMO_VULKANSWAPCHAIN_H
+#pragma once
 
 #include "vulkan/vulkan.hpp"
 #include "VulkanDevice.h"
@@ -58,6 +57,3 @@ namespace engine {
         static vk::Extent2D chooseSwapExtent(const vk::SurfaceCapabilitiesKHR &capability, uint32_t width, uint32_t height);
     };
 }
-
-
-#endif //VULKANDEMO_VULKANSWAPCHAIN_H

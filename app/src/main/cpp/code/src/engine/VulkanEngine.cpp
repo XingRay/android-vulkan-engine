@@ -7,20 +7,13 @@
 #include "VkCheck.h"
 #include "Log.h"
 #include <cassert>
+#include <utility>
 
 
 namespace engine {
 
-    VulkanEngine::VulkanEngine(const std::vector<const char *> &instanceExtensions, const std::vector<const char *> &layers, int framesInFlight) : mInitialized(false),
-                                                                                                                                                   MAX_FRAMES_IN_FLIGHT(framesInFlight) {
-        mVertices = {
-                {{0.0f,  -0.5f, 0.0f}},  // Bottom vertex
-                {{0.5f,  0.5f,  0.0f}},  // Right vertex
-                {{-0.5f, 0.5f,  0.0f}}   // Left vertex
-        };
-
-        mIndices = {0, 2, 1, 0, 1, 2};
-
+    VulkanEngine::VulkanEngine(const std::vector<const char *> &instanceExtensions, const std::vector<const char *> &layers, int frameCount)
+            : mFrameCount(frameCount) {
         mInstance = std::make_unique<VulkanInstance>(instanceExtensions, layers);
     }
 
@@ -33,8 +26,9 @@ namespace engine {
 
         mColorUniformBuffers.clear();
         mTransformUniformBuffers.clear();
+
         mIndexBuffer.reset();
-        mVertexBuffer.reset();
+        mVertexBuffers.clear();
         mFrameBuffer.reset();
 
         mPipeline.reset();
@@ -84,7 +78,7 @@ namespace engine {
 //            colorUniformBuffers.push_back(mColorUniformBuffers.back().getUniformBuffer());
 //        }
 
-        mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, MAX_FRAMES_IN_FLIGHT
+        mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount
                 /*transformUniformBuffers, sizeof(app::TransformUniformBufferObject),
                 colorUniformBuffers, sizeof(app::ColorUniformBufferObject)*/);
 
@@ -102,33 +96,22 @@ namespace engine {
         device.destroy(vertexModule);
         device.destroy(fragmentModule);
 
-        mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, MAX_FRAMES_IN_FLIGHT);
+        mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, mFrameCount);
         mFrameBuffer = std::make_unique<VulkanFrameBuffer>(*mDevice, *mSwapchain, *mRenderPass, *mCommandPool);
 
-        uint32_t vertexSize = sizeof(mVertices[0]) * mVertices.size();
-        mVertexBuffer = std::make_unique<VulkanVertexBuffer>(*mDevice, vertexSize);
-        mVertexBuffer->updateByStageBuffer(*mCommandPool, mVertices.data(), vertexSize);
+//        uint32_t vertexSize = sizeof(mVertices[0]) * mVertices.size();
+//        mVertexBuffer = std::make_unique<VulkanVertexBuffer>(*mDevice, vertexSize);
+//        mVertexBuffer->updateByStageBuffer(*mCommandPool, mVertices.data(), vertexSize);
 //        mVertexBuffer->update(&mVertices, vertexSize);
 
-        uint32_t indicesSize = sizeof(uint32_t) * mIndices.size();
-        mIndexBuffer = std::make_unique<VulkanIndexBuffer>(*mDevice, indicesSize);
-        mIndexBuffer->updateByStageBuffer(*mCommandPool, mIndices.data(), indicesSize);
+//        uint32_t indicesSize = sizeof(uint32_t) * mIndices.size();
+//        mIndexBuffer = std::make_unique<VulkanIndexBuffer>(*mDevice, indicesSize);
+//        mIndexBuffer->updateByStageBuffer(*mCommandPool, mIndices.data(), indicesSize);
 //        mIndexBuffer->update(&mIndices, indicesSize);
 
-        mSyncObject = std::make_unique<VulkanSyncObject>(*mDevice, MAX_FRAMES_IN_FLIGHT);
+        mSyncObject = std::make_unique<VulkanSyncObject>(*mDevice, mFrameCount);
 
-        mInitialized = true;
         return true;
-    }
-
-
-    bool VulkanEngine::isVulkanReady() const {
-        return mInitialized;
-    }
-
-
-    void VulkanEngine::deleteVulkan() {
-        mInitialized = false;
     }
 
 
@@ -169,15 +152,11 @@ namespace engine {
                                                 mClearColor,
                                                 mDepthStencil,
                                                 [&](vk::CommandBuffer commandBuffer) -> void {
-                                                    vk::Buffer vertexBuffers[] = {mVertexBuffer->getVertexBuffer()};
-                                                    vk::DeviceSize offsets[] = {0};
-//                                                    LOG_D("commandBuffer.bindVertexBuffers");
-                                                    commandBuffer.bindVertexBuffers(0, vertexBuffers, offsets);
-//                                                    LOG_D("commandBuffer.bindIndexBuffer");
+                                                    commandBuffer.bindVertexBuffers(0, mVertexBuffers, mVertexBufferOffsets);
                                                     commandBuffer.bindIndexBuffer(mIndexBuffer->getIndexBuffer(), 0, vk::IndexType::eUint32);
                                                     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipeline->getPipelineLayout(), 0,
                                                                                      {mDescriptorSet->getDescriptorSets()[mCurrentFrame]}, nullptr);
-                                                    commandBuffer.drawIndexed(mIndices.size(), 1, 0, 0, 0);
+                                                    commandBuffer.drawIndexed(mIndexBuffer->getIndicesCount(), 1, 0, 0, 0);
                                                 });
 
         result = mSyncObject->resetFence(mCurrentFrame);
@@ -228,13 +207,44 @@ namespace engine {
             }
         }
 
-        mCurrentFrame = (mCurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
     }
 
-    void VulkanEngine::UpdateColor(float r, float g, float b) {
-//        bufferInfo.uniformObject.color.r = r;
-//        bufferInfo.uniformObject.color.g = g;
-//        bufferInfo.uniformObject.color.b = b;
+    void VulkanEngine::createDirectlyTransferVertexBuffer(size_t size) {
+        std::unique_ptr<DirectlyTransferVertexBuffer> vertexBuffer = std::make_unique<DirectlyTransferVertexBuffer>(*mDevice, size);
+        mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
+        mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getVertexBuffer());
+        mVertexBufferOffsets.push_back(0);
+    }
+
+    void VulkanEngine::createStagingTransferVertexBuffer(size_t size) {
+        std::unique_ptr<StagingTransferVertexBuffer> vertexBuffer = std::make_unique<StagingTransferVertexBuffer>(*mDevice, *mCommandPool, size);
+        mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
+        mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getVertexBuffer());
+        mVertexBufferOffsets.push_back(0);
+    }
+
+    void VulkanEngine::updateVertexBuffer(const void *data, size_t size) {
+        mVulkanVertexBuffers[0]->update(data, size);
+    }
+
+    template<typename T>
+    void VulkanEngine::updateVertexBuffer(const std::vector<T> &data) {
+        mVulkanVertexBuffers[0]->update(data);
+    }
+
+    void VulkanEngine::createDirectlyTransferIndexBuffer(size_t size) {
+        mIndexBuffer.reset();
+        mIndexBuffer = std::make_unique<DirectlyTransferIndexBuffer>(*mDevice, size);
+    }
+
+    void VulkanEngine::createStagingTransferIndexBuffer(size_t size) {
+        mIndexBuffer.reset();
+        mIndexBuffer = std::make_unique<StagingTransferIndexBuffer>(*mDevice, *mCommandPool, size);
+    }
+
+    void VulkanEngine::updateIndexBuffer(std::vector<uint32_t> indices) const {
+        mIndexBuffer->update(std::move(indices));
     }
 
     void VulkanEngine::recreateSwapChain() {

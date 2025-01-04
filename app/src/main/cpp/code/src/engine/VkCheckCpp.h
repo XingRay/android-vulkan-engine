@@ -2,9 +2,7 @@
 // Created by leixing on 2024/12/17.
 //
 
-#ifndef VULKANDEMO_VKCHECKCPP_H
-#define VULKANDEMO_VKCHECKCPP_H
-
+#pragma once
 
 #include <stdexcept>
 #include <vulkan/vulkan.hpp>
@@ -20,6 +18,3 @@ inline void CallVulkan(const vk::Result& result, const char* file, int line) {
 
 // 宏用于自动传递文件名和行号
 #define CALL_VK_CPP(func) CallVulkan((func), __FILE__, __LINE__)
-
-
-#endif //VULKANDEMO_VKCHECKCPP_H

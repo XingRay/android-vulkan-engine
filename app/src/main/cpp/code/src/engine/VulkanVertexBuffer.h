@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/30.
 //
 
-#ifndef VULKANDEMO_VULKANVERTEXBUFFER_H
-#define VULKANDEMO_VULKANVERTEXBUFFER_H
+#pragma once
 
 #include "vulkan/vulkan.hpp"
 #include "VulkanDevice.h"
@@ -12,15 +11,16 @@
 namespace engine {
 
     class VulkanVertexBuffer {
-    private:
+    protected:
         const VulkanDevice &mDevice;
         vk::Buffer mVertexBuffer;
         vk::DeviceMemory mVertexBufferMemory;
+        vk::DeviceSize mBufferSize;
 
     public:
         VulkanVertexBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize);
 
-        ~VulkanVertexBuffer();
+        virtual ~VulkanVertexBuffer();
 
         [[nodiscard]]
         const vk::Buffer &getVertexBuffer() const;
@@ -28,12 +28,36 @@ namespace engine {
         [[nodiscard]]
         const vk::DeviceMemory &getVertexBufferMemory() const;
 
-        void update(void *data, size_t size);
+        virtual void update(const void *data, size_t size) = 0;
 
-        void updateByStageBuffer(const VulkanCommandPool &commandPool, const void* vertices, vk::DeviceSize bufferSize);
-
+        // 需要传入任意类型的 vector，可以是 std::vector<T> 或其他类型
+        template<typename T>
+        void update(const std::vector<T> &data) {
+            // 检查数据类型是否满足要求 (例如可以确保传入的是简单类型或者特殊类型)
+            static_assert(std::is_trivially_copyable<T>::value, "T must be trivially copyable");
+            update(data.data(), sizeof(T) * data.size());
+        }
     };
 
-} // engine
 
-#endif //VULKANDEMO_VULKANVERTEXBUFFER_H
+    // Direct transfer vertex buffer
+    class DirectlyTransferVertexBuffer : public VulkanVertexBuffer {
+    public:
+        DirectlyTransferVertexBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize);
+
+        void update(const void *data, size_t size) override;
+    };
+
+
+    // Staging transfer vertex buffer
+    class StagingTransferVertexBuffer : public VulkanVertexBuffer {
+    private:
+        const VulkanCommandPool &mCommandPool;
+    public:
+        StagingTransferVertexBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &vulkanCommandPool, vk::DeviceSize bufferSize);
+
+        void update(const void *data, size_t size) override;
+    };
+
+
+} // engine

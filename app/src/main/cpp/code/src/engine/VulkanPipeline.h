@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/28.
 //
 
-#ifndef VULKANDEMO_VULKANPIPELINE_H
-#define VULKANDEMO_VULKANPIPELINE_H
+#pragma once
 
 #include "vulkan/vulkan.hpp"
 #include "VulkanDevice.h"
@@ -31,11 +30,11 @@ namespace engine {
 
         ~VulkanPipeline();
 
+        [[nodiscard]]
         const vk::Pipeline &getPipeline() const;
 
+        [[nodiscard]]
         const vk::PipelineLayout &getPipelineLayout() const;
     };
 
 } // engine
-
-#endif //VULKANDEMO_VULKANPIPELINE_H

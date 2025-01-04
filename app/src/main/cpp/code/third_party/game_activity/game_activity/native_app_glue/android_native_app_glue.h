@@ -27,7 +27,7 @@
 #include <poll.h>
 #include <pthread.h>
 #include <sched.h>
-#include "engine/VulkanEngine.h"
+#include "test/TestBase.h"
 
 #include "../GameActivity.h"
 
@@ -276,7 +276,7 @@ struct android_app {
 
 	/** @endcond */
 
-    engine::VulkanEngine* vulkanEngine;
+    test::TestBase* test;
 };
 
 /**

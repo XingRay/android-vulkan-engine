@@ -43,7 +43,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         "code/include"
         "code/src"
         "code/src/engine"
-        "code/src/android"
         "code/third_party/game_activity"
 
         # vulkan

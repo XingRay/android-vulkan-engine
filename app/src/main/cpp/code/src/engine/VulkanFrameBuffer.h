@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/31.
 //
 
-#ifndef VULKANDEMO_VULKANFRAMEBUFFER_H
-#define VULKANDEMO_VULKANFRAMEBUFFER_H
+#pragma once
 
 #include "vulkan/vulkan.hpp"
 #include "VulkanDevice.h"
@@ -52,5 +51,3 @@ namespace engine {
     };
 
 } // engine
-
-#endif //VULKANDEMO_VULKANFRAMEBUFFER_H

@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/31.
 //
 
-#ifndef VULKANDEMO_VULKANUNIFORMBUFFER_H
-#define VULKANDEMO_VULKANUNIFORMBUFFER_H
+#pragma once
 
 #include "vulkan/vulkan.hpp"
 #include "VulkanDevice.h"
@@ -35,5 +34,3 @@ namespace engine {
     };
 
 } // engine
-
-#endif //VULKANDEMO_VULKANUNIFORMBUFFER_H

@@ -2,8 +2,7 @@
 // Created by leixing on 2024/12/30.
 //
 
-#ifndef VULKANDEMO_VULKANCOMMANDPOOL_H
-#define VULKANDEMO_VULKANCOMMANDPOOL_H
+#pragma once
 
 #include "vulkan/vulkan.hpp"
 #include "VulkanDevice.h"
@@ -51,5 +50,3 @@ namespace engine {
     };
 
 } // engine
-
-#endif //VULKANDEMO_VULKANCOMMANDPOOL_H
