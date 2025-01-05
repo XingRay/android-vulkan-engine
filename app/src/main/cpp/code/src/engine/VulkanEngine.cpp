@@ -52,7 +52,7 @@ namespace engine {
     bool VulkanEngine::initVulkan(std::unique_ptr<VulkanSurface> &vulkanSurface,
                                   const std::vector<const char *> &deviceExtensions,
                                   const std::unique_ptr<VulkanVertexShader> &vertexShader,
-                                  const std::vector<char> &fragmentShaderCode) {
+                                  const std::unique_ptr<VulkanFragmentShader> &fragmentShader) {
 
         mSurface = std::move(vulkanSurface);
         mDevice = std::make_unique<VulkanDevice>(mInstance->getInstance(), mSurface->getSurface(), mInstance->getEnabledLayers(), deviceExtensions);
@@ -69,7 +69,7 @@ namespace engine {
                 colorUniformBuffers, sizeof(app::ColorUniformBufferObject)*/);
 
         vk::ShaderModule vertexModule = mDevice->createShaderModule(vertexShader->getShaderCode());
-        vk::ShaderModule fragmentModule = mDevice->createShaderModule(fragmentShaderCode);
+        vk::ShaderModule fragmentModule = mDevice->createShaderModule(fragmentShader->getShaderCode());
 
         mPipeline = std::make_unique<VulkanPipeline>(*mDevice, *mSwapchain, *mDescriptorSet, *mRenderPass,
                                                      vertexModule, fragmentModule,
@@ -207,12 +207,21 @@ namespace engine {
     }
 
     void VulkanEngine::updateVertexBuffer(const void *data, size_t size) {
-        mVulkanVertexBuffers[0]->update(data, size);
+        updateVertexBuffer(0, data, size);
     }
 
-    template<typename T>
-    void VulkanEngine::updateVertexBuffer(const std::vector<T> &data) {
-        mVulkanVertexBuffers[0]->update(data);
+    void VulkanEngine::updateVertexBuffer(uint32_t index, const void *data, size_t size) {
+        if (index >= mVulkanVertexBuffers.size()) {
+            LOG_E("index out of range, index:%d, size:%zu", index, mVulkanVertexBuffers.size());
+
+            // Format the error message using std::to_string
+            std::string errorMessage = "updateVertexBuffer: index out of range, index:" +
+                                       std::to_string(index) +
+                                       ", size:" +
+                                       std::to_string(mVulkanVertexBuffers.size());
+            throw std::runtime_error(errorMessage);
+        }
+        mVulkanVertexBuffers[index]->update(data, size);
     }
 
     void VulkanEngine::createDirectlyTransferIndexBuffer(size_t size) {

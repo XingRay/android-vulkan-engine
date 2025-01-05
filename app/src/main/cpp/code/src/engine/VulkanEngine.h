@@ -20,8 +20,7 @@
 #include "VulkanSyncObject.h"
 #include "VulkanFrameBuffer.h"
 #include "VulkanVertexShader.h"
-
-#include "ShaderData.h"
+#include "VulkanFragmentShader.h"
 
 namespace engine {
 
@@ -73,8 +72,8 @@ namespace engine {
         // after return, vulkan is ready to draw
         bool initVulkan(std::unique_ptr<VulkanSurface> &vulkanSurface,
                         const std::vector<const char *> &deviceExtensions,
-                        const std::unique_ptr<VulkanVertexShader>& vertexShader,
-                        const std::vector<char> &fragmentShaderCode);
+                        const std::unique_ptr<VulkanVertexShader> &vertexShader,
+                        const std::unique_ptr<VulkanFragmentShader> &fragmentShader);
 
         void drawFrame();
 
@@ -84,8 +83,27 @@ namespace engine {
 
         void updateVertexBuffer(const void *data, size_t size);
 
+        void updateVertexBuffer(uint32_t index, const void *data, size_t size);
+
         template<typename T>
-        void updateVertexBuffer(const std::vector<T> &data);
+        void updateVertexBuffer(const std::vector<T> &data) {
+            updateVertexBuffer(0, data);
+        }
+
+        template<typename T>
+        void updateVertexBuffer(uint32_t index, const std::vector<T> &data) {
+            if (index >= mVulkanVertexBuffers.size()) {
+                LOG_E("index out of range, index:%d, size:%zu", index, mVulkanVertexBuffers.size());
+
+                // Format the error message using std::to_string
+                std::string errorMessage = "updateVertexBuffer: index out of range, index:" +
+                                           std::to_string(index) +
+                                           ", size:" +
+                                           std::to_string(mVulkanVertexBuffers.size());
+                throw std::runtime_error(errorMessage);
+            }
+            mVulkanVertexBuffers[index]->update(data);
+        }
 
         void createDirectlyTransferIndexBuffer(size_t size);
 

@@ -5,4 +5,17 @@
 #include "VulkanFragmentShader.h"
 
 namespace engine {
+
+    VulkanFragmentShader::VulkanFragmentShader(std::vector<char> code) {
+        mCode = code;
+    }
+
+    VulkanFragmentShader::~VulkanFragmentShader() {
+
+    }
+
+    const std::vector<char> &VulkanFragmentShader::getShaderCode() const {
+        return mCode;
+    }
+
 } // engine

@@ -5,7 +5,6 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
-#include "VulkanDevice.h"
 #include "ShaderFormat.h"
 
 /**

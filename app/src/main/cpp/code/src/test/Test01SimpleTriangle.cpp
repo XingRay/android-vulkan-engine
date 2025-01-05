@@ -4,7 +4,6 @@
 
 #include "Test01SimpleTriangle.h"
 #include "FileUtil.h"
-#include "VulkanVertexShader.h"
 
 namespace test {
 
@@ -36,7 +35,7 @@ namespace test {
                 VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 
-        std::vector<app::Vertex> mVertices;
+        std::vector<Vertex> mVertices;
         std::vector<uint32_t> mIndices;
 
         mVertices = {
@@ -49,18 +48,20 @@ namespace test {
 
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.vert.spv");
         std::unique_ptr<engine::VulkanVertexShader> vertexShader = std::make_unique<engine::VulkanVertexShader>(vertexShaderCode);
-        vertexShader->addVertexBinding(sizeof(app::Vertex))
+        vertexShader->addVertexBinding(sizeof(Vertex))
 //                .addVertexAttribute(vk::Format::eR32G32B32Sfloat);
                 .addVertexAttribute(ShaderFormat::Vec3);
 
-        std::vector<char> fragmentShader = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.frag.spv");
+        std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.frag.spv");
+        std::unique_ptr<engine::VulkanFragmentShader> fragmentShader = std::make_unique<engine::VulkanFragmentShader>(fragmentShaderCode);
 
         std::unique_ptr<engine::VulkanSurface> surface = std::make_unique<engine::AndroidVulkanSurface>(mVulkanEngine->getVKInstance(), mApp.window);
         mVulkanEngine->initVulkan(surface, deviceExtensions, vertexShader, fragmentShader);
 
 //        mVulkanEngine->createDirectlyTransferVertexBuffer(mVertices.size() * sizeof(app::Vertex));
-        mVulkanEngine->createStagingTransferVertexBuffer(mVertices.size() * sizeof(app::Vertex));
-        mVulkanEngine->updateVertexBuffer(mVertices.data(), mVertices.size() * sizeof(app::Vertex));
+        mVulkanEngine->createStagingTransferVertexBuffer(mVertices.size() * sizeof(Vertex));
+//        mVulkanEngine->updateVertexBuffer(mVertices.data(), mVertices.size() * sizeof(Vertex));
+        mVulkanEngine->updateVertexBuffer(mVertices);
 
 //        mVulkanEngine->createDirectlyTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
         mVulkanEngine->createStagingTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
