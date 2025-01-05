@@ -4,7 +4,7 @@
 
 #include "Test01SimpleTriangle.h"
 #include "FileUtil.h"
-
+#include "VulkanVertexShader.h"
 
 namespace test {
 
@@ -47,7 +47,12 @@ namespace test {
 
         mIndices = {0, 1, 2};
 
-        std::vector<char> vertexShader = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.vert.spv");
+        std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.vert.spv");
+        std::unique_ptr<engine::VulkanVertexShader> vertexShader = std::make_unique<engine::VulkanVertexShader>(vertexShaderCode);
+        vertexShader->addVertexBinding(sizeof(app::Vertex))
+//                .addVertexAttribute(vk::Format::eR32G32B32Sfloat);
+                .addVertexAttribute(ShaderFormat::Vec3);
+
         std::vector<char> fragmentShader = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.frag.spv");
 
         std::unique_ptr<engine::VulkanSurface> surface = std::make_unique<engine::AndroidVulkanSurface>(mVulkanEngine->getVKInstance(), mApp.window);
@@ -58,7 +63,7 @@ namespace test {
         mVulkanEngine->updateVertexBuffer(mVertices.data(), mVertices.size() * sizeof(app::Vertex));
 
 //        mVulkanEngine->createDirectlyTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
-        mVulkanEngine->createStagingTransferVertexBuffer(mIndices.size() * sizeof(uint32_t));
+        mVulkanEngine->createStagingTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
         mVulkanEngine->updateIndexBuffer(mIndices);
     }
 

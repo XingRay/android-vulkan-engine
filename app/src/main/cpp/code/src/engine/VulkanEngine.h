@@ -19,6 +19,7 @@
 #include "VulkanUniformBuffer.h"
 #include "VulkanSyncObject.h"
 #include "VulkanFrameBuffer.h"
+#include "VulkanVertexShader.h"
 
 #include "ShaderData.h"
 
@@ -72,7 +73,7 @@ namespace engine {
         // after return, vulkan is ready to draw
         bool initVulkan(std::unique_ptr<VulkanSurface> &vulkanSurface,
                         const std::vector<const char *> &deviceExtensions,
-                        const std::vector<char> &vertexShaderCode,
+                        const std::unique_ptr<VulkanVertexShader>& vertexShader,
                         const std::vector<char> &fragmentShaderCode);
 
         void drawFrame();

@@ -10,27 +10,7 @@
 
 namespace app {
     struct Vertex {
-        glm::vec3 pos; // 对应顶点位置属性 inPosition
-
-        // 返回顶点输入绑定和属性描述，供 Vulkan Pipeline 使用
-        static vk::VertexInputBindingDescription getBindingDescription() {
-            vk::VertexInputBindingDescription bindingDescription{};
-            bindingDescription.binding = 0; // 顶点绑定点
-            bindingDescription.stride = sizeof(Vertex); // 每个顶点的步长
-            bindingDescription.inputRate = vk::VertexInputRate::eVertex; // 按顶点输入
-            return bindingDescription;
-        }
-
-        static vk::VertexInputAttributeDescription getAttributeDescription() {
-            // 位置属性
-            vk::VertexInputAttributeDescription attributeDescription{};
-            attributeDescription.binding = 0; // 绑定点 0
-            attributeDescription.location = 0; // 对应顶点着色器的 layout(location = 0)
-            attributeDescription.format = vk::Format::eR32G32B32Sfloat; // 位置为 vec3
-            attributeDescription.offset = offsetof(Vertex, pos); // 偏移量为顶点结构体中位置的偏移
-
-            return attributeDescription;
-        }
+        glm::vec3 pos;
     };
 
     struct TransformUniformBufferObject {

@@ -51,7 +51,7 @@ namespace engine {
 
     bool VulkanEngine::initVulkan(std::unique_ptr<VulkanSurface> &vulkanSurface,
                                   const std::vector<const char *> &deviceExtensions,
-                                  const std::vector<char> &vertexShaderCode,
+                                  const std::unique_ptr<VulkanVertexShader> &vertexShader,
                                   const std::vector<char> &fragmentShaderCode) {
 
         mSurface = std::move(vulkanSurface);
@@ -64,35 +64,17 @@ namespace engine {
 
         mRenderPass = std::make_unique<VulkanRenderPass>(*mDevice, *mSwapchain);
 
-//        LOG_D("transformUniformBuffers and colorUniformBuffers");
-//        std::vector<vk::Buffer> transformUniformBuffers;
-//        std::vector<vk::Buffer> colorUniformBuffers;
-//
-//        for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
-//            // 创建 TransformUniformBufferObject
-//            mTransformUniformBuffers.push_back(VulkanUniformBuffer(*mDevice, sizeof(app::TransformUniformBufferObject)));
-//            transformUniformBuffers.push_back(mTransformUniformBuffers.back().getUniformBuffer());
-//
-//            // 创建 ColorUniformBufferObject
-//            mColorUniformBuffers.push_back(VulkanUniformBuffer(*mDevice, sizeof(app::ColorUniformBufferObject)));
-//            colorUniformBuffers.push_back(mColorUniformBuffers.back().getUniformBuffer());
-//        }
-
         mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount
                 /*transformUniformBuffers, sizeof(app::TransformUniformBufferObject),
                 colorUniformBuffers, sizeof(app::ColorUniformBufferObject)*/);
 
-        std::vector<vk::VertexInputBindingDescription> vertexDescriptions;
-        vertexDescriptions.push_back(app::Vertex::getBindingDescription());
-        std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions;
-        vertexInputAttributeDescriptions.push_back(app::Vertex::getAttributeDescription());
-
-        vk::ShaderModule vertexModule = mDevice->createShaderModule(vertexShaderCode);
+        vk::ShaderModule vertexModule = mDevice->createShaderModule(vertexShader->getShaderCode());
         vk::ShaderModule fragmentModule = mDevice->createShaderModule(fragmentShaderCode);
 
         mPipeline = std::make_unique<VulkanPipeline>(*mDevice, *mSwapchain, *mDescriptorSet, *mRenderPass,
                                                      vertexModule, fragmentModule,
-                                                     vertexDescriptions, vertexInputAttributeDescriptions);
+                                                     vertexShader->getVertexDescriptions(),
+                                                     vertexShader->getVertexInputAttributeDescriptions());
         device.destroy(vertexModule);
         device.destroy(fragmentModule);
 

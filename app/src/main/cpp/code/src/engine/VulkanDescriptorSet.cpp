@@ -40,7 +40,7 @@ namespace engine {
                 .setMaxSets(frameCount)
 //            .setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
 //                .setFlags(vk::DescriptorPoolCreateFlags{});
-                .setFlags(static_cast<vk::DescriptorPoolCreateFlags>(0));
+                .setFlags(vk::DescriptorPoolCreateFlags{});
 
         mDescriptorPool = mDevice.getDevice().createDescriptorPool(descriptorPoolCreateInfo);
 
