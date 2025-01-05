@@ -20,6 +20,7 @@
 #include "Log.h"
 #include "test/Test01SimpleTriangle.h"
 #include "test/Test02SingleColorTriangle.h"
+#include "test/Test03ColoredTriangle.h"
 
 
 void handle_cmd(android_app *app, int32_t cmd) {
@@ -28,7 +29,8 @@ void handle_cmd(android_app *app, int32_t cmd) {
     switch (cmd) {
         case APP_CMD_INIT_WINDOW: {
 //            app->test = new test01::Test01SimpleTriangle(*app, "Test01SimpleTriangle");
-            app->test = new test02::Test02SingleColorTriangle(*app, "Test02SingleColorTriangle");
+//            app->test = new test02::Test02SingleColorTriangle(*app, "Test02SingleColorTriangle");
+            app->test = new test03::Test03ColoredTriangle(*app, "Test02SingleColorTriangle");
             app->test->init();
         }
             break;

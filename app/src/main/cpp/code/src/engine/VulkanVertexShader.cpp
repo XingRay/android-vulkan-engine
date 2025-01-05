@@ -3,6 +3,7 @@
 //
 
 #include "VulkanVertexShader.h"
+#include "Log.h"
 
 namespace engine {
 
@@ -44,6 +45,7 @@ namespace engine {
     const std::vector<uint32_t> &VulkanVertexShader::getUniformSizes() const {
         return mUniformSizes;
     }
+
     /**
      *
      *              Getters end
@@ -86,11 +88,13 @@ namespace engine {
     VulkanVertexShader &VulkanVertexShader::addVertexAttribute(uint32_t location, vk::Format format, uint32_t offset, uint32_t binding) {
         mCurrentVertexLocation = location;
 
+        LOG_D("attributeDescription, location:%d, format:%d, offset:%d, binding:%d", location, format, offset, binding);
         vk::VertexInputAttributeDescription attributeDescription{};
-        attributeDescription.binding = binding;
-        attributeDescription.location = location;
-        attributeDescription.format = format;
-        attributeDescription.offset = offset;
+        attributeDescription
+                .setLocation(location)
+                .setFormat(format)
+                .setOffset(offset)
+                .setBinding(binding);
 
         mVertexInputAttributeDescriptions.push_back(attributeDescription);
 

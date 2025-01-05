@@ -6,7 +6,7 @@ todo list
 
 01 simple triangle (vertex buffer / index buffer) (done)
 
-02 single color filled triangle (uniform buffer)
+02 single color filled triangle (uniform buffer) (done)
 
 03 colored triangle (vertex buffer with multiple attributes)
 
