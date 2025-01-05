@@ -24,8 +24,7 @@ namespace engine {
 
         mSyncObject.reset();
 
-        mColorUniformBuffers.clear();
-        mTransformUniformBuffers.clear();
+        mUniformBuffers.clear();
 
         mIndexBuffer.reset();
         mVertexBuffers.clear();
@@ -64,9 +63,17 @@ namespace engine {
 
         mRenderPass = std::make_unique<VulkanRenderPass>(*mDevice, *mSwapchain);
 
-        mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount
-                /*transformUniformBuffers, sizeof(app::TransformUniformBufferObject),
-                colorUniformBuffers, sizeof(app::ColorUniformBufferObject)*/);
+        const std::vector<uint32_t> &uniformSizes = vertexShader->getUniformSizes();
+        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
+            std::vector<std::unique_ptr<VulkanUniformBuffer>> uniformBuffers;
+            for (unsigned int uniformSize: uniformSizes) {
+                uniformBuffers.push_back(std::make_unique<VulkanUniformBuffer>(*mDevice, uniformSize));
+            }
+            mUniformBuffers.push_back(std::move(uniformBuffers));
+        }
+
+
+        mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount, *vertexShader, *fragmentShader, mUniformBuffers);
 
         vk::ShaderModule vertexModule = mDevice->createShaderModule(vertexShader->getShaderCode());
         vk::ShaderModule fragmentModule = mDevice->createShaderModule(fragmentShader->getShaderCode());
@@ -80,16 +87,6 @@ namespace engine {
 
         mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, mFrameCount);
         mFrameBuffer = std::make_unique<VulkanFrameBuffer>(*mDevice, *mSwapchain, *mRenderPass, *mCommandPool);
-
-//        uint32_t vertexSize = sizeof(mVertices[0]) * mVertices.size();
-//        mVertexBuffer = std::make_unique<VulkanVertexBuffer>(*mDevice, vertexSize);
-//        mVertexBuffer->updateByStageBuffer(*mCommandPool, mVertices.data(), vertexSize);
-//        mVertexBuffer->update(&mVertices, vertexSize);
-
-//        uint32_t indicesSize = sizeof(uint32_t) * mIndices.size();
-//        mIndexBuffer = std::make_unique<VulkanIndexBuffer>(*mDevice, indicesSize);
-//        mIndexBuffer->updateByStageBuffer(*mCommandPool, mIndices.data(), indicesSize);
-//        mIndexBuffer->update(&mIndices, indicesSize);
 
         mSyncObject = std::make_unique<VulkanSyncObject>(*mDevice, mFrameCount);
 
@@ -236,6 +233,10 @@ namespace engine {
 
     void VulkanEngine::updateIndexBuffer(std::vector<uint32_t> indices) const {
         mIndexBuffer->update(std::move(indices));
+    }
+
+    void VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
+        mUniformBuffers[frameIndex][binding]->updateBuffer(data, size);
     }
 
     void VulkanEngine::recreateSwapChain() {

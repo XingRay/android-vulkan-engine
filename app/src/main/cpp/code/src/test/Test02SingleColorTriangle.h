@@ -13,14 +13,28 @@
 
 #include "glm.h"
 
-namespace test01 {
+namespace test02 {
 
     struct Vertex {
         glm::vec3 pos;
     };
 
-    class Test01SimpleTriangle : public test::TestBase {
+//    struct TransformUniformBufferObject {
+//        glm::mat4 model; // 模型矩阵
+//        glm::mat4 view;  // 视图矩阵
+//        glm::mat4 proj;  // 投影矩阵
+//    };
+//
+    struct ColorUniformBufferObject {
+        // 颜色数据
+        alignas(16) glm::vec3 color;
+    };
+
+
+    class Test02SingleColorTriangle : public test::TestBase {
     private:
+
+        const int mFrameCount = 2;
 
         const android_app &mApp;
 
@@ -28,7 +42,7 @@ namespace test01 {
 
     public:
         // 构造函数初始化基类 TestBase，并传递 name
-        explicit Test01SimpleTriangle(const android_app &app, const std::string &name);
+        explicit Test02SingleColorTriangle(const android_app &app, const std::string &name);
 
         // 初始化操作
         void init() override;

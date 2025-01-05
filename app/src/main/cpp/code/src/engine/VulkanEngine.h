@@ -50,8 +50,7 @@ namespace engine {
 
         std::unique_ptr<VulkanIndexBuffer> mIndexBuffer;
 
-        std::vector<VulkanUniformBuffer> mTransformUniformBuffers;
-        std::vector<VulkanUniformBuffer> mColorUniformBuffers;
+        std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>> mUniformBuffers;
 
         std::unique_ptr<VulkanSyncObject> mSyncObject;
 
@@ -110,6 +109,8 @@ namespace engine {
         void createStagingTransferIndexBuffer(size_t size);
 
         void updateIndexBuffer(std::vector<uint32_t> indices) const;
+
+        void updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void* data, uint32_t size);
 
     private:
         void recreateSwapChain();

@@ -33,12 +33,21 @@ namespace engine {
 
         std::vector<vk::VertexInputAttributeDescription> mVertexInputAttributeDescriptions;
 
-        uint32_t mCurrentBinding = -1;
+        uint32_t mCurrentVertexBinding = -1;
 
-        uint32_t mCurrentLocation = -1;
+        uint32_t mCurrentVertexLocation = -1;
+
+
+        std::vector<vk::DescriptorPoolSize> mUniformDescriptorPoolSizes;
+
+        std::vector<vk::DescriptorSetLayoutBinding> mUniformDescriptorSetLayoutBindings;
+
+        uint32_t mCurrentUniformBinding = -1;
+
+        std::vector<uint32_t> mUniformSizes;
 
     public:
-        explicit VulkanVertexShader(const std::vector<char> &code);
+        explicit VulkanVertexShader(std::vector<char> &code);
 
         ~VulkanVertexShader();
 
@@ -51,6 +60,15 @@ namespace engine {
         [[nodiscard]]
         const std::vector<vk::VertexInputAttributeDescription> &getVertexInputAttributeDescriptions() const;
 
+        [[nodiscard]]
+        const std::vector<vk::DescriptorPoolSize> &getUniformDescriptorPoolSizes() const;
+
+        [[nodiscard]]
+        const std::vector<vk::DescriptorSetLayoutBinding> &getUniformDescriptorSetLayoutBindings() const;
+
+        [[nodiscard]]
+        const std::vector<uint32_t> &getUniformSizes() const;
+
         VulkanVertexShader &addVertexBinding(uint32_t size);
 
         VulkanVertexShader &addVertexBinding(uint32_t size, uint32_t binding);
@@ -62,6 +80,10 @@ namespace engine {
         VulkanVertexShader &addVertexAttribute(uint32_t location, ShaderFormat format, uint32_t offset, uint32_t binding);
 
         VulkanVertexShader &addVertexAttribute(uint32_t location, vk::Format format, uint32_t offset, uint32_t binding);
+
+        VulkanVertexShader &addUniform(uint32_t size, uint32_t descriptorCount);
+
+        VulkanVertexShader &addUniform(uint32_t size, uint32_t descriptorCount, uint32_t uniformBinding);
     };
 
 } // engine

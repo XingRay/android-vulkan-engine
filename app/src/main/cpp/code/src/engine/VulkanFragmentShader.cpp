@@ -6,12 +6,12 @@
 
 namespace engine {
 
-    VulkanFragmentShader::VulkanFragmentShader(std::vector<char> code) {
-        mCode = code;
+    VulkanFragmentShader::VulkanFragmentShader(std::vector<char> &code) {
+        mCode = std::move(code);
     }
 
     VulkanFragmentShader::~VulkanFragmentShader() {
-
+        mCode.clear();
     }
 
     const std::vector<char> &VulkanFragmentShader::getShaderCode() const {

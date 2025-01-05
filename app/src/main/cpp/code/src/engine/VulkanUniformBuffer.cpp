@@ -7,19 +7,19 @@
 #include "Log.h"
 
 namespace engine {
-    VulkanUniformBuffer::VulkanUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize) : mDevice(vulkanDevice),mBufferSize(bufferSize) {
+    VulkanUniformBuffer::VulkanUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize) : mDevice(vulkanDevice), mBufferSize(bufferSize) {
         LOG_D("VulkanUniformBuffer::VulkanUniformBuffer#bufferSize: %lu", bufferSize);
         std::tie(mUniformBuffer, mUniformBufferMemory) = VulkanUtil::createBuffer(vulkanDevice, bufferSize,
                                                                                   vk::BufferUsageFlagBits::eUniformBuffer,
                                                                                   vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-//        mUniformBuffersMapped = vulkanDevice.getDevice().mapMemory(mUniformBufferMemory, 0, bufferSize, vk::MemoryMapFlags{});
+        mUniformBuffersMapped = vulkanDevice.getDevice().mapMemory(mUniformBufferMemory, 0, bufferSize, vk::MemoryMapFlags{});
 
         vk::Result result = vulkanDevice.getDevice().mapMemory(mUniformBufferMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mUniformBuffersMapped);
         if (result != vk::Result::eSuccess || mUniformBuffersMapped == nullptr) {
             throw std::runtime_error("Failed to map uniform buffer memory!");
         }
 
-        LOG_D("Buffer memory: %p, mapped address: %p", static_cast<void*>(mUniformBufferMemory), mUniformBuffersMapped);
+        LOG_D("Buffer memory: %p, mapped address: %p", static_cast<void *>(mUniformBufferMemory), mUniformBuffersMapped);
 
     }
 
@@ -59,13 +59,6 @@ namespace engine {
         LOG_D("mBufferSize: %d", mBufferSize);
 
         memcpy(mUniformBuffersMapped, data, size);
-
-        // Optional: Ensure data is flushed to GPU
-//        vk::MappedMemoryRange memoryRange{};
-//        memoryRange.setMemory(mUniformBufferMemory)
-//                .setOffset(0)
-//                .setSize(size);
-//        mDevice.getDevice().flushMappedMemoryRanges(memoryRange);
     }
 
 } // engine

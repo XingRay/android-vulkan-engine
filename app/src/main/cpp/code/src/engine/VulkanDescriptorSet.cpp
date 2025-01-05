@@ -3,71 +3,31 @@
 //
 
 #include "VulkanDescriptorSet.h"
+#include "VulkanUniformBuffer.h"
+
 #include "Log.h"
 
 namespace engine {
-    VulkanDescriptorSet::VulkanDescriptorSet(const VulkanDevice &device, uint32_t frameCount/*,
-                                             const std::vector<vk::Buffer> &transformUniformBuffers, uint32_t transformUniformBufferSize,
-                                             const std::vector<vk::Buffer> &colorUniformBuffers, uint32_t colorUniformBufferSize*/
-    ) : mDevice(device) {
-        LOG_D("VulkanDescriptorSet");
-//        LOG_D("transformUniformBufferSize: %d", transformUniformBufferSize);
-//        LOG_D("colorUniformBufferSize: %d", colorUniformBufferSize);
-
-        std::vector<vk::DescriptorPoolSize> poolSizes;
-
-        // createDescriptorPool
-        if (false) {
-            vk::DescriptorPoolSize transformUboPoolSize{};
-            transformUboPoolSize.setType(vk::DescriptorType::eUniformBuffer)
-                    .setDescriptorCount(frameCount);
-
-            poolSizes.push_back(transformUboPoolSize);
-        }
-
-
-        if (false) {
-            vk::DescriptorPoolSize colorUboPoolSize{};
-            colorUboPoolSize.setType(vk::DescriptorType::eUniformBuffer)
-                    .setDescriptorCount(frameCount);
-            poolSizes.push_back(colorUboPoolSize);
-        }
-
+    VulkanDescriptorSet::VulkanDescriptorSet(const VulkanDevice &device,
+                                             uint32_t frameCount,
+                                             const VulkanVertexShader &vertexShader,
+                                             const VulkanFragmentShader &fragmentShader,
+                                             const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>> &uniformBuffers)
+            : mDevice(device) {
+        LOG_D("VulkanDescriptorSet, size:%ld", fragmentShader.getShaderCode().size());
 
         vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo;
         descriptorPoolCreateInfo
-                .setPoolSizes(poolSizes)
+                .setPoolSizes(vertexShader.getUniformDescriptorPoolSizes())
                 .setMaxSets(frameCount)
 //            .setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
-//                .setFlags(vk::DescriptorPoolCreateFlags{});
                 .setFlags(vk::DescriptorPoolCreateFlags{});
 
         mDescriptorPool = mDevice.getDevice().createDescriptorPool(descriptorPoolCreateInfo);
 
-
-        // createDescriptorSetLayout
-        vk::DescriptorSetLayoutBinding transformUboLayoutBinding{};
-        transformUboLayoutBinding
-                .setBinding(0)
-                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-                .setDescriptorCount(1)
-                .setStageFlags(vk::ShaderStageFlagBits::eVertex)
-                .setPImmutableSamplers(nullptr);
-
-        vk::DescriptorSetLayoutBinding colorUboLayoutBinding{};
-        colorUboLayoutBinding
-                .setBinding(1)
-                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-                .setDescriptorCount(1)
-                .setStageFlags(vk::ShaderStageFlagBits::eVertex)
-                .setPImmutableSamplers(nullptr);
-
-        std::array<vk::DescriptorSetLayoutBinding, 2> bindings = {transformUboLayoutBinding, colorUboLayoutBinding};
-
-
         vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
-//        descriptorSetLayoutCreateInfo
-//                .setBindings(bindings);
+        descriptorSetLayoutCreateInfo
+                .setBindings(vertexShader.getUniformDescriptorSetLayoutBindings());
 
         mDescriptorSetLayout = mDevice.getDevice().createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
 
@@ -80,51 +40,35 @@ namespace engine {
                 .setSetLayouts(layouts);
 
         mDescriptorSets = mDevice.getDevice().allocateDescriptorSets(allocateInfo);
+        const std::vector<uint32_t> &vertexUniformSizes = vertexShader.getUniformSizes();
 
-//        for (int i = 0; i < frameCount; i++) {
-//            // 描述符绑定到 TransformUniformBufferObject
-//            vk::DescriptorBufferInfo transformUboDescriptorBufferInfo{};
-//            transformUboDescriptorBufferInfo.setBuffer(transformUniformBuffers[i]) // TransformUniformBuffer
-//                    .setOffset(0)
-////                    .setRange(vk::WholeSize)
-//                    .setRange(transformUniformBufferSize);
-//
-//            vk::WriteDescriptorSet transformUboWriteDescriptorSet{};
-//            transformUboWriteDescriptorSet.setDstSet(mDescriptorSets[i])
-//                    .setDstBinding(0) // 对应 binding = 0
-//                    .setDstArrayElement(0)
-//                    .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-//                    .setDescriptorCount(1)
-//                    .setPBufferInfo(&transformUboDescriptorBufferInfo)
-//                    .setPImageInfo(nullptr)
-//                    .setPTexelBufferView(nullptr);
-//
-//            // 描述符绑定到 ColorUniformBufferObject
-//            vk::DescriptorBufferInfo colorUboDescriptorBufferInfo{};
-//            colorUboDescriptorBufferInfo.setBuffer(colorUniformBuffers[i]) // ColorUniformBuffer
-//                    .setOffset(0)
-////                    .setRange(vk::WholeSize);
-//                    .setRange(colorUniformBufferSize);
-//
-//            vk::WriteDescriptorSet colorUboWriteDescriptorSet{};
-//            colorUboWriteDescriptorSet.setDstSet(mDescriptorSets[i])
-//                    .setDstBinding(1) // 对应 binding = 1
-//                    .setDstArrayElement(0)
-//                    .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-//                    .setDescriptorCount(1)
-//                    .setPBufferInfo(&colorUboDescriptorBufferInfo)
-//                    .setPImageInfo(nullptr)
-//                    .setPTexelBufferView(nullptr);
-//
-//            // 将两个 WriteDescriptorSet 添加到数组
-//            std::array<vk::WriteDescriptorSet, 2> writeDescriptorSets = {
-//                    transformUboWriteDescriptorSet,
-//                    colorUboWriteDescriptorSet
-//            };
-//
-//            // 更新描述符集
-//            mDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
-//        }
+        for (int i = 0; i < uniformBuffers.size(); i++) {
+            std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
+            const std::vector<std::unique_ptr<VulkanUniformBuffer>> &uniformBuffersOfFrame = uniformBuffers[i];
+            for (int j = 0; j < uniformBuffersOfFrame.size(); j++) {
+                const auto &uniformBuffer = uniformBuffersOfFrame[j];
+                vk::DescriptorBufferInfo descriptorBufferInfo{};
+                descriptorBufferInfo
+                        .setBuffer(uniformBuffer->getUniformBuffer())
+                        .setOffset(0)
+                        .setRange(vertexUniformSizes[j]);
+
+                vk::WriteDescriptorSet writeDescriptorSet{};
+                writeDescriptorSet.setDstSet(mDescriptorSets[i])
+                        .setDstBinding(j)      // binding
+                        .setDstArrayElement(0)
+                        .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+                        .setDescriptorCount(1)
+                        .setPBufferInfo(&descriptorBufferInfo)
+                        .setPImageInfo(nullptr)
+                        .setPTexelBufferView(nullptr);
+
+                writeDescriptorSets.push_back(writeDescriptorSet);
+            }
+
+            // 更新描述符集
+            mDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
+        }
     }
 
     VulkanDescriptorSet::~VulkanDescriptorSet() {

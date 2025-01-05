@@ -6,8 +6,8 @@
 
 namespace engine {
 
-    VulkanVertexShader::VulkanVertexShader(const std::vector<char> &code) {
-        mCode = code;
+    VulkanVertexShader::VulkanVertexShader(std::vector<char> &code) {
+        mCode = std::move(code);
     }
 
     VulkanVertexShader::~VulkanVertexShader() {
@@ -16,6 +16,11 @@ namespace engine {
         mCode.clear();
     }
 
+    /**
+     *
+     *              Getters
+     *
+     */
     const std::vector<char> &VulkanVertexShader::getShaderCode() const {
         return mCode;
     }
@@ -28,13 +33,30 @@ namespace engine {
         return mVertexInputAttributeDescriptions;
     }
 
+    const std::vector<vk::DescriptorPoolSize> &VulkanVertexShader::getUniformDescriptorPoolSizes() const {
+        return mUniformDescriptorPoolSizes;
+    }
+
+    const std::vector<vk::DescriptorSetLayoutBinding> &VulkanVertexShader::getUniformDescriptorSetLayoutBindings() const {
+        return mUniformDescriptorSetLayoutBindings;
+    }
+
+    const std::vector<uint32_t> &VulkanVertexShader::getUniformSizes() const {
+        return mUniformSizes;
+    }
+    /**
+     *
+     *              Getters end
+     *
+     */
+
     VulkanVertexShader &VulkanVertexShader::addVertexBinding(uint32_t size) {
-        return addVertexBinding(size, mCurrentBinding + 1);
+        return addVertexBinding(size, mCurrentVertexBinding + 1);
     }
 
     VulkanVertexShader &VulkanVertexShader::addVertexBinding(uint32_t elementSize, uint32_t binding) {
-        mCurrentBinding = binding;
-        mCurrentLocation = -1; // rest location record
+        mCurrentVertexBinding = binding;
+        mCurrentVertexLocation = -1; // rest location record
 
         vk::VertexInputBindingDescription bindingDescription{};
         bindingDescription
@@ -49,11 +71,11 @@ namespace engine {
 
 
     VulkanVertexShader &VulkanVertexShader::addVertexAttribute(ShaderFormat format) {
-        return addVertexAttribute(mCurrentLocation + 1, format, 0, mCurrentBinding);
+        return addVertexAttribute(mCurrentVertexLocation + 1, format, 0, mCurrentVertexBinding);
     }
 
     VulkanVertexShader &VulkanVertexShader::addVertexAttribute(vk::Format format) {
-        return addVertexAttribute(mCurrentLocation + 1, format, 0, mCurrentBinding);
+        return addVertexAttribute(mCurrentVertexLocation + 1, format, 0, mCurrentVertexBinding);
     }
 
     VulkanVertexShader &VulkanVertexShader::addVertexAttribute(uint32_t location, ShaderFormat format, uint32_t offset, uint32_t binding) {
@@ -62,7 +84,7 @@ namespace engine {
     }
 
     VulkanVertexShader &VulkanVertexShader::addVertexAttribute(uint32_t location, vk::Format format, uint32_t offset, uint32_t binding) {
-        mCurrentLocation = location;
+        mCurrentVertexLocation = location;
 
         vk::VertexInputAttributeDescription attributeDescription{};
         attributeDescription.binding = binding;
@@ -71,6 +93,38 @@ namespace engine {
         attributeDescription.offset = offset;
 
         mVertexInputAttributeDescriptions.push_back(attributeDescription);
+
+        return *this;
+    }
+
+    VulkanVertexShader &VulkanVertexShader::addUniform(uint32_t size, uint32_t descriptorCount) {
+        return addUniform(size, descriptorCount, mCurrentUniformBinding + 1);
+    }
+
+    VulkanVertexShader &VulkanVertexShader::addUniform(uint32_t size, uint32_t descriptorCount, uint32_t uniformBinding) {
+        mCurrentUniformBinding = uniformBinding;
+
+        vk::DescriptorPoolSize uniformBufferObjectPoolSize{};
+        uniformBufferObjectPoolSize
+                .setType(vk::DescriptorType::eUniformBuffer)
+                .setDescriptorCount(descriptorCount);
+
+        mUniformDescriptorPoolSizes.push_back(uniformBufferObjectPoolSize);
+
+        vk::DescriptorSetLayoutBinding uniformBufferObjectLayoutBinding{};
+        uniformBufferObjectLayoutBinding
+                .setBinding(uniformBinding)
+                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+                .setDescriptorCount(1)
+                .setStageFlags(vk::ShaderStageFlagBits::eVertex)
+                .setPImmutableSamplers(nullptr);
+
+        mUniformDescriptorSetLayoutBindings.push_back(uniformBufferObjectLayoutBinding);
+
+        if (mUniformSizes.size() < uniformBinding + 1) {
+            mUniformSizes.resize(uniformBinding + 1);
+        }
+        mUniformSizes[uniformBinding] = size;
 
         return *this;
     }

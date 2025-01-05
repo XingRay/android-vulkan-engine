@@ -7,8 +7,13 @@
 #include "vulkan/vulkan.hpp"
 #include "VulkanDevice.h"
 #include "VulkanSwapchain.h"
+#include "VulkanVertexShader.h"
+#include "VulkanFragmentShader.h"
+//#include "VulkanUniformBuffer.h"
 
 namespace engine {
+
+    class VulkanUniformBuffer;
 
     class VulkanDescriptorSet {
     private:
@@ -19,9 +24,11 @@ namespace engine {
         std::vector<vk::DescriptorSet> mDescriptorSets;
 
     public:
-        VulkanDescriptorSet(const VulkanDevice &device, uint32_t frameCount/*,
-                            const std::vector<vk::Buffer> &transformUniformBuffers, uint32_t transformUniformBufferSize,
-                            const std::vector<vk::Buffer> &colorUniformBuffers, uint32_t colorUniformBufferSize*/);
+        VulkanDescriptorSet(const VulkanDevice &device,
+                            uint32_t frameCount,
+                            const VulkanVertexShader &vertexShader,
+                            const VulkanFragmentShader &fragmentShader,
+                            const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>>& uniformBuffers);
 
         ~VulkanDescriptorSet();
 

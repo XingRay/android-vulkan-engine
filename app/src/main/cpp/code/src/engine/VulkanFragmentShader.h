@@ -14,7 +14,7 @@ namespace engine {
         std::vector<char> mCode;
 
     public:
-        VulkanFragmentShader(std::vector<char> code);
+        explicit VulkanFragmentShader(std::vector<char> &code);
 
         ~VulkanFragmentShader();
 
