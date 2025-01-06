@@ -36,8 +36,8 @@ namespace engine {
         }
 
         mPhysicalDevice = candidate->physicalDevice;
-        VulkanUtil::printPhysicalDeviceInfo(mPhysicalDevice);
-        VulkanUtil::printPhysicalDeviceInfoWithSurface(mPhysicalDevice, surface);
+//        VulkanUtil::printPhysicalDeviceInfo(mPhysicalDevice);
+//        VulkanUtil::printPhysicalDeviceInfoWithSurface(mPhysicalDevice, surface);
 
         mMsaaSamples = getMaxUsableSampleCount(mPhysicalDevice);
         mGraphicQueueFamilyIndex = candidate->graphicQueueFamilyIndex.value();

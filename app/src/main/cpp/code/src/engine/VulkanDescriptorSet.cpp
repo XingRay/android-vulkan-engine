@@ -4,6 +4,7 @@
 
 #include "VulkanDescriptorSet.h"
 #include "VulkanUniformBuffer.h"
+#include "VulkanTextureSampler.h"
 
 #include "Log.h"
 
@@ -12,21 +13,35 @@ namespace engine {
                                              uint32_t frameCount,
                                              const VulkanVertexShader &vertexShader,
                                              const VulkanFragmentShader &fragmentShader,
-                                             const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>> &uniformBuffers)
+                                             const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>> &uniformBuffers,
+                                             const std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>> &TextureSamplers)
             : mDevice(device) {
+
+        std::vector<vk::DescriptorPoolSize> descriptorPoolSizes;
+        std::vector<vk::DescriptorPoolSize> vertexDescriptorPoolSizes = vertexShader.getUniformDescriptorPoolSizes();
+        std::vector<vk::DescriptorPoolSize> fragmentDescriptorPoolSizes = fragmentShader.getUniformDescriptorPoolSizes();
+        // 使用 std::move 将 vec1 和 vec2 的内容移动到 mergedVec
+        descriptorPoolSizes.insert(descriptorPoolSizes.end(), std::make_move_iterator(vertexDescriptorPoolSizes.begin()), std::make_move_iterator(vertexDescriptorPoolSizes.end()));
+        descriptorPoolSizes.insert(descriptorPoolSizes.end(), std::make_move_iterator(fragmentDescriptorPoolSizes.begin()), std::make_move_iterator(fragmentDescriptorPoolSizes.end()));
+
 
         vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo;
         descriptorPoolCreateInfo
-                .setPoolSizes(vertexShader.getUniformDescriptorPoolSizes())
+                .setPoolSizes(descriptorPoolSizes)
                 .setMaxSets(frameCount)
-//            .setFlags(vk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
                 .setFlags(vk::DescriptorPoolCreateFlags{});
 
         mDescriptorPool = mDevice.getDevice().createDescriptorPool(descriptorPoolCreateInfo);
 
         vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
+
+        std::vector<vk::DescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+        std::vector<vk::DescriptorSetLayoutBinding> vertexDescriptorSetLayoutBinding = vertexShader.getUniformDescriptorSetLayoutBindings();
+        std::vector<vk::DescriptorSetLayoutBinding> fragmentDescriptorSetLayoutBinding = fragmentShader.getUniformDescriptorSetLayoutBindings();
+        descriptorSetLayoutBindings.insert(descriptorSetLayoutBindings.end(), vertexDescriptorSetLayoutBinding.begin(), vertexDescriptorSetLayoutBinding.end());
+        descriptorSetLayoutBindings.insert(descriptorSetLayoutBindings.end(), fragmentDescriptorSetLayoutBinding.begin(), fragmentDescriptorSetLayoutBinding.end());
         descriptorSetLayoutCreateInfo
-                .setBindings(vertexShader.getUniformDescriptorSetLayoutBindings());
+                .setBindings(descriptorSetLayoutBindings);
 
         mDescriptorSetLayout = mDevice.getDevice().createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
 
@@ -54,7 +69,7 @@ namespace engine {
 
                 vk::WriteDescriptorSet writeDescriptorSet{};
                 writeDescriptorSet.setDstSet(mDescriptorSets[i])
-                        .setDstBinding(j)      // binding
+                        .setDstBinding(j)      // binding // todo merge with sampler
                         .setDstArrayElement(0)
                         .setDescriptorType(vk::DescriptorType::eUniformBuffer)
                         .setDescriptorCount(1)
@@ -63,6 +78,32 @@ namespace engine {
                         .setPTexelBufferView(nullptr);
 
                 writeDescriptorSets.push_back(writeDescriptorSet);
+            }
+
+            const std::vector<std::unique_ptr<VulkanTextureSampler>> &textureSamplersOfFrame = TextureSamplers[i];
+            for (int j = 0; j < textureSamplersOfFrame.size(); j++) {
+                const auto &textureSampler = textureSamplersOfFrame[j];
+
+                vk::DescriptorImageInfo samplerDescriptorImageInfo;
+                samplerDescriptorImageInfo.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+                        .setImageView(textureSampler->getTextureImageView())
+                        .setSampler(textureSampler->getTextureSampler());
+
+                vk::WriteDescriptorSet samplerWriteDescriptorSet{};
+                samplerWriteDescriptorSet.setDstSet(mDescriptorSets[i])
+                        .setDstBinding(j) // todo merge with normal uniform
+                        .setDstArrayElement(0)
+                        .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+                        .setDescriptorCount(1)
+                                // 下面根据 DescriptorType 3 选 1 设置， 这里的描述符基于缓冲区，所以选择使用 pBufferInfo。
+                                // pBufferInfo 字段用于引用缓冲区数据的描述符
+                        .setPBufferInfo(nullptr)
+                                // pImageInfo 用于引用图像数据的描述符
+                        .setPImageInfo(&samplerDescriptorImageInfo)
+                                // pTexelBufferView 用于引用缓冲区视图的描述符
+                        .setPTexelBufferView(nullptr);
+
+                writeDescriptorSets.push_back(samplerWriteDescriptorSet);
             }
 
             // 更新描述符集

@@ -42,6 +42,19 @@ namespace engine {
         static std::string sampleCountFlagsToString(vk::SampleCountFlags flags);
 
         static std::string formatDeviceSize(vk::DeviceSize size);
+
+        static void recordTransitionImageLayoutCommand(const vk::CommandBuffer &commandBuffer,
+                                                            vk::Image image,
+                                                            vk::Format format,
+                                                            vk::ImageLayout oldImageLayout,
+                                                            vk::ImageLayout newImageLayout,
+                                                            uint32_t mipLevels);
+
+        static bool hasStencilComponent(vk::Format format);
+
+        static vk::Format findDepthFormat(const vk::PhysicalDevice &physicalDevice);
+
+        static vk::Format findSupportedFormat(const vk::PhysicalDevice &physicalDevice, const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
     };
 
 } // engine

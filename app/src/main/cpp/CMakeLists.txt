@@ -20,6 +20,11 @@ set(VULKAN_HEADERS_INSTALL_DIR D:/develop/vulkan/Vulkan-Headers/Vulkan-Headers-1
 set(VULKAN_HEADERS_INCLUDE_DIR ${VULKAN_HEADERS_INSTALL_DIR}/include)
 
 
+# stb
+set(STB_INSTALL_DIR D:/develop/opengl/stb)
+set(STB_INCLUDE_DIR ${STB_INSTALL_DIR})
+
+
 # Integrate GameActivity, refer to
 #     https://developer.android.com/games/agdk/game-activity/get-started#static-library
 # for the detailed instructions.
@@ -53,6 +58,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
         # glm
         ${GLM_INSTALL_DIR}
+
+        # STB
+        ${STB_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME}

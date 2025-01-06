@@ -21,6 +21,7 @@
 #include "VulkanFrameBuffer.h"
 #include "VulkanVertexShader.h"
 #include "VulkanFragmentShader.h"
+#include "VulkanTextureSampler.h"
 
 namespace engine {
 
@@ -51,6 +52,7 @@ namespace engine {
         std::unique_ptr<VulkanIndexBuffer> mIndexBuffer;
 
         std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>> mUniformBuffers;
+        std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>> mTextureSamplers;
 
         std::unique_ptr<VulkanSyncObject> mSyncObject;
 
@@ -114,6 +116,8 @@ namespace engine {
         void updateIndexBuffer(std::vector<uint32_t> indices) const;
 
         void updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
+
+        void updateTextureSampler(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
 
         void updateVertexPushConstant(const void *data);
 

@@ -1,26 +1,71 @@
 package io.github.xingray.vulkandemo
 
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
+import android.util.Log
 import android.view.Gravity
 import android.widget.Button
 import android.widget.FrameLayout
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import com.google.androidgamesdk.GameActivity
+import java.io.File
 
 
-class MainActivity:GameActivity() {
+class MainActivity : GameActivity() {
 
-    companion object{
+    companion object {
         init {
             System.loadLibrary("vulkan_demo")
         }
+
+        @JvmStatic
+        private val TAG = MainActivity::class.java.simpleName
+
+        private const val REQUEST_CODE_STORAGE_PERMISSION: Int = 100
+
     }
+
+    private var mPermissionRequest = SinglePermissionRequest(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+    private lateinit var manageAllFilesPermissionLauncher: ActivityResultLauncher<Intent>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if (hasManageExternalStoragePermission(baseContext)) {
+//                execTasks()
+            } else {
+                requestExternalStoragePermission(baseContext)
+            }
+        } else {
+            mPermissionRequest.register(this)
+            mPermissionRequest.perform(this, null) {
+//                execTasks()
+            }
+        }
+
+        val sdCardPath = Environment.getExternalStorageDirectory().absolutePath
+        val imagePath = "$sdCardPath/01.png"
+        val file = File(imagePath)
+        if (file.exists()) {
+            Log.d(TAG, "onCreate: file:${file.absolutePath}")
+        } else {
+            Log.d(TAG, "onCreate: file not exist")
+        }
 
         val handler = Handler(Looper.getMainLooper())
         handler.post {
@@ -31,7 +76,7 @@ class MainActivity:GameActivity() {
     override fun onCreateSurfaceView() {
         this.mSurfaceView = InputEnabledSurfaceView(this)
         val frameLayout = FrameLayout(this)
-        frameLayout.setPadding(20,20,20,20)
+        frameLayout.setPadding(20, 20, 20, 20)
         frameLayout.setBackgroundColor(Color.GRAY)
         this.contentViewId = ViewCompat.generateViewId()
         frameLayout.id = contentViewId
@@ -83,5 +128,38 @@ class MainActivity:GameActivity() {
     }
 
 
-    private external fun changeTriangleColor(nativeHandle:Long, color: Int)
+    private fun requestExternalStoragePermission(context: Context) {
+        manageAllFilesPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) {
+            // 在这里检查权限状态
+            if (hasManageExternalStoragePermission(this)) {
+                // 权限已授予
+                //execTasks()
+            } else {
+                // 权限未授予
+                showMessage("程序运行所需要的权限没有被授予， 2秒后退出")
+                runOnUiThreadDelayed(2000) {
+                    finish()
+                }
+            }
+        }
+
+        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION)
+        intent.data = Uri.parse("package:" + context.packageName)
+        manageAllFilesPermissionLauncher.launch(intent)
+    }
+
+    fun hasManageExternalStoragePermission(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Environment.isExternalStorageManager()
+        } else {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.MANAGE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    private external fun changeTriangleColor(nativeHandle: Long, color: Int)
 }

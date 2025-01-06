@@ -62,7 +62,9 @@ namespace engine {
         mSwapchain = std::make_unique<VulkanSwapchain>(*mDevice, *mSurface, currentExtent.width, currentExtent.height);
 
         mRenderPass = std::make_unique<VulkanRenderPass>(*mDevice, *mSwapchain);
+        mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, mFrameCount);
 
+        // todo merge fragment uniform
         const std::vector<uint32_t> &uniformSizes = vertexShader->getUniformSizes();
         for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
             std::vector<std::unique_ptr<VulkanUniformBuffer>> uniformBuffers;
@@ -73,9 +75,20 @@ namespace engine {
             mUniformBuffers.push_back(std::move(uniformBuffers));
         }
 
-        mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount, *vertexShader, *fragmentShader, mUniformBuffers);
+        const std::vector<ImageSize> &imageSizes = fragmentShader->getSamplerImageSizes();
+        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
+            std::vector<std::unique_ptr<VulkanTextureSampler>> samplers;
+            samplers.resize(imageSizes.size());
+            for (const ImageSize &imageSize: imageSizes) {
+                samplers.push_back(std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels));
+            }
+            mTextureSamplers.push_back(std::move(samplers));
+        }
+
+
+        mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount, *vertexShader, *fragmentShader, mUniformBuffers, mTextureSamplers);
         mPipeline = std::make_unique<VulkanPipeline>(*mDevice, *mSwapchain, *mDescriptorSet, *mRenderPass, *vertexShader, *fragmentShader);
-        mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, mFrameCount);
+
         mFrameBuffer = std::make_unique<VulkanFrameBuffer>(*mDevice, *mSwapchain, *mRenderPass, *mCommandPool);
         mSyncObject = std::make_unique<VulkanSyncObject>(*mDevice, mFrameCount);
 
@@ -251,6 +264,10 @@ namespace engine {
 
     void VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
         mUniformBuffers[frameIndex][binding]->updateBuffer(data, size);
+    }
+
+    void VulkanEngine::updateTextureSampler(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
+        mTextureSamplers[frameIndex][binding]->update(data);
     }
 
     void VulkanEngine::updateVertexPushConstant(const void *data) {

@@ -438,4 +438,104 @@ namespace engine {
         }
     }
 
+    void VulkanUtil::recordTransitionImageLayoutCommand(const vk::CommandBuffer &commandBuffer,
+                                                               vk::Image image,
+                                                               vk::Format format,
+                                                               vk::ImageLayout oldImageLayout,
+                                                               vk::ImageLayout newImageLayout,
+                                                               uint32_t mipLevels) {
+
+        vk::ImageSubresourceRange imageSubresourceRange;
+        imageSubresourceRange
+                .setBaseMipLevel(0)
+                .setLevelCount(mipLevels)
+                .setBaseArrayLayer(0)
+                .setLayerCount(1);
+
+        // 注意这里一定要是 vk::ImageLayout::eDepthStencilAttachmentOptimal ， 写成了 vk::ImageLayout::eStencilAttachmentOptimal 后面会报警告
+        if (newImageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
+            if (hasStencilComponent(format)) {
+                imageSubresourceRange.setAspectMask(vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil);
+            } else {
+                imageSubresourceRange.setAspectMask(vk::ImageAspectFlagBits::eDepth);
+            }
+        } else {
+            imageSubresourceRange.setAspectMask(vk::ImageAspectFlagBits::eColor);
+        }
+
+
+        vk::ImageMemoryBarrier imageMemoryBarrier;
+        imageMemoryBarrier.setOldLayout(oldImageLayout)
+                .setNewLayout(newImageLayout)
+                .setSrcQueueFamilyIndex(vk::QueueFamilyIgnored)
+                .setDstQueueFamilyIndex(vk::QueueFamilyIgnored)
+                .setImage(image)
+                .setSubresourceRange(imageSubresourceRange)
+                .setSrcAccessMask(vk::AccessFlags{})
+                .setDstAccessMask(vk::AccessFlags{});
+
+        vk::PipelineStageFlags sourceStage;
+        vk::PipelineStageFlags destinationStage;
+
+        if (oldImageLayout == vk::ImageLayout::eUndefined && newImageLayout == vk::ImageLayout::eTransferDstOptimal) {
+            imageMemoryBarrier.setSrcAccessMask(static_cast<vk::AccessFlags>(0))
+                    .setDstAccessMask(vk::AccessFlagBits::eTransferWrite);
+
+            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+            destinationStage = vk::PipelineStageFlagBits::eTransfer;
+        } else if (oldImageLayout == vk::ImageLayout::eTransferDstOptimal && newImageLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
+            imageMemoryBarrier.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+                    .setDstAccessMask(vk::AccessFlagBits::eShaderRead);
+
+            sourceStage = vk::PipelineStageFlagBits::eTransfer;
+            destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+        } else if (oldImageLayout == vk::ImageLayout::eUndefined && newImageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
+            imageMemoryBarrier.setSrcAccessMask(vk::AccessFlags{})
+                    .setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
+
+            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+            destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+        } else {
+            throw std::runtime_error("unsupported layout transition!");
+        }
+
+        commandBuffer.pipelineBarrier(sourceStage,
+                                      destinationStage,
+                                      vk::DependencyFlags{},
+                // 内存屏障
+                                      {},
+                // 缓冲区内存屏障
+                                      {},
+                // 图像内存屏障
+                                      {imageMemoryBarrier});
+
+
+    }
+
+    bool VulkanUtil::hasStencilComponent(vk::Format format) {
+        return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
+    }
+
+    vk::Format VulkanUtil::findDepthFormat(const vk::PhysicalDevice &physicalDevice) {
+        return VulkanUtil::findSupportedFormat(
+                physicalDevice,
+                {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
+                vk::ImageTiling::eOptimal,
+                vk::FormatFeatureFlagBits::eDepthStencilAttachment
+        );
+    }
+
+    vk::Format VulkanUtil::findSupportedFormat(const vk::PhysicalDevice &physicalDevice, const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features) {
+        for (const auto &format: candidates) {
+            vk::FormatProperties properties = physicalDevice.getFormatProperties(format);
+            if (tiling == vk::ImageTiling::eLinear && (properties.linearTilingFeatures & features) == features) {
+                return format;
+            } else if (tiling == vk::ImageTiling::eOptimal && (properties.optimalTilingFeatures & features) == features) {
+                return format;
+            }
+        }
+
+        throw std::runtime_error("failed to find supported format !");
+    }
+
 } // engine

@@ -14,6 +14,7 @@
 namespace engine {
 
     class VulkanUniformBuffer;
+    class VulkanTextureSampler;
 
     class VulkanDescriptorSet {
     private:
@@ -28,7 +29,8 @@ namespace engine {
                             uint32_t frameCount,
                             const VulkanVertexShader &vertexShader,
                             const VulkanFragmentShader &fragmentShader,
-                            const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>>& uniformBuffers);
+                            const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>>& uniformBuffers,
+                            const std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>>& TextureSamplers);
 
         ~VulkanDescriptorSet();
 
