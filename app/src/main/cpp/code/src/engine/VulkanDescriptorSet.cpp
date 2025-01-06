@@ -14,7 +14,6 @@ namespace engine {
                                              const VulkanFragmentShader &fragmentShader,
                                              const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>> &uniformBuffers)
             : mDevice(device) {
-        LOG_D("VulkanDescriptorSet, size:%ld", fragmentShader.getShaderCode().size());
 
         vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo;
         descriptorPoolCreateInfo

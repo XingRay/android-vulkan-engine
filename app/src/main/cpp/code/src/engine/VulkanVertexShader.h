@@ -29,6 +29,7 @@ namespace engine {
     private:
         std::vector<char> mCode;
 
+        // vertex
         std::vector<vk::VertexInputBindingDescription> mVertexDescriptions;
 
         std::vector<vk::VertexInputAttributeDescription> mVertexInputAttributeDescriptions;
@@ -38,6 +39,7 @@ namespace engine {
         uint32_t mCurrentVertexLocation = -1;
 
 
+        // uniform
         std::vector<vk::DescriptorPoolSize> mUniformDescriptorPoolSizes;
 
         std::vector<vk::DescriptorSetLayoutBinding> mUniformDescriptorSetLayoutBindings;
@@ -46,13 +48,17 @@ namespace engine {
 
         std::vector<uint32_t> mUniformSizes;
 
+
+        // push constant
+        vk::PushConstantRange mPushConstantRange{};
+
     public:
         explicit VulkanVertexShader(std::vector<char> &code);
 
         ~VulkanVertexShader();
 
         [[nodiscard]]
-        const std::vector<char> &getShaderCode() const;
+        const std::vector<char> &getCode() const;
 
         [[nodiscard]]
         const std::vector<vk::VertexInputBindingDescription> &getVertexDescriptions() const;
@@ -69,6 +75,10 @@ namespace engine {
         [[nodiscard]]
         const std::vector<uint32_t> &getUniformSizes() const;
 
+        [[nodiscard]]
+        const vk::PushConstantRange &getPushConstantRange() const;
+
+
         VulkanVertexShader &addVertexBinding(uint32_t size);
 
         VulkanVertexShader &addVertexBinding(uint32_t size, uint32_t binding);
@@ -84,6 +94,8 @@ namespace engine {
         VulkanVertexShader &addUniform(uint32_t size, uint32_t descriptorCount);
 
         VulkanVertexShader &addUniform(uint32_t size, uint32_t descriptorCount, uint32_t uniformBinding);
+
+        VulkanVertexShader &setPushConstant(uint32_t size);
     };
 
 } // engine

@@ -13,13 +13,23 @@ namespace engine {
     private:
         std::vector<char> mCode;
 
+        // push constant
+        vk::PushConstantRange mPushConstantRange{};
+
     public:
         explicit VulkanFragmentShader(std::vector<char> &code);
 
         ~VulkanFragmentShader();
 
         [[nodiscard]]
-        const std::vector<char> &getShaderCode() const;
+        const std::vector<char> &getCode() const;
+
+        [[nodiscard]]
+        const vk::PushConstantRange &getPushConstantRange() const;
+
+
+        VulkanFragmentShader &setPushConstant(uint32_t size);
+
     };
 
 } // engine

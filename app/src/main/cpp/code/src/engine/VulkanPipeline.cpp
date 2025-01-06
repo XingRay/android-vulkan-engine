@@ -10,10 +10,8 @@ namespace engine {
                                    const VulkanSwapchain &swapchain,
                                    const VulkanDescriptorSet &descriptorSet,
                                    const VulkanRenderPass &renderPass,
-                                   const vk::ShaderModule &vertexModule,
-                                   const vk::ShaderModule &fragmentModule,
-                                   const std::vector<vk::VertexInputBindingDescription> &vertexInputBindingDescriptions,
-                                   const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributeDescriptions)
+                                   const VulkanVertexShader &vertexShader,
+                                   const VulkanFragmentShader &fragmentShader)
             : mDevice(vulkanDevice) {
         vk::Device device = vulkanDevice.getDevice();
 
@@ -54,12 +52,13 @@ namespace engine {
         // vertex shader
         vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
         vertexInputStateCreateInfo
-                .setVertexBindingDescriptions(vertexInputBindingDescriptions)
-                .setVertexAttributeDescriptions(vertexInputAttributeDescriptions);
+                .setVertexBindingDescriptions(vertexShader.getVertexDescriptions())
+                .setVertexAttributeDescriptions(vertexShader.getVertexInputAttributeDescriptions());
 
+        vk::ShaderModule vertexShaderModule = mDevice.createShaderModule(vertexShader.getCode());
         vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo;
         vertexShaderStageCreateInfo.setStage(vk::ShaderStageFlagBits::eVertex)
-                .setModule(vertexModule)
+                .setModule(vertexShaderModule)
                 .setPName("main")
                 .setPSpecializationInfo(nullptr);
 
@@ -116,12 +115,14 @@ namespace engine {
                 .setAlphaToCoverageEnable(vk::False)
                 .setAlphaToOneEnable(vk::False);
 
+        vk::ShaderModule fragmentShaderModule = mDevice.createShaderModule(fragmentShader.getCode());
         // fragment shader
         vk::PipelineShaderStageCreateInfo fragmentShaderStageCreateInfo;
         fragmentShaderStageCreateInfo.setStage(vk::ShaderStageFlagBits::eFragment)
-                .setModule(fragmentModule)
+                .setModule(fragmentShaderModule)
                 .setPName("main")
                 .setPSpecializationInfo(nullptr);
+
 
         // color blending
         vk::PipelineColorBlendAttachmentState colorBlendAttachmentState{};
@@ -149,11 +150,24 @@ namespace engine {
 
 
         std::array<vk::DescriptorSetLayout, 1> descriptorSetLayouts = {descriptorSet.getDescriptorSetLayout()};
+
+        std::vector<vk::PushConstantRange> pushConstantRanges;
+        vk::PushConstantRange vertexPushConstantRange = vertexShader.getPushConstantRange();
+        if (vertexPushConstantRange.size > 0) {
+            pushConstantRanges.push_back(vertexPushConstantRange);
+        }
+        vk::PushConstantRange fragmentPushConstantRange = fragmentShader.getPushConstantRange();
+        if (fragmentPushConstantRange.size > 0) {
+            if (vertexPushConstantRange.size > 0) {
+                fragmentPushConstantRange.setOffset(vertexPushConstantRange.size);
+            }
+            pushConstantRanges.push_back(fragmentPushConstantRange);
+        }
+
         vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
         pipelineLayoutCreateInfo
                 .setSetLayouts(descriptorSetLayouts)
-                .setPushConstantRangeCount(0)
-                .setPPushConstantRanges(nullptr);
+                .setPushConstantRanges(pushConstantRanges);
 
         mPipelineLayout = vulkanDevice.getDevice().createPipelineLayout(pipelineLayoutCreateInfo);
 
@@ -180,6 +194,9 @@ namespace engine {
             throw std::runtime_error("createGraphicsPipelines failed");
         }
         mPipeline = pipeline;
+
+        mDevice.getDevice().destroy(vertexShaderModule);
+        mDevice.getDevice().destroy(fragmentShaderModule);
     }
 
     VulkanPipeline::~VulkanPipeline() {

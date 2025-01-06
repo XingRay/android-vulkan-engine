@@ -24,7 +24,6 @@ namespace engine {
         std::unique_ptr<PhysicalDeviceCandidate> candidate = nullptr;
         std::multimap<int32_t, std::unique_ptr<PhysicalDeviceCandidate>> candidates;
         for (const auto &device: devices) {
-//            printPhysicalDeviceInfo(device, surface);
             candidates.insert(calcDeviceSuitable(device, deviceExtensions, surface));
         }
         if (candidates.rbegin()->first > 0) {
@@ -35,6 +34,8 @@ namespace engine {
         }
 
         mPhysicalDevice = candidate->physicalDevice;
+        printPhysicalDeviceInfo(mPhysicalDevice, surface);
+
         mMsaaSamples = getMaxUsableSampleCount(mPhysicalDevice);
         mGraphicQueueFamilyIndex = candidate->graphicQueueFamilyIndex.value();
         mPresentQueueFamilyIndex = candidate->presentQueueFamilyIndex.value();
@@ -576,7 +577,7 @@ namespace engine {
         }
     }
 
-    vk::ShaderModule VulkanDevice::createShaderModule(const std::vector<char> &code) {
+    const vk::ShaderModule VulkanDevice::createShaderModule(const std::vector<char> &code) const{
         vk::ShaderModuleCreateInfo createInfo;
         createInfo.setCodeSize(code.size())
                 .setPCode(reinterpret_cast<const uint32_t *>(code.data()));

@@ -54,6 +54,9 @@ namespace engine {
 
         std::unique_ptr<VulkanSyncObject> mSyncObject;
 
+        std::vector<uint8_t> mVertexPushConstantData;
+        std::vector<uint8_t> mFragmentPushConstantData;
+
     public:
         explicit VulkanEngine(const std::vector<const char *> &instanceExtensions,
                               const std::vector<const char *> &layers,
@@ -110,7 +113,11 @@ namespace engine {
 
         void updateIndexBuffer(std::vector<uint32_t> indices) const;
 
-        void updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void* data, uint32_t size);
+        void updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
+
+        void updateVertexPushConstant(const void *data);
+
+        void updateFragmentPushConstant(const void *data);
 
     private:
         void recreateSwapChain();

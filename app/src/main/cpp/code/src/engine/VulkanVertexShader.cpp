@@ -12,9 +12,10 @@ namespace engine {
     }
 
     VulkanVertexShader::~VulkanVertexShader() {
+        mCode.clear();
+
         mVertexDescriptions.clear();
         mVertexInputAttributeDescriptions.clear();
-        mCode.clear();
     }
 
     /**
@@ -22,7 +23,7 @@ namespace engine {
      *              Getters
      *
      */
-    const std::vector<char> &VulkanVertexShader::getShaderCode() const {
+    const std::vector<char> &VulkanVertexShader::getCode() const {
         return mCode;
     }
 
@@ -44,6 +45,10 @@ namespace engine {
 
     const std::vector<uint32_t> &VulkanVertexShader::getUniformSizes() const {
         return mUniformSizes;
+    }
+
+    const vk::PushConstantRange &VulkanVertexShader::getPushConstantRange() const {
+        return mPushConstantRange;
     }
 
     /**
@@ -85,6 +90,7 @@ namespace engine {
         return addVertexAttribute(location, vkFormat, offset, binding);
     }
 
+    // todo auto calc location / offset / binding
     VulkanVertexShader &VulkanVertexShader::addVertexAttribute(uint32_t location, vk::Format format, uint32_t offset, uint32_t binding) {
         mCurrentVertexLocation = location;
 
@@ -129,6 +135,15 @@ namespace engine {
             mUniformSizes.resize(uniformBinding + 1);
         }
         mUniformSizes[uniformBinding] = size;
+
+        return *this;
+    }
+
+    VulkanVertexShader &VulkanVertexShader::setPushConstant(uint32_t size) {
+        mPushConstantRange
+                .setStageFlags(vk::ShaderStageFlagBits::eVertex)
+                .setSize(size)
+                .setOffset(0);
 
         return *this;
     }

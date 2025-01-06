@@ -14,8 +14,22 @@ namespace engine {
         mCode.clear();
     }
 
-    const std::vector<char> &VulkanFragmentShader::getShaderCode() const {
+    const std::vector<char> &VulkanFragmentShader::getCode() const {
         return mCode;
+    }
+
+    const vk::PushConstantRange &VulkanFragmentShader::getPushConstantRange() const {
+        return mPushConstantRange;
+    }
+
+
+    VulkanFragmentShader &VulkanFragmentShader::setPushConstant(uint32_t size) {
+        mPushConstantRange
+                .setStageFlags(vk::ShaderStageFlagBits::eFragment)
+                .setSize(size)
+                .setOffset(0);
+
+        return *this;
     }
 
 } // engine

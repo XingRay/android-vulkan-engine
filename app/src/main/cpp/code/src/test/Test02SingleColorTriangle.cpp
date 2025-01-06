@@ -30,21 +30,17 @@ namespace test02 {
     }
 
     void Test02SingleColorTriangle::init() {
-        LOG_D("Test01SimpleTriangle::init");
         const std::vector<const char *> deviceExtensions = {
                 VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 
-        std::vector<Vertex> mVertices;
-        std::vector<uint32_t> mIndices;
-
-        mVertices = {
+        std::vector<Vertex> vertices = {
                 {{1.0f,  -1.0f, 0.0f}},
                 {{-1.0f, -1.0f, 0.0f}},
                 {{0.0f,  1.0f,  0.0f}},
         };
 
-        mIndices = {0, 1, 2};
+        std::vector<uint32_t> indices = {0, 1, 2};
 
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/02_triangle_color.vert.spv");
         std::unique_ptr<engine::VulkanVertexShader> vertexShader = std::make_unique<engine::VulkanVertexShader>(vertexShaderCode);
@@ -60,13 +56,13 @@ namespace test02 {
         mVulkanEngine->initVulkan(surface, deviceExtensions, vertexShader, fragmentShader);
 
 //        mVulkanEngine->createDirectlyTransferVertexBuffer(mVertices.size() * sizeof(app::Vertex));
-        mVulkanEngine->createStagingTransferVertexBuffer(mVertices.size() * sizeof(Vertex));
+        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
 //        mVulkanEngine->updateVertexBuffer(mVertices.data(), mVertices.size() * sizeof(Vertex));
-        mVulkanEngine->updateVertexBuffer(mVertices);
+        mVulkanEngine->updateVertexBuffer(vertices);
 
 //        mVulkanEngine->createDirectlyTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
-        mVulkanEngine->createStagingTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
-        mVulkanEngine->updateIndexBuffer(mIndices);
+        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
+        mVulkanEngine->updateIndexBuffer(indices);
 
         ColorUniformBufferObject colorUniformBufferObject;
         colorUniformBufferObject.color = {0.2f, 0.8f, 0.4f};
@@ -79,13 +75,11 @@ namespace test02 {
 
     // 检查是否准备好
     bool Test02SingleColorTriangle::isReady() {
-        LOG_I("%s is ready!", getName().c_str());
         return true;
     }
 
     // 绘制三角形帧
     void Test02SingleColorTriangle::drawFrame() {
-        LOG_I("Drawing a simple triangle for %s", getName().c_str());
         mVulkanEngine->drawFrame();
     }
 

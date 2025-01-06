@@ -49,8 +49,8 @@ namespace engine {
                                                       const std::array<float, 4> &depthStencil,
                                                       const std::function<void(const vk::CommandBuffer &)> &command) {
 
-        LOG_D("VulkanCommandPool::recordCommandInRenderPass");
-        LOG_D("displaySize: [ %d x %d ]", displaySize.width, displaySize.height);
+//        LOG_D("VulkanCommandPool::recordCommandInRenderPass");
+//        LOG_D("displaySize: [ %d x %d ]", displaySize.width, displaySize.height);
         vk::Rect2D renderArea{};
         renderArea
                 .setOffset(vk::Offset2D{0, 0})

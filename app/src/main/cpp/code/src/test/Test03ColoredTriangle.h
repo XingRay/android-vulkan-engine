@@ -20,18 +20,6 @@ namespace test03 {
         glm::vec3 color;
     };
 
-//    struct TransformUniformBufferObject {
-//        glm::mat4 model; // 模型矩阵
-//        glm::mat4 view;  // 视图矩阵
-//        glm::mat4 proj;  // 投影矩阵
-//    };
-//
-    struct ColorUniformBufferObject {
-        // 颜色数据
-        alignas(16) glm::vec3 color;
-    };
-
-
     class Test03ColoredTriangle : public test::TestBase {
     private:
 

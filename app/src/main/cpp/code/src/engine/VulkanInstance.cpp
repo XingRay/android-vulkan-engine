@@ -122,15 +122,15 @@ namespace engine {
                 .ppEnabledExtensionNames = mEnabledInstanceExtensionNames.data(),
         };
 
-        vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+//        vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
 //        if (mEnableValidationLayer) {
 //            if (!checkValidationLayerSupported()) {
 //                throw std::runtime_error("validation layers required, but not available !");
 //            }
 //            createInfo.setPEnabledLayerNames(mValidationLayers);
 
-        populateDebugMessengerCreateInfo(debugCreateInfo);
-        instanceCreateInfo.pNext = &debugCreateInfo;
+//        populateDebugMessengerCreateInfo(debugCreateInfo);
+//        instanceCreateInfo.pNext = &debugCreateInfo;
 //        } else {
 //            createInfo.enabledLayerCount = 0;
 //            createInfo.pNext = nullptr;

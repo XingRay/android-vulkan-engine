@@ -115,7 +115,7 @@ namespace engine {
 
         static std::string formatDeviceSize(vk::DeviceSize size);
 
-        vk::ShaderModule createShaderModule(const std::vector<char> &code);
+        const vk::ShaderModule createShaderModule(const std::vector<char> &code) const;
 
     };
 } // engine
