@@ -109,13 +109,8 @@ namespace engine {
 
         static SwapChainSupportDetail querySwapChainSupported(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface);
 
-        static void printPhysicalDeviceInfo(const vk::PhysicalDevice &physicalDevice, const vk::SurfaceKHR &surface);
-
-        static std::string sampleCountFlagsToString(vk::SampleCountFlags flags);
-
-        static std::string formatDeviceSize(vk::DeviceSize size);
-
-        const vk::ShaderModule createShaderModule(const std::vector<char> &code) const;
+        [[nodiscard]]
+        vk::ShaderModule createShaderModule(const std::vector<char> &code) const;
 
     };
 } // engine

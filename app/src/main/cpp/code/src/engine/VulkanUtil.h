@@ -34,6 +34,14 @@ namespace engine {
                                              vk::ImageAspectFlags
                                              imageAspect,
                                              uint32_t mipLevels);
+
+        static void printPhysicalDeviceInfo(const vk::PhysicalDevice &physicalDevice);
+
+        static void printPhysicalDeviceInfoWithSurface(const vk::PhysicalDevice &physicalDevice, const vk::SurfaceKHR &surface);
+
+        static std::string sampleCountFlagsToString(vk::SampleCountFlags flags);
+
+        static std::string formatDeviceSize(vk::DeviceSize size);
     };
 
 } // engine

@@ -35,7 +35,7 @@ namespace test04 {
 
         std::unique_ptr<engine::VulkanEngine> mVulkanEngine;
 
-        MvpMatrix mMvpMatrix;
+        MvpMatrix mMvpMatrix{};
     public:
         // 构造函数初始化基类 TestBase，并传递 name
         explicit Test04MvpMatrix(const android_app &app, const std::string &name);

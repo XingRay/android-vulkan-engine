@@ -8,7 +8,7 @@
 namespace test04 {
 
     Test04MvpMatrix::Test04MvpMatrix(const android_app &app, const std::string &name)
-            : TestBase(name), mApp(app) {
+            : TestBase(name), mApp(app), mMvpMatrix(glm::mat4(1.0f)) {
 
         std::vector<const char *> instanceExtensions = {
                 VK_KHR_SURFACE_EXTENSION_NAME,
@@ -41,15 +41,15 @@ namespace test04 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-        mMvpMatrix =  MvpMatrix{};
+        mMvpMatrix = MvpMatrix{};
         float scale = 1.0f;
 
         glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         mMvpMatrix.model = model;
         mMvpMatrix.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f),
-                                     glm::vec3(0.0f, 0.0f, 0.0f),
-                                     glm::vec3(1.0f, 1.0f, 0.0f));
+                                      glm::vec3(0.0f, 0.0f, 0.0f),
+                                      glm::vec3(1.0f, 1.0f, 0.0f));
         mMvpMatrix.proj = glm::perspective(glm::radians(45.0f), (float) ANativeWindow_getWidth(mApp.window) / (float) ANativeWindow_getHeight(mApp.window), 0.1f, 10.0f);
 
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/04_mvp_matrix.vert.spv");
