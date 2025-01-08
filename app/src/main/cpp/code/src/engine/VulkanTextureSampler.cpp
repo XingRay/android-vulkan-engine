@@ -29,15 +29,16 @@ namespace engine {
 
         mTextureImageView = VulkanUtil::createImageView(device, mTextureImage, imageFormat, vk::ImageAspectFlagBits::eColor, mMipLevels);
 
-        commandPool.submitOneTimeCommand([&](const vk::CommandBuffer &commandBuffer) -> void {
-            VulkanUtil::recordTransitionImageLayoutCommand(commandBuffer, mTextureImage, imageFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, 1);
-        });
+//        commandPool.submitOneTimeCommand([&](const vk::CommandBuffer &commandBuffer) -> void {
+//            VulkanUtil::recordTransitionImageLayoutCommand(commandBuffer, mTextureImage, imageFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, mMipLevels);
+//        });
 
 
         vk::PhysicalDeviceProperties properties = mDevice.getPhysicalDevice().getProperties();
 
         vk::SamplerCreateInfo samplerCreateInfo;
-        samplerCreateInfo.setMagFilter(vk::Filter::eLinear)
+        samplerCreateInfo
+                .setMagFilter(vk::Filter::eLinear)
                 .setMinFilter(vk::Filter::eLinear)
                 .setAddressModeU(vk::SamplerAddressMode::eRepeat)
                 .setAddressModeV(vk::SamplerAddressMode::eRepeat)
@@ -84,6 +85,10 @@ namespace engine {
             memcpy(data, pixels, mImageSize);
         }
         mDevice.getDevice().unmapMemory(stagingBufferMemory);
+
+        mCommandPool.submitOneTimeCommand([&](const vk::CommandBuffer &commandBuffer) -> void {
+            VulkanUtil::recordTransitionImageLayoutCommand(commandBuffer, mTextureImage, vk::Format::eR8G8B8A8Srgb, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, mMipLevels);
+        });
 
         copyBufferToImage(stagingBuffer, mTextureImage, mWidth, mHeight);
 

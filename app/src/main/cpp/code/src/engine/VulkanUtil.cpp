@@ -439,11 +439,11 @@ namespace engine {
     }
 
     void VulkanUtil::recordTransitionImageLayoutCommand(const vk::CommandBuffer &commandBuffer,
-                                                               vk::Image image,
-                                                               vk::Format format,
-                                                               vk::ImageLayout oldImageLayout,
-                                                               vk::ImageLayout newImageLayout,
-                                                               uint32_t mipLevels) {
+                                                        vk::Image image,
+                                                        vk::Format format,
+                                                        vk::ImageLayout oldImageLayout,
+                                                        vk::ImageLayout newImageLayout,
+                                                        uint32_t mipLevels) {
 
         vk::ImageSubresourceRange imageSubresourceRange;
         imageSubresourceRange
@@ -478,19 +478,22 @@ namespace engine {
         vk::PipelineStageFlags destinationStage;
 
         if (oldImageLayout == vk::ImageLayout::eUndefined && newImageLayout == vk::ImageLayout::eTransferDstOptimal) {
-            imageMemoryBarrier.setSrcAccessMask(static_cast<vk::AccessFlags>(0))
+            imageMemoryBarrier
+                    .setSrcAccessMask(vk::AccessFlags{})
                     .setDstAccessMask(vk::AccessFlagBits::eTransferWrite);
 
             sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
             destinationStage = vk::PipelineStageFlagBits::eTransfer;
         } else if (oldImageLayout == vk::ImageLayout::eTransferDstOptimal && newImageLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
-            imageMemoryBarrier.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
+            imageMemoryBarrier
+                    .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
                     .setDstAccessMask(vk::AccessFlagBits::eShaderRead);
 
             sourceStage = vk::PipelineStageFlagBits::eTransfer;
             destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
         } else if (oldImageLayout == vk::ImageLayout::eUndefined && newImageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
-            imageMemoryBarrier.setSrcAccessMask(vk::AccessFlags{})
+            imageMemoryBarrier
+                    .setSrcAccessMask(vk::AccessFlags{})
                     .setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
 
             sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;

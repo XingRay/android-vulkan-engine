@@ -30,7 +30,7 @@ namespace engine {
                             const VulkanVertexShader &vertexShader,
                             const VulkanFragmentShader &fragmentShader,
                             const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>>& uniformBuffers,
-                            const std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>>& TextureSamplers);
+                            const std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>>& textureSamplers);
 
         ~VulkanDescriptorSet();
 

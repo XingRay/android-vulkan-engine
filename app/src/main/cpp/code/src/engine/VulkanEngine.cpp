@@ -64,8 +64,14 @@ namespace engine {
         mRenderPass = std::make_unique<VulkanRenderPass>(*mDevice, *mSwapchain);
         mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, mFrameCount);
 
-        // todo merge fragment uniform
-        const std::vector<uint32_t> &uniformSizes = vertexShader->getUniformSizes();
+        LOG_D("merge uniform sizes");
+        std::vector<uint32_t> uniformSizes;
+        const std::vector<uint32_t> &vertexUniformSizes = vertexShader->getUniformSizes();
+        const std::vector<uint32_t> &fragmentUniformSizes = fragmentShader->getUniformSizes();
+        uniformSizes.insert(uniformSizes.end(), std::make_move_iterator(vertexUniformSizes.begin()), std::make_move_iterator(vertexUniformSizes.end()));
+        uniformSizes.insert(uniformSizes.end(), std::make_move_iterator(fragmentUniformSizes.begin()), std::make_move_iterator(fragmentUniformSizes.end()));
+
+        LOG_D("create VulkanUniformBuffer");
         for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
             std::vector<std::unique_ptr<VulkanUniformBuffer>> uniformBuffers;
             uniformBuffers.resize(uniformSizes.size());
@@ -75,21 +81,26 @@ namespace engine {
             mUniformBuffers.push_back(std::move(uniformBuffers));
         }
 
+        LOG_D("fragmentShader->getSamplerImageSizes");
         const std::vector<ImageSize> &imageSizes = fragmentShader->getSamplerImageSizes();
+        LOG_D("create VulkanTextureSampler");
         for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
             std::vector<std::unique_ptr<VulkanTextureSampler>> samplers;
             samplers.resize(imageSizes.size());
-            for (const ImageSize &imageSize: imageSizes) {
-                samplers.push_back(std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels));
+            for (int j=0; j<imageSizes.size(); j++) {
+                const ImageSize &imageSize =  imageSizes[j];
+                samplers[j]= std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels);
             }
             mTextureSamplers.push_back(std::move(samplers));
         }
 
-
+        LOG_D("create VulkanDescriptorSet");
         mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount, *vertexShader, *fragmentShader, mUniformBuffers, mTextureSamplers);
+        LOG_D("create VulkanPipeline");
         mPipeline = std::make_unique<VulkanPipeline>(*mDevice, *mSwapchain, *mDescriptorSet, *mRenderPass, *vertexShader, *fragmentShader);
-
+        LOG_D("create VulkanFrameBuffer");
         mFrameBuffer = std::make_unique<VulkanFrameBuffer>(*mDevice, *mSwapchain, *mRenderPass, *mCommandPool);
+        LOG_D("create VulkanSyncObject");
         mSyncObject = std::make_unique<VulkanSyncObject>(*mDevice, mFrameCount);
 
         if (vertexShader->getPushConstantRange().size > 0) {
@@ -149,7 +160,6 @@ namespace engine {
                                                     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipeline->getPipelineLayout(), 0,
                                                                                      {mDescriptorSet->getDescriptorSets()[mCurrentFrame]}, nullptr);
                                                     if (!mVertexPushConstantData.empty()) {
-                                                        LOG_D("mVertexPushConstantData: size:%ld", mVertexPushConstantData.size());
                                                         commandBuffer.pushConstants(mPipeline->getPipelineLayout(), vk::ShaderStageFlagBits::eVertex,
                                                                                     0,
                                                                                     mVertexPushConstantData.size(),

@@ -14,9 +14,11 @@ namespace engine {
                                              const VulkanVertexShader &vertexShader,
                                              const VulkanFragmentShader &fragmentShader,
                                              const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>> &uniformBuffers,
-                                             const std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>> &TextureSamplers)
+                                             const std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>> &textureSamplers)
             : mDevice(device) {
 
+        LOG_D("VulkanDescriptorSet::VulkanDescriptorSet");
+        LOG_D("merge descriptorPoolSizes");
         std::vector<vk::DescriptorPoolSize> descriptorPoolSizes;
         std::vector<vk::DescriptorPoolSize> vertexDescriptorPoolSizes = vertexShader.getUniformDescriptorPoolSizes();
         std::vector<vk::DescriptorPoolSize> fragmentDescriptorPoolSizes = fragmentShader.getUniformDescriptorPoolSizes();
@@ -24,38 +26,43 @@ namespace engine {
         descriptorPoolSizes.insert(descriptorPoolSizes.end(), std::make_move_iterator(vertexDescriptorPoolSizes.begin()), std::make_move_iterator(vertexDescriptorPoolSizes.end()));
         descriptorPoolSizes.insert(descriptorPoolSizes.end(), std::make_move_iterator(fragmentDescriptorPoolSizes.begin()), std::make_move_iterator(fragmentDescriptorPoolSizes.end()));
 
-
         vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo;
         descriptorPoolCreateInfo
                 .setPoolSizes(descriptorPoolSizes)
                 .setMaxSets(frameCount)
                 .setFlags(vk::DescriptorPoolCreateFlags{});
 
+        LOG_D("create DescriptorPool");
         mDescriptorPool = mDevice.getDevice().createDescriptorPool(descriptorPoolCreateInfo);
 
-        vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
 
+        LOG_D("merge descriptorSetLayoutBindings");
         std::vector<vk::DescriptorSetLayoutBinding> descriptorSetLayoutBindings;
         std::vector<vk::DescriptorSetLayoutBinding> vertexDescriptorSetLayoutBinding = vertexShader.getUniformDescriptorSetLayoutBindings();
         std::vector<vk::DescriptorSetLayoutBinding> fragmentDescriptorSetLayoutBinding = fragmentShader.getUniformDescriptorSetLayoutBindings();
-        descriptorSetLayoutBindings.insert(descriptorSetLayoutBindings.end(), vertexDescriptorSetLayoutBinding.begin(), vertexDescriptorSetLayoutBinding.end());
-        descriptorSetLayoutBindings.insert(descriptorSetLayoutBindings.end(), fragmentDescriptorSetLayoutBinding.begin(), fragmentDescriptorSetLayoutBinding.end());
+        descriptorSetLayoutBindings.insert(descriptorSetLayoutBindings.end(), std::make_move_iterator(vertexDescriptorSetLayoutBinding.begin()),
+                                           std::make_move_iterator(vertexDescriptorSetLayoutBinding.end()));
+        descriptorSetLayoutBindings.insert(descriptorSetLayoutBindings.end(), std::make_move_iterator(fragmentDescriptorSetLayoutBinding.begin()),
+                                           std::make_move_iterator(fragmentDescriptorSetLayoutBinding.end()));
+
+        LOG_D("create DescriptorSetLayout");
+        vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
         descriptorSetLayoutCreateInfo
                 .setBindings(descriptorSetLayoutBindings);
 
         mDescriptorSetLayout = mDevice.getDevice().createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
 
+        LOG_D("allocate DescriptorSets");
         // createDescriptorSets
         // 大小为 imageCount，并且每个元素都初始化为 mDescriptorSetLayout
         std::vector<vk::DescriptorSetLayout> layouts(frameCount, mDescriptorSetLayout);
-
         vk::DescriptorSetAllocateInfo allocateInfo{};
         allocateInfo.setDescriptorPool(mDescriptorPool)
                 .setSetLayouts(layouts);
-
         mDescriptorSets = mDevice.getDevice().allocateDescriptorSets(allocateInfo);
-        const std::vector<uint32_t> &vertexUniformSizes = vertexShader.getUniformSizes();
 
+        LOG_D("update DescriptorSets");
+        const std::vector<uint32_t> &vertexUniformSizes = vertexShader.getUniformSizes();
         for (int i = 0; i < uniformBuffers.size(); i++) {
             std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
             const std::vector<std::unique_ptr<VulkanUniformBuffer>> &uniformBuffersOfFrame = uniformBuffers[i];
@@ -80,17 +87,23 @@ namespace engine {
                 writeDescriptorSets.push_back(writeDescriptorSet);
             }
 
-            const std::vector<std::unique_ptr<VulkanTextureSampler>> &textureSamplersOfFrame = TextureSamplers[i];
+            const std::vector<std::unique_ptr<VulkanTextureSampler>> &textureSamplersOfFrame = textureSamplers[i];
             for (int j = 0; j < textureSamplersOfFrame.size(); j++) {
                 const auto &textureSampler = textureSamplersOfFrame[j];
 
+                LOG_D("samplerDescriptorImageInfo: {vk::ImageLayout::eShaderReadOnlyOptimal, %p, %p}",
+                      &textureSampler->getTextureImageView(),
+                      &textureSampler->getTextureSampler());
                 vk::DescriptorImageInfo samplerDescriptorImageInfo;
-                samplerDescriptorImageInfo.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+                samplerDescriptorImageInfo
+                        .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
                         .setImageView(textureSampler->getTextureImageView())
                         .setSampler(textureSampler->getTextureSampler());
 
+                LOG_D("samplerWriteDescriptorSet: {mDescriptorSets[%d], setDstBinding:%d, DstArrayElement:0, DescriptorType:eCombinedImageSampler, DescriptorCount:1}", i, j);
                 vk::WriteDescriptorSet samplerWriteDescriptorSet{};
-                samplerWriteDescriptorSet.setDstSet(mDescriptorSets[i])
+                samplerWriteDescriptorSet
+                        .setDstSet(mDescriptorSets[i])
                         .setDstBinding(j) // todo merge with normal uniform
                         .setDstArrayElement(0)
                         .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
@@ -109,6 +122,7 @@ namespace engine {
             // 更新描述符集
             mDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
         }
+        LOG_D("VulkanDescriptorSet::VulkanDescriptorSet end");
     }
 
     VulkanDescriptorSet::~VulkanDescriptorSet() {

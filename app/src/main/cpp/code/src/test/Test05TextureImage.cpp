@@ -67,6 +67,7 @@ namespace test05 {
         (*vertexShader)
                 .addVertexBinding(sizeof(Vertex))
                 .addVertexAttribute(0, ShaderFormat::Vec3, offsetof(Vertex, position), 0)
+                .addVertexAttribute(1, ShaderFormat::Vec2, offsetof(Vertex, uv), 0)
                 .setPushConstant(sizeof(glm::mat4));
 
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/05_texture_image.frag.spv");
@@ -75,27 +76,35 @@ namespace test05 {
                 .addSampler(width, height, channels, mFrameCount, 0);
 
         std::unique_ptr<engine::VulkanSurface> surface = std::make_unique<engine::AndroidVulkanSurface>(mVulkanEngine->getVKInstance(), mApp.window);
+        LOG_D("mVulkanEngine->initVulkan");
         mVulkanEngine->initVulkan(surface, deviceExtensions, vertexShader, fragmentShader);
 
 //        mVulkanEngine->createDirectlyTransferVertexBuffer(mVertices.size() * sizeof(app::Vertex));
+        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
         mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
 //        mVulkanEngine->updateVertexBuffer(mVertices.data(), mVertices.size() * sizeof(Vertex));
+        LOG_D("mVulkanEngine->updateVertexBuffer");
         mVulkanEngine->updateVertexBuffer(vertices);
 
 //        mVulkanEngine->createDirectlyTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
+        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
         mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
+        LOG_D("mVulkanEngine->updateIndexBuffer");
         mVulkanEngine->updateIndexBuffer(indices);
 
 //        mvpMatrix.model = glm::mat4(1.0f); // 单位矩阵
 //        mvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
+        LOG_D("mVulkanEngine->updateVertexPushConstant");
         mVulkanEngine->updateVertexPushConstant(&(mvp));
 
         for (int i = 0; i < mFrameCount; i++) {
+            LOG_D("mVulkanEngine->updateTextureSampler");
             mVulkanEngine->updateTextureSampler(i, 0, 0, pixels, width * height * channels);
         }
 
+        stbi_image_free(pixels);
     }
 
     // 检查是否准备好
