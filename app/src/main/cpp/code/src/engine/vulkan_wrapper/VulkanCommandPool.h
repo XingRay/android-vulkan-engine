@@ -5,10 +5,10 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
-#include "VulkanDevice.h"
-#include "VulkanSwapchain.h"
-#include "VulkanRenderPass.h"
-#include "VulkanPipeline.h"
+#include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/VulkanSwapchain.h"
+#include "engine/vulkan_wrapper/VulkanRenderPass.h"
+#include "engine/vulkan_wrapper/VulkanPipeline.h"
 
 #include <functional>
 

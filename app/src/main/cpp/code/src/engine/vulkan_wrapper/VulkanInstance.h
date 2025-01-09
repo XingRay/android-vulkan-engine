@@ -8,7 +8,11 @@
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1
 #endif
 
+#include <string>
+
 #include <vulkan/vulkan.hpp>
+
+#include "common/StringListSelector.h"
 
 namespace engine {
 
@@ -22,8 +26,12 @@ namespace engine {
         vk::DebugUtilsMessengerEXT mDebugMessenger;
 
     public:
-        VulkanInstance(const std::vector<const char *> &requiredInstanceExtensions,
-                       const std::vector<const char *> &layers);
+        VulkanInstance(const std::string& applicationName,
+                       uint32_t applicationVersion,
+                       const std::string& engineName,
+                       uint32_t engineVersion,
+                       const common::StringListSelector &extensionsSelector,
+                       const common::StringListSelector &layersSelector);
 
         ~VulkanInstance();
 

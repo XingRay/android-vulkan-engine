@@ -17,8 +17,12 @@ namespace engine {
             const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
             void *pUserData);
 
-    VulkanInstance::VulkanInstance(const std::vector<const char *> &requiredInstanceExtensions,
-                                   const std::vector<const char *> &layers) {
+    VulkanInstance::VulkanInstance(const std::string &applicationName,
+                                   uint32_t applicationVersion,
+                                   const std::string &engineName,
+                                   uint32_t engineVersion,
+                                   const common::StringListSelector &extensionsSelector,
+                                   const common::StringListSelector &layersSelector) {
         LOG_D("VulkanInstance::VulkanInstance");
         vk::DynamicLoader dl;
 
@@ -46,55 +50,32 @@ namespace engine {
         CALL_VK(vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr));
         std::vector<VkExtensionProperties> availableInstanceExtensions(extensionCount);
         CALL_VK(vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableInstanceExtensions.data()));
-
+        std::vector<const char *> availableExtensionNames;
         LOG_D("Available instance extensions:[%d]", extensionCount);
         for (const auto &extensionProperties: availableInstanceExtensions) {
             LOG_D("  %s", extensionProperties.extensionName);
+            availableExtensionNames.push_back(extensionProperties.extensionName);
         }
 
-        for (const auto &instanceExtension: requiredInstanceExtensions) {
-            bool found = false;
-            for (const auto &available: availableInstanceExtensions) {
-                if (strcmp(instanceExtension, available.extensionName) == 0) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                mEnabledInstanceExtensionNames.push_back(instanceExtension);
-            } else {
-                LOG_W("Required extension %s is not available", instanceExtension);
-            }
-        }
-
+        mEnabledInstanceExtensionNames = extensionsSelector.select(availableExtensionNames);
         LOG_D("Enabled extensions:[%ld]", mEnabledInstanceExtensionNames.size());
         for (const auto &extensionName: mEnabledInstanceExtensionNames) {
             LOG_D("  %s", extensionName);
         }
+
 
         uint32_t layerCount = 0;
         CALL_VK(vkEnumerateInstanceLayerProperties(&layerCount, nullptr));
         std::vector<VkLayerProperties> availableLayers(layerCount);
         CALL_VK(vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data()));
         LOG_D("Available layers:[%d]", layerCount);
+
+        std::vector<const char *> availableLayerNames;
         for (const auto &layerProperties: availableLayers) {
             LOG_D("  %s", layerProperties.layerName);
+            availableLayerNames.push_back(layerProperties.layerName);
         }
-
-        for (const auto &layer: layers) {
-            bool found = false;
-            for (const auto &available: availableLayers) {
-                if (strcmp(layer, available.layerName) == 0) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                mEnabledLayerNames.push_back(layer);
-            } else {
-                LOG_W("Required layer %s is not available", layer);
-            }
-        }
+        mEnabledLayerNames = layersSelector.select(availableExtensionNames);
 
         LOG_D("Enabled layers:[%ld]", mEnabledLayerNames.size());
         for (const auto &layerName: mEnabledLayerNames) {
@@ -105,10 +86,10 @@ namespace engine {
         VkApplicationInfo appInfo = {
                 .sType = VK_STRUCTURE_TYPE_APPLICATION_INFO,
                 .pNext = nullptr,
-                .pApplicationName = "vulkan_application",
-                .applicationVersion = VK_MAKE_VERSION(1, 0, 0),
-                .pEngineName = "vulkan_engine",
-                .engineVersion = VK_MAKE_VERSION(1, 0, 0),
+                .pApplicationName = applicationName.c_str(),
+                .applicationVersion = applicationVersion,
+                .pEngineName = engineName.c_str(),
+                .engineVersion = engineVersion,
                 .apiVersion = VK_API_VERSION_1_3,
         };
 

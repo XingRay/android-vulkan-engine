@@ -26,7 +26,7 @@ namespace test01 {
                 "VK_LAYER_KHRONOS_validation"
         };
 
-        mVulkanEngine = std::make_unique<engine::VulkanEngine>(instanceExtensions, layers);
+        mVulkanEngine = std::move(engine::VulkanEngineBuilder{}.layers({}, layers).extensions({}, instanceExtensions).asGraphics());
     }
 
     void Test01SimpleTriangle::init() {
@@ -34,7 +34,7 @@ namespace test01 {
                 VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 
-        std::vector<Vertex> vertices= {
+        std::vector<Vertex> vertices = {
                 {{1.0f,  -1.0f, 0.0f}},
                 {{-1.0f, -1.0f, 0.0f}},
                 {{0.0f,  1.0f,  0.0f}},

@@ -5,8 +5,8 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
-#include "VulkanDevice.h"
-#include "VulkanCommandPool.h"
+#include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
 namespace engine {
 

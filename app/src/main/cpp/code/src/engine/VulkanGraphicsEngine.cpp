@@ -2,22 +2,27 @@
 // Created by leixing on 2024/12/16.
 //
 
-#include "VulkanEngine.h"
-#include "VkCheckCpp.h"
-#include "VkCheck.h"
+#include "VulkanGraphicsEngine.h"
+#include "engine/vulkan_wrapper/VkCheckCpp.h"
+#include "engine/vulkan_wrapper/VkCheck.h"
 #include "Log.h"
 #include <cassert>
 #include <utility>
-
+#include <string>
+#include "common/StringListSelector.h"
 
 namespace engine {
 
-    VulkanEngine::VulkanEngine(const std::vector<const char *> &instanceExtensions, const std::vector<const char *> &layers, int frameCount)
-            : mFrameCount(frameCount) {
-        mInstance = std::make_unique<VulkanInstance>(instanceExtensions, layers);
+    VulkanGraphicsEngine::VulkanGraphicsEngine(const std::string &applicationName,
+                                               uint32_t applicationVersion,
+                                               const std::string &engineName,
+                                               uint32_t engineVersion,
+                                               const common::StringListSelector &extensionsSelector,
+                                               const common::StringListSelector &layersSelector) {
+        mInstance = std::make_unique<VulkanInstance>(applicationName, applicationVersion, engineName, engineVersion, extensionsSelector, layersSelector);
     }
 
-    VulkanEngine::~VulkanEngine() {
+    VulkanGraphicsEngine::~VulkanGraphicsEngine() {
         LOG_D("~VulkanEngine()");
 
         mCommandPool.reset();
@@ -40,18 +45,18 @@ namespace engine {
         mInstance.reset();
     }
 
-    vk::Instance VulkanEngine::getVKInstance() const {
+    vk::Instance VulkanGraphicsEngine::getVKInstance() const {
         return mInstance->getInstance();
     }
 
-    vk::Device VulkanEngine::getVKDevice() const {
+    vk::Device VulkanGraphicsEngine::getVKDevice() const {
         return mDevice->getDevice();
     }
 
-    bool VulkanEngine::initVulkan(std::unique_ptr<VulkanSurface> &vulkanSurface,
-                                  const std::vector<const char *> &deviceExtensions,
-                                  const std::unique_ptr<VulkanVertexShader> &vertexShader,
-                                  const std::unique_ptr<VulkanFragmentShader> &fragmentShader) {
+    bool VulkanGraphicsEngine::initVulkan(std::unique_ptr<VulkanSurface> &vulkanSurface,
+                                          const std::vector<const char *> &deviceExtensions,
+                                          const std::unique_ptr<VulkanVertexShader> &vertexShader,
+                                          const std::unique_ptr<VulkanFragmentShader> &fragmentShader) {
 
         mSurface = std::move(vulkanSurface);
         mDevice = std::make_unique<VulkanDevice>(mInstance->getInstance(), mSurface->getSurface(), mInstance->getEnabledLayers(), deviceExtensions);
@@ -87,9 +92,9 @@ namespace engine {
         for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
             std::vector<std::unique_ptr<VulkanTextureSampler>> samplers;
             samplers.resize(imageSizes.size());
-            for (int j=0; j<imageSizes.size(); j++) {
-                const ImageSize &imageSize =  imageSizes[j];
-                samplers[j]= std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels);
+            for (int j = 0; j < imageSizes.size(); j++) {
+                const ImageSize &imageSize = imageSizes[j];
+                samplers[j] = std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels);
             }
             mTextureSamplers.push_back(std::move(samplers));
         }
@@ -119,7 +124,7 @@ namespace engine {
     }
 
 
-    void VulkanEngine::drawFrame() {
+    void VulkanGraphicsEngine::drawFrame() {
         const vk::Device device = mDevice->getDevice();
 
         vk::Result result = mSyncObject->waitFence(mCurrentFrame);
@@ -226,25 +231,25 @@ namespace engine {
         mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
     }
 
-    void VulkanEngine::createDirectlyTransferVertexBuffer(size_t size) {
+    void VulkanGraphicsEngine::createDirectlyTransferVertexBuffer(size_t size) {
         std::unique_ptr<DirectlyTransferVertexBuffer> vertexBuffer = std::make_unique<DirectlyTransferVertexBuffer>(*mDevice, size);
         mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
         mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getVertexBuffer());
         mVertexBufferOffsets.push_back(0);
     }
 
-    void VulkanEngine::createStagingTransferVertexBuffer(size_t size) {
+    void VulkanGraphicsEngine::createStagingTransferVertexBuffer(size_t size) {
         std::unique_ptr<StagingTransferVertexBuffer> vertexBuffer = std::make_unique<StagingTransferVertexBuffer>(*mDevice, *mCommandPool, size);
         mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
         mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getVertexBuffer());
         mVertexBufferOffsets.push_back(0);
     }
 
-    void VulkanEngine::updateVertexBuffer(const void *data, size_t size) {
+    void VulkanGraphicsEngine::updateVertexBuffer(const void *data, size_t size) {
         updateVertexBuffer(0, data, size);
     }
 
-    void VulkanEngine::updateVertexBuffer(uint32_t index, const void *data, size_t size) {
+    void VulkanGraphicsEngine::updateVertexBuffer(uint32_t index, const void *data, size_t size) {
         if (index >= mVulkanVertexBuffers.size()) {
             LOG_E("index out of range, index:%d, size:%zu", index, mVulkanVertexBuffers.size());
 
@@ -258,37 +263,37 @@ namespace engine {
         mVulkanVertexBuffers[index]->update(data, size);
     }
 
-    void VulkanEngine::createDirectlyTransferIndexBuffer(size_t size) {
+    void VulkanGraphicsEngine::createDirectlyTransferIndexBuffer(size_t size) {
         mIndexBuffer.reset();
         mIndexBuffer = std::make_unique<DirectlyTransferIndexBuffer>(*mDevice, size);
     }
 
-    void VulkanEngine::createStagingTransferIndexBuffer(size_t size) {
+    void VulkanGraphicsEngine::createStagingTransferIndexBuffer(size_t size) {
         mIndexBuffer.reset();
         mIndexBuffer = std::make_unique<StagingTransferIndexBuffer>(*mDevice, *mCommandPool, size);
     }
 
-    void VulkanEngine::updateIndexBuffer(std::vector<uint32_t> indices) const {
+    void VulkanGraphicsEngine::updateIndexBuffer(std::vector<uint32_t> indices) const {
         mIndexBuffer->update(std::move(indices));
     }
 
-    void VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
+    void VulkanGraphicsEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
         mUniformBuffers[frameIndex][binding]->updateBuffer(data, size);
     }
 
-    void VulkanEngine::updateTextureSampler(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
+    void VulkanGraphicsEngine::updateTextureSampler(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
         mTextureSamplers[frameIndex][binding]->update(data);
     }
 
-    void VulkanEngine::updateVertexPushConstant(const void *data) {
+    void VulkanGraphicsEngine::updateVertexPushConstant(const void *data) {
         std::memcpy(mVertexPushConstantData.data(), data, mVertexPushConstantData.size());
     }
 
-    void VulkanEngine::updateFragmentPushConstant(const void *data) {
+    void VulkanGraphicsEngine::updateFragmentPushConstant(const void *data) {
         std::memcpy(mFragmentPushConstantData.data(), data, mFragmentPushConstantData.size());
     }
 
-    void VulkanEngine::recreateSwapChain() {
+    void VulkanGraphicsEngine::recreateSwapChain() {
         throw std::runtime_error("recreateSwapChain");
     }
 

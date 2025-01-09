@@ -58,11 +58,10 @@ intEngine(){
     .layers(..)
     // select layers
     .layersSelection([](availablelayers)->vector<char>{ ... })
-    .build();
+    // set work mode
+    .asGraphics() // or asComputer(), return GraphicsEngine or ComputerEngine
 
     engine
-        // set work mode
-        .asGraphics() // or asComputer(), return GraphicsEngine or ComputerEngine
         // set surface
         .surface(WindowsSurface(..)) // or AndroidSurface(..)/LinuxSurface(..)/MacSurface(..)/IosSurface(..)
         // set PhysicalDevice , use one of apis

@@ -8,7 +8,7 @@
 #include "TestBase.h"
 
 #include "VulkanEngine.h"
-#include "android/AndroidVulkanSurface.h"
+#include "engine/vulkan_wrapper/android/AndroidVulkanSurface.h"
 #include "game_activity/native_app_glue/android_native_app_glue.h"
 
 #include "glm.h"
@@ -32,7 +32,7 @@ namespace test02 {
 
         const android_app &mApp;
 
-        std::unique_ptr<engine::VulkanEngine> mVulkanEngine;
+        std::unique_ptr<engine::VulkanGraphicsEngine> mVulkanEngine;
 
     public:
         // 构造函数初始化基类 TestBase，并传递 name

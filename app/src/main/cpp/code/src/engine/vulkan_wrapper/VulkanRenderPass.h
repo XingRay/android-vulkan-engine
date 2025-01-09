@@ -6,7 +6,7 @@
 
 #include "vulkan/vulkan.hpp"
 
-#include "VulkanSwapchain.h"
+#include "engine/vulkan_wrapper/VulkanSwapchain.h"
 #include "Log.h"
 
 namespace engine {

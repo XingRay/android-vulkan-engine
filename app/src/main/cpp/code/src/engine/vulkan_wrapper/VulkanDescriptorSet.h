@@ -5,10 +5,10 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
-#include "VulkanDevice.h"
-#include "VulkanSwapchain.h"
-#include "VulkanVertexShader.h"
-#include "VulkanFragmentShader.h"
+#include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/VulkanSwapchain.h"
+#include "engine/vulkan_wrapper/VulkanVertexShader.h"
+#include "engine/vulkan_wrapper/VulkanFragmentShader.h"
 //#include "VulkanUniformBuffer.h"
 
 namespace engine {

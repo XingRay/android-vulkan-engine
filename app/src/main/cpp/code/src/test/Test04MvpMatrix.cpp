@@ -24,7 +24,7 @@ namespace test04 {
                 "VK_LAYER_KHRONOS_validation"
         };
 
-        mVulkanEngine = std::make_unique<engine::VulkanEngine>(instanceExtensions, layers, mFrameCount);
+        mVulkanEngine = std::move(engine::VulkanEngineBuilder{}.layers({}, layers).extensions({}, instanceExtensions).asGraphics());
     }
 
     void Test04MvpMatrix::init() {

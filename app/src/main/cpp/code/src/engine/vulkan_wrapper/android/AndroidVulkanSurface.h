@@ -6,7 +6,7 @@
 #define VULKANDEMO_ANDROIDVULKANSURFACE_H
 
 #include <vulkan/vulkan.hpp>
-#include "VulkanSurface.h"
+#include "engine/vulkan_wrapper/VulkanSurface.h"
 
 namespace engine {
 

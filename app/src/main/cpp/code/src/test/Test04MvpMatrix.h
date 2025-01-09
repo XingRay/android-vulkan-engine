@@ -8,7 +8,7 @@
 #include "TestBase.h"
 
 #include "VulkanEngine.h"
-#include "android/AndroidVulkanSurface.h"
+#include "engine/vulkan_wrapper/android/AndroidVulkanSurface.h"
 #include "game_activity/native_app_glue/android_native_app_glue.h"
 
 #include "glm.h"
@@ -33,7 +33,7 @@ namespace test04 {
 
         const android_app &mApp;
 
-        std::unique_ptr<engine::VulkanEngine> mVulkanEngine;
+        std::unique_ptr<engine::VulkanGraphicsEngine> mVulkanEngine;
 
         MvpMatrix mMvpMatrix{};
     public:
