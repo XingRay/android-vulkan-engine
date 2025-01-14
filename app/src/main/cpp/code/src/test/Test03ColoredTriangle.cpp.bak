@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/4.
 //
 
-#include "Test03ColoredTriangle.h"
+#include "Test03ColoredTriangle.h.bak"
 #include "FileUtil.h"
 
 namespace test03 {
@@ -43,7 +43,7 @@ namespace test03 {
         std::vector<uint32_t> indices = {0, 1, 2};
 
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/03_colored_triangle.vert.spv");
-        std::unique_ptr<engine::VulkanVertexShader> vertexShader = std::make_unique<engine::VulkanVertexShader>(vertexShaderCode);
+        std::unique_ptr<engine::VulkanShader> vertexShader = std::make_unique<engine::VulkanShader>(vertexShaderCode);
 
         vertexShader->addVertexBinding(sizeof(Vertex))
                 .addVertexAttribute(0, ShaderFormat::Vec3, offsetof(Vertex, position), 0)

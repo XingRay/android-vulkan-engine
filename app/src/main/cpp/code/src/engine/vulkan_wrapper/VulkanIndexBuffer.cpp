@@ -3,9 +3,9 @@
 //
 
 #include "VulkanIndexBuffer.h"
-#include "VulkanUtil.h"
-#include "Log.h"
-#include "VkCheckCpp.h"
+#include "engine/VulkanUtil.h"
+#include "engine/Log.h"
+#include "engine/VkCheckCpp.h"
 
 namespace engine {
     VulkanIndexBuffer::VulkanIndexBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize) : mDevice(vulkanDevice), mBufferSize(bufferSize) {

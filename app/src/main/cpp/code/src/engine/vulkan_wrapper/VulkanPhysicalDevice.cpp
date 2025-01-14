@@ -1,144 +1,125 @@
 //
-// Created by leixing on 2024/12/30.
+// Created by leixing on 2025/1/9.
 //
 
-#include "VulkanUtil.h"
-#include "Log.h"
+#include "engine/vulkan_wrapper/VulkanPhysicalDevice.h"
+#include "engine/Log.h"
+#include "engine/VulkanUtil.h"
+
+#include "engine/common/StringUtil.h"
 
 namespace engine {
+    VulkanPhysicalDevice::VulkanPhysicalDevice(const vk::PhysicalDevice &physicalDevice) : mPhysicalDevice(physicalDevice) {
 
-    std::pair<vk::Buffer, vk::DeviceMemory> VulkanUtil::createBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties) {
-        const vk::Device device = vulkanDevice.getDevice();
-        const vk::PhysicalDevice physicalDevice = vulkanDevice.getPhysicalDevice();
-
-//        std::vector<uint32_t> queueIndices = vulkanDevice.getQueueFamilyIndices();
-//        vk::SharingMode sharingMode;
-//        if (queueIndices.size() == 1) {
-//            sharingMode = vk::SharingMode::eExclusive;
-//        } else {
-//            sharingMode = vk::SharingMode::eConcurrent;
-//        }
-
-        vk::BufferCreateInfo bufferCreateInfo{};
-        bufferCreateInfo.setSize(size)
-                .setUsage(usage)
-                .setSharingMode(vk::SharingMode::eExclusive);
-//                .setSharingMode(sharingMode)
-//                .setQueueFamilyIndices(queueIndices);
-
-        vk::Buffer buffer = device.createBuffer(bufferCreateInfo);
-        vk::MemoryRequirements memoryRequirements = device.getBufferMemoryRequirements(buffer);
-        vk::PhysicalDeviceMemoryProperties memoryProperties = physicalDevice.getMemoryProperties();
-
-        uint32_t memoryType = findMemoryType(memoryProperties, memoryRequirements.memoryTypeBits, properties);
-        vk::MemoryAllocateInfo memoryAllocateInfo{};
-        memoryAllocateInfo
-                .setAllocationSize(memoryRequirements.size)
-                .setMemoryTypeIndex(memoryType);
-
-        vk::DeviceMemory bufferMemory = device.allocateMemory(memoryAllocateInfo);
-        device.bindBufferMemory(buffer, bufferMemory, 0);
-
-        return {buffer, bufferMemory};
     }
 
-    uint32_t VulkanUtil::findMemoryType(const vk::PhysicalDeviceMemoryProperties &memoryProperties, uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
-        for (int i = 0; i < memoryProperties.memoryTypeCount; i++) {
-            if (typeFilter & (1 << i) && ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)) {
-                return i;
-            }
+    VulkanPhysicalDevice::~VulkanPhysicalDevice() = default;
+
+    std::optional<VulkanPhysicalDeviceSurfaceSupport> VulkanPhysicalDevice::querySurfaceSupport(const VulkanSurface &vulkanSurface) const {
+        const vk::SurfaceKHR &surface = vulkanSurface.getSurface();
+
+        QueueFamilyIndices indices = VulkanUtil::findQueueFamilies(mPhysicalDevice, surface);
+        if (!indices.isComplete()) {
+            LOG_W("device QueueFamilyIndices is not complete !");
+            return std::nullopt;
         }
 
-        throw std::runtime_error("failed to find suitable memory type !");
+        std::optional<VulkanPhysicalDeviceSurfaceSupport> surfaceSupport = VulkanPhysicalDeviceSurfaceSupport();
+
+        surfaceSupport->graphicQueueFamilyIndex = indices.graphicQueueFamilyIndex.value();
+        surfaceSupport->presentQueueFamilyIndex = indices.presentQueueFamilyIndex.value();
+
+        // 验证扩展可用后才尝试查询交换链支持
+        surfaceSupport->capabilities = mPhysicalDevice.getSurfaceCapabilitiesKHR(surface);
+        surfaceSupport->formats = mPhysicalDevice.getSurfaceFormatsKHR(surface);
+        surfaceSupport->presentModes = mPhysicalDevice.getSurfacePresentModesKHR(surface);
+
+        if (surfaceSupport->formats.empty() || surfaceSupport->presentModes.empty()) {
+            LOG_D("VulkanPhysicalDeviceSurfaceSupport: formats or presentModes is empty");
+            return std::nullopt;
+        }
+
+        return surfaceSupport;
     }
 
-    void VulkanUtil::recordCopyBufferCommand(const vk::CommandBuffer &commandBuffer,
-                                             const vk::Buffer &srcBuffer,
-                                             const vk::Buffer &dstBuffer,
-                                             vk::DeviceSize size) {
-        vk::BufferCopy bufferCopy;
-        bufferCopy.setSrcOffset(0)
-                .setDstOffset(0)
-                .setSize(size);
-
-        commandBuffer.copyBuffer(srcBuffer, dstBuffer, bufferCopy);
+    bool VulkanPhysicalDevice::isSupportExtensions(const std::vector<std::string> extensions) const{
+        return common::StringUtil::isContains(queryExtensionNames(), extensions);
     }
 
-    std::pair<vk::Image, vk::DeviceMemory> VulkanUtil::createImage(
-            const vk::Device &device,
-            vk::PhysicalDeviceMemoryProperties properties,
-            uint32_t width,
-            uint32_t height,
-            uint32_t mipLevels,
-            vk::SampleCountFlagBits numSamples,
-            vk::Format format,
-            vk::ImageTiling imageTiling,
-            vk::ImageUsageFlags imageUsage,
-            vk::MemoryPropertyFlags memoryProperty) {
-
-        vk::Extent3D extent;
-        extent.setWidth(width)
-                .setHeight(height)
-                .setDepth(1);
-        vk::ImageCreateInfo imageCreateInfo;
-        imageCreateInfo.setImageType(vk::ImageType::e2D)
-                .setExtent(extent)
-                .setMipLevels(mipLevels)
-                .setArrayLayers(1)
-                .setFormat(format)
-                .setTiling(imageTiling)
-                .setInitialLayout(vk::ImageLayout::eUndefined)
-                .setUsage(imageUsage)
-                .setSharingMode(vk::SharingMode::eExclusive)
-                .setSamples(numSamples)
-                .setFlags(vk::ImageCreateFlags{});
-
-        vk::Image image = device.createImage(imageCreateInfo);
-
-        vk::MemoryRequirements memoryRequirements = device.getImageMemoryRequirements(image);
-
-        vk::MemoryAllocateInfo memoryAllocateInfo;
-
-        uint32_t memoryType = VulkanUtil::findMemoryType(properties, memoryRequirements.memoryTypeBits, memoryProperty);
-        memoryAllocateInfo
-                .setAllocationSize(memoryRequirements.size)
-                .setMemoryTypeIndex(memoryType);
-
-        vk::DeviceMemory imageMemory = device.allocateMemory(memoryAllocateInfo);
-
-        device.bindImageMemory(image, imageMemory, 0);
-
-        return {image, imageMemory};
+    const vk::PhysicalDevice &VulkanPhysicalDevice::getPhysicalDevice() const {
+        return mPhysicalDevice;
     }
 
-    vk::ImageView VulkanUtil::createImageView(const vk::Device &device, const vk::Image &image, vk::Format format, vk::ImageAspectFlags imageAspect, uint32_t mipLevels) {
-        vk::ImageViewCreateInfo imageViewCreateInfo{};
-        imageViewCreateInfo.setImage(image)
-                .setViewType(vk::ImageViewType::e2D)
-                .setFormat(format);
-//            .setSubresourceRange(imageSubresourceRange)
-//            .setComponents(componentMapping);
+    vk::SampleCountFlagBits VulkanPhysicalDevice::queryMaxUsableSampleCount() const {
+        vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
+        vk::PhysicalDeviceLimits &limits = properties.limits;
 
-        vk::ImageSubresourceRange &imageSubresourceRange = imageViewCreateInfo.subresourceRange;
-        imageSubresourceRange.setAspectMask(imageAspect)
-                .setBaseMipLevel(0)
-                .setLevelCount(mipLevels)
-                .setBaseArrayLayer(0)
-                .setLayerCount(1);
+        vk::SampleCountFlags counts = limits.framebufferColorSampleCounts & limits.framebufferDepthSampleCounts;
+        if (counts & vk::SampleCountFlagBits::e64) {
+            return vk::SampleCountFlagBits::e64;
+        } else if (counts & vk::SampleCountFlagBits::e32) {
+            return vk::SampleCountFlagBits::e32;
+        } else if (counts & vk::SampleCountFlagBits::e16) {
+            return vk::SampleCountFlagBits::e16;
+        } else if (counts & vk::SampleCountFlagBits::e8) {
+            return vk::SampleCountFlagBits::e8;
+        } else if (counts & vk::SampleCountFlagBits::e4) {
+            return vk::SampleCountFlagBits::e4;
+        } else if (counts & vk::SampleCountFlagBits::e2) {
+            return vk::SampleCountFlagBits::e2;
+        } else {
+            return vk::SampleCountFlagBits::e1;
+        }
+    }
 
-        vk::ComponentMapping &componentMapping = imageViewCreateInfo.components;
-        componentMapping.setR(vk::ComponentSwizzle::eIdentity)
-                .setG(vk::ComponentSwizzle::eIdentity)
-                .setB(vk::ComponentSwizzle::eIdentity)
-                .setA(vk::ComponentSwizzle::eIdentity);
+    std::vector<uint32_t> VulkanPhysicalDevice::querySupportedSampleCounts() const {
+        vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
+        vk::PhysicalDeviceLimits& limits = properties.limits;
 
-        return device.createImageView(imageViewCreateInfo);
+        // 获取支持的 sampleCounts
+        vk::SampleCountFlags counts = limits.framebufferColorSampleCounts & limits.framebufferDepthSampleCounts;
+
+        std::vector<uint32_t> supportedSampleCounts;
+
+        // 检查每个可能的 sampleCount 是否支持
+        if (counts & vk::SampleCountFlagBits::e64) {
+            supportedSampleCounts.push_back(64);
+        }
+        if (counts & vk::SampleCountFlagBits::e32) {
+            supportedSampleCounts.push_back(32);
+        }
+        if (counts & vk::SampleCountFlagBits::e16) {
+            supportedSampleCounts.push_back(16);
+        }
+        if (counts & vk::SampleCountFlagBits::e8) {
+            supportedSampleCounts.push_back(8);
+        }
+        if (counts & vk::SampleCountFlagBits::e4) {
+            supportedSampleCounts.push_back(4);
+        }
+        if (counts & vk::SampleCountFlagBits::e2) {
+            supportedSampleCounts.push_back(2);
+        }
+        if (counts & vk::SampleCountFlagBits::e1) {
+            supportedSampleCounts.push_back(1);
+        }
+
+        return supportedSampleCounts;
     }
 
 
-    void VulkanUtil::printPhysicalDeviceInfo(const vk::PhysicalDevice &physicalDevice) {
-        // 获取物理设备的属性
-        vk::PhysicalDeviceProperties properties = physicalDevice.getProperties();
+    std::string VulkanPhysicalDevice::queryName() const {
+        vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
+        return std::string(properties.deviceName);
+    }
+
+    vk::PhysicalDeviceType VulkanPhysicalDevice::queryType() const {
+        vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
+        return properties.deviceType;
+    }
+
+    void VulkanPhysicalDevice::printInfo() const {
+        vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
 
         LOG_D("Physical Device Properties:");
         LOG_D("  Device Name: %s", properties.deviceName.data());
@@ -239,16 +220,16 @@ namespace engine {
         LOG_D("  Max Framebuffer Width: %u", limits.maxFramebufferWidth);
         LOG_D("  Max Framebuffer Height: %u", limits.maxFramebufferHeight);
         LOG_D("  Max Framebuffer Layers: %u", limits.maxFramebufferLayers);
-        LOG_D("  Framebuffer Color Sample Counts: %s", sampleCountFlagsToString(limits.framebufferColorSampleCounts).c_str());
-        LOG_D("  Framebuffer Depth Sample Counts: %s", sampleCountFlagsToString(limits.framebufferDepthSampleCounts).c_str());
-        LOG_D("  Framebuffer Stencil Sample Counts: %s", sampleCountFlagsToString(limits.framebufferStencilSampleCounts).c_str());
-        LOG_D("  Framebuffer No Attachments Sample Counts: %s", sampleCountFlagsToString(limits.framebufferNoAttachmentsSampleCounts).c_str());
+        LOG_D("  Framebuffer Color Sample Counts: %s", VulkanUtil::sampleCountFlagsToString(limits.framebufferColorSampleCounts).c_str());
+        LOG_D("  Framebuffer Depth Sample Counts: %s", VulkanUtil::sampleCountFlagsToString(limits.framebufferDepthSampleCounts).c_str());
+        LOG_D("  Framebuffer Stencil Sample Counts: %s", VulkanUtil::sampleCountFlagsToString(limits.framebufferStencilSampleCounts).c_str());
+        LOG_D("  Framebuffer No Attachments Sample Counts: %s", VulkanUtil::sampleCountFlagsToString(limits.framebufferNoAttachmentsSampleCounts).c_str());
         LOG_D("  Max Color Attachments: %u", limits.maxColorAttachments);
-        LOG_D("  Sampled Image Color Sample Counts: %s", sampleCountFlagsToString(limits.sampledImageColorSampleCounts).c_str());
-        LOG_D("  Sampled Image Integer Sample Counts: %s", sampleCountFlagsToString(limits.sampledImageIntegerSampleCounts).c_str());
-        LOG_D("  Sampled Image Depth Sample Counts: %s", sampleCountFlagsToString(limits.sampledImageDepthSampleCounts).c_str());
-        LOG_D("  Sampled Image Stencil Sample Counts: %s", sampleCountFlagsToString(limits.sampledImageStencilSampleCounts).c_str());
-        LOG_D("  Storage Image Sample Counts: %s", sampleCountFlagsToString(limits.storageImageSampleCounts).c_str());
+        LOG_D("  Sampled Image Color Sample Counts: %s", VulkanUtil::sampleCountFlagsToString(limits.sampledImageColorSampleCounts).c_str());
+        LOG_D("  Sampled Image Integer Sample Counts: %s", VulkanUtil::sampleCountFlagsToString(limits.sampledImageIntegerSampleCounts).c_str());
+        LOG_D("  Sampled Image Depth Sample Counts: %s", VulkanUtil::sampleCountFlagsToString(limits.sampledImageDepthSampleCounts).c_str());
+        LOG_D("  Sampled Image Stencil Sample Counts: %s", VulkanUtil::sampleCountFlagsToString(limits.sampledImageStencilSampleCounts).c_str());
+        LOG_D("  Storage Image Sample Counts: %s", VulkanUtil::sampleCountFlagsToString(limits.storageImageSampleCounts).c_str());
         LOG_D("  Max Sample Mask Words: %u", limits.maxSampleMaskWords);
         LOG_D("  Timestamp Compute and Graphics: %s", limits.timestampComputeAndGraphics ? "Supported" : "Not Supported");
         LOG_D("  Timestamp Period: %f", limits.timestampPeriod);
@@ -276,7 +257,7 @@ namespace engine {
         LOG_D("  Residency Non-Resident Strict: %s", sparseProperties.residencyNonResidentStrict ? "Supported" : "Not Supported");
 
         // 获取设备支持的特性
-        auto deviceFeatures = physicalDevice.getFeatures();
+        auto deviceFeatures = mPhysicalDevice.getFeatures();
         LOG_D("PhysicalDeviceFeatures:");
         LOG_D("robustBufferAccess: %s", deviceFeatures.robustBufferAccess ? "Enabled" : "Disabled");
         LOG_D("fullDrawIndexUint32: %s", deviceFeatures.fullDrawIndexUint32 ? "Enabled" : "Disabled");
@@ -335,7 +316,7 @@ namespace engine {
         LOG_D("inheritedQueries: %s", deviceFeatures.inheritedQueries ? "Enabled" : "Disabled");
 
         // 获取队列族属性
-        auto queueFamilies = physicalDevice.getQueueFamilyProperties();
+        auto queueFamilies = mPhysicalDevice.getQueueFamilyProperties();
         LOG_D("Queue Family Properties:");
         for (size_t i = 0; i < queueFamilies.size(); ++i) {
             LOG_D("  Queue Family #%zu:", i);
@@ -349,18 +330,18 @@ namespace engine {
         }
 
         // 获取设备支持的扩展
-        auto extensions = physicalDevice.enumerateDeviceExtensionProperties();
+        auto extensions = mPhysicalDevice.enumerateDeviceExtensionProperties();
         LOG_D("Supported Extensions:");
         for (const auto &ext: extensions) {
             LOG_D("  %s (version %u)", ext.extensionName.data(), ext.specVersion);
         }
 
         // 获取设备的内存属性
-        auto memoryProperties = physicalDevice.getMemoryProperties();
+        auto memoryProperties = mPhysicalDevice.getMemoryProperties();
         LOG_D("Memory Heaps:");
         for (uint32_t i = 0; i < memoryProperties.memoryHeapCount; ++i) {
             LOG_D("  Heap #%u: Size = %s, Flags = %s", i,
-                  formatDeviceSize(memoryProperties.memoryHeaps[i].size).c_str(),
+                  VulkanUtil::formatDeviceSize(memoryProperties.memoryHeaps[i].size).c_str(),
                   vk::to_string(memoryProperties.memoryHeaps[i].flags).c_str());
         }
         LOG_D("Memory Types:");
@@ -372,9 +353,9 @@ namespace engine {
     }
 
 
-    void VulkanUtil::printPhysicalDeviceInfoWithSurface(const vk::PhysicalDevice &physicalDevice, const vk::SurfaceKHR &surface) {
+    void VulkanPhysicalDevice::printInfoWithSurface(const vk::SurfaceKHR &surface) const {
         // 获取交换链支持详情并直接打印
-        auto capabilities = physicalDevice.getSurfaceCapabilitiesKHR(surface);
+        auto capabilities = mPhysicalDevice.getSurfaceCapabilitiesKHR(surface);
         LOG_D("Surface Capabilities:");
         LOG_D("  minImageCount: %u", capabilities.minImageCount);
         LOG_D("  maxImageCount: %u", capabilities.maxImageCount);
@@ -388,7 +369,7 @@ namespace engine {
         LOG_D("  supportedUsageFlags: %s", vk::to_string(capabilities.supportedUsageFlags).c_str());
 
         // 打印格式信息
-        auto formats = physicalDevice.getSurfaceFormatsKHR(surface);
+        auto formats = mPhysicalDevice.getSurfaceFormatsKHR(surface);
         LOG_D("Surface Formats:");
         for (const auto &format: formats) {
             LOG_D("  Format: %s, ColorSpace: %s",
@@ -397,148 +378,20 @@ namespace engine {
         }
 
         // 打印呈现模式信息
-        auto presentModes = physicalDevice.getSurfacePresentModesKHR(surface);
+        auto presentModes = mPhysicalDevice.getSurfacePresentModesKHR(surface);
         LOG_D("Surface Present Modes:");
         for (const auto &presentMode: presentModes) {
             LOG_D("  PresentMode: %s", vk::to_string(presentMode).c_str());
         }
     }
 
-
-    // 转换 SampleCountFlags 为字符串
-    std::string VulkanUtil::sampleCountFlagsToString(vk::SampleCountFlags flags) {
-        std::string result;
-
-        if (flags & vk::SampleCountFlagBits::e1) result += "1 ";
-        if (flags & vk::SampleCountFlagBits::e2) result += "2 ";
-        if (flags & vk::SampleCountFlagBits::e4) result += "4 ";
-        if (flags & vk::SampleCountFlagBits::e8) result += "8 ";
-        if (flags & vk::SampleCountFlagBits::e16) result += "16 ";
-        if (flags & vk::SampleCountFlagBits::e32) result += "32 ";
-        if (flags & vk::SampleCountFlagBits::e64) result += "64 ";
-
-        if (result.empty()) return "None";
-        return result;
-    }
-
-    // 将 vk::DeviceSize 转换为更易读的单位
-    std::string VulkanUtil::formatDeviceSize(vk::DeviceSize size) {
-        constexpr vk::DeviceSize KB = 1024;
-        constexpr vk::DeviceSize MB = KB * 1024;
-        constexpr vk::DeviceSize GB = MB * 1024;
-
-        if (size >= GB) {
-            return std::to_string(size / GB) + " GB";
-        } else if (size >= MB) {
-            return std::to_string(size / MB) + " MB";
-        } else if (size >= KB) {
-            return std::to_string(size / KB) + " KB";
-        } else {
-            return std::to_string(size) + " bytes";
+    std::vector<std::string> VulkanPhysicalDevice::queryExtensionNames() const {
+        std::vector<std::string> extensionNames;
+        std::vector<vk::ExtensionProperties> properties = mPhysicalDevice.enumerateDeviceExtensionProperties();
+        for (const auto &property: properties) {
+            extensionNames.push_back(property.extensionName);
         }
-    }
-
-    void VulkanUtil::recordTransitionImageLayoutCommand(const vk::CommandBuffer &commandBuffer,
-                                                        vk::Image image,
-                                                        vk::Format format,
-                                                        vk::ImageLayout oldImageLayout,
-                                                        vk::ImageLayout newImageLayout,
-                                                        uint32_t mipLevels) {
-
-        vk::ImageSubresourceRange imageSubresourceRange;
-        imageSubresourceRange
-                .setBaseMipLevel(0)
-                .setLevelCount(mipLevels)
-                .setBaseArrayLayer(0)
-                .setLayerCount(1);
-
-        // 注意这里一定要是 vk::ImageLayout::eDepthStencilAttachmentOptimal ， 写成了 vk::ImageLayout::eStencilAttachmentOptimal 后面会报警告
-        if (newImageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
-            if (hasStencilComponent(format)) {
-                imageSubresourceRange.setAspectMask(vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil);
-            } else {
-                imageSubresourceRange.setAspectMask(vk::ImageAspectFlagBits::eDepth);
-            }
-        } else {
-            imageSubresourceRange.setAspectMask(vk::ImageAspectFlagBits::eColor);
-        }
-
-
-        vk::ImageMemoryBarrier imageMemoryBarrier;
-        imageMemoryBarrier.setOldLayout(oldImageLayout)
-                .setNewLayout(newImageLayout)
-                .setSrcQueueFamilyIndex(vk::QueueFamilyIgnored)
-                .setDstQueueFamilyIndex(vk::QueueFamilyIgnored)
-                .setImage(image)
-                .setSubresourceRange(imageSubresourceRange)
-                .setSrcAccessMask(vk::AccessFlags{})
-                .setDstAccessMask(vk::AccessFlags{});
-
-        vk::PipelineStageFlags sourceStage;
-        vk::PipelineStageFlags destinationStage;
-
-        if (oldImageLayout == vk::ImageLayout::eUndefined && newImageLayout == vk::ImageLayout::eTransferDstOptimal) {
-            imageMemoryBarrier
-                    .setSrcAccessMask(vk::AccessFlags{})
-                    .setDstAccessMask(vk::AccessFlagBits::eTransferWrite);
-
-            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-            destinationStage = vk::PipelineStageFlagBits::eTransfer;
-        } else if (oldImageLayout == vk::ImageLayout::eTransferDstOptimal && newImageLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
-            imageMemoryBarrier
-                    .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-                    .setDstAccessMask(vk::AccessFlagBits::eShaderRead);
-
-            sourceStage = vk::PipelineStageFlagBits::eTransfer;
-            destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
-        } else if (oldImageLayout == vk::ImageLayout::eUndefined && newImageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
-            imageMemoryBarrier
-                    .setSrcAccessMask(vk::AccessFlags{})
-                    .setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
-
-            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-            destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
-        } else {
-            throw std::runtime_error("unsupported layout transition!");
-        }
-
-        commandBuffer.pipelineBarrier(sourceStage,
-                                      destinationStage,
-                                      vk::DependencyFlags{},
-                // 内存屏障
-                                      {},
-                // 缓冲区内存屏障
-                                      {},
-                // 图像内存屏障
-                                      {imageMemoryBarrier});
-
-
-    }
-
-    bool VulkanUtil::hasStencilComponent(vk::Format format) {
-        return format == vk::Format::eD32SfloatS8Uint || format == vk::Format::eD24UnormS8Uint;
-    }
-
-    vk::Format VulkanUtil::findDepthFormat(const vk::PhysicalDevice &physicalDevice) {
-        return VulkanUtil::findSupportedFormat(
-                physicalDevice,
-                {vk::Format::eD32Sfloat, vk::Format::eD32SfloatS8Uint, vk::Format::eD24UnormS8Uint},
-                vk::ImageTiling::eOptimal,
-                vk::FormatFeatureFlagBits::eDepthStencilAttachment
-        );
-    }
-
-    vk::Format VulkanUtil::findSupportedFormat(const vk::PhysicalDevice &physicalDevice, const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features) {
-        for (const auto &format: candidates) {
-            vk::FormatProperties properties = physicalDevice.getFormatProperties(format);
-            if (tiling == vk::ImageTiling::eLinear && (properties.linearTilingFeatures & features) == features) {
-                return format;
-            } else if (tiling == vk::ImageTiling::eOptimal && (properties.optimalTilingFeatures & features) == features) {
-                return format;
-            }
-        }
-
-        throw std::runtime_error("failed to find supported format !");
+        return extensionNames;
     }
 
 } // engine

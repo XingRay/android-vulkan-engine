@@ -2,10 +2,11 @@
 // Created by leixing on 2024/12/22.
 //
 
-#include "VulkanInstance.h"
-#include "VkCheck.h"
-#include "VkCheckCpp.h"
-#include "Log.h"
+#include "engine/vulkan_wrapper/VulkanInstance.h"
+#include "engine/VkCheck.h"
+#include "engine/VkCheckCpp.h"
+#include "engine/Log.h"
+#include "engine/common/StringUtil.h"
 
 VULKAN_HPP_DEFAULT_DISPATCH_LOADER_DYNAMIC_STORAGE
 
@@ -21,8 +22,8 @@ namespace engine {
                                    uint32_t applicationVersion,
                                    const std::string &engineName,
                                    uint32_t engineVersion,
-                                   const common::StringListSelector &extensionsSelector,
-                                   const common::StringListSelector &layersSelector) {
+                                   const common::ListSelector<std::string> &extensionsSelector,
+                                   const common::ListSelector<std::string> &layersSelector) {
         LOG_D("VulkanInstance::VulkanInstance");
         vk::DynamicLoader dl;
 
@@ -50,7 +51,7 @@ namespace engine {
         CALL_VK(vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr));
         std::vector<VkExtensionProperties> availableInstanceExtensions(extensionCount);
         CALL_VK(vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, availableInstanceExtensions.data()));
-        std::vector<const char *> availableExtensionNames;
+        std::vector<std::string> availableExtensionNames;
         LOG_D("Available instance extensions:[%d]", extensionCount);
         for (const auto &extensionProperties: availableInstanceExtensions) {
             LOG_D("  %s", extensionProperties.extensionName);
@@ -60,7 +61,7 @@ namespace engine {
         mEnabledInstanceExtensionNames = extensionsSelector.select(availableExtensionNames);
         LOG_D("Enabled extensions:[%ld]", mEnabledInstanceExtensionNames.size());
         for (const auto &extensionName: mEnabledInstanceExtensionNames) {
-            LOG_D("  %s", extensionName);
+            LOG_D("  %s", extensionName.c_str());
         }
 
 
@@ -79,7 +80,7 @@ namespace engine {
 
         LOG_D("Enabled layers:[%ld]", mEnabledLayerNames.size());
         for (const auto &layerName: mEnabledLayerNames) {
-            LOG_D("  %s", layerName);
+            LOG_D("  %s", layerName.c_str());
         }
 
 
@@ -93,14 +94,17 @@ namespace engine {
                 .apiVersion = VK_API_VERSION_1_3,
         };
 
+        std::vector<const char *> layers = common::StringUtil::toStringPtrArray(mEnabledLayerNames);
+        std::vector<const char *> extensions = common::StringUtil::toStringPtrArray(mEnabledInstanceExtensionNames);
+
         VkInstanceCreateInfo instanceCreateInfo{
                 .sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
                 .pNext = nullptr,
                 .pApplicationInfo = &appInfo,
-                .enabledLayerCount = static_cast<uint32_t>(mEnabledLayerNames.size()),
-                .ppEnabledLayerNames = mEnabledLayerNames.data(),
-                .enabledExtensionCount = static_cast<uint32_t>(mEnabledInstanceExtensionNames.size()),
-                .ppEnabledExtensionNames = mEnabledInstanceExtensionNames.data(),
+                .enabledLayerCount = static_cast<uint32_t>(layers.size()),
+                .ppEnabledLayerNames = layers.data(),
+                .enabledExtensionCount = static_cast<uint32_t>(extensions.size()),
+                .ppEnabledExtensionNames = extensions.data(),
         };
 
 //        vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
@@ -138,6 +142,31 @@ namespace engine {
         }
     }
 
+    [[nodiscard]]
+    const vk::Instance &VulkanInstance::getInstance() const {
+        return mInstance;
+    }
+
+    [[nodiscard]]
+    const std::vector<std::string> &VulkanInstance::getEnabledExtensions() const {
+        return mEnabledInstanceExtensionNames;
+    }
+
+    [[nodiscard]]
+    const std::vector<std::string> &VulkanInstance::getEnabledLayers() const {
+        return mEnabledLayerNames;
+    }
+
+    std::vector<std::unique_ptr<VulkanPhysicalDevice>> VulkanInstance::listPhysicalDevices() const {
+        std::vector<vk::PhysicalDevice> physicalDevices = mInstance.enumeratePhysicalDevices();
+
+        std::vector<std::unique_ptr<VulkanPhysicalDevice>> vulkanPhysicalDevices;
+        for (const auto &device: physicalDevices) {
+            vulkanPhysicalDevices.push_back(std::make_unique<VulkanPhysicalDevice>(device));
+        }
+
+        return vulkanPhysicalDevices;
+    }
 
     void VulkanInstance::setupDebugCallback() {
         vk::DebugReportCallbackCreateInfoEXT debugInfo{

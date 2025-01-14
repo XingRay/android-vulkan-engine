@@ -2,14 +2,12 @@
 // Created by leixing on 2025/1/4.
 //
 
-#include "Test05TextureImage.h"
+#include "Test04MvpMatrix.h.bak"
 #include "FileUtil.h"
 
-#include "stb_image.h"
+namespace test04 {
 
-namespace test05 {
-
-    Test05TextureImage::Test05TextureImage(const android_app &app, const std::string &name)
+    Test04MvpMatrix::Test04MvpMatrix(const android_app &app, const std::string &name)
             : TestBase(name), mApp(app), mMvpMatrix(glm::mat4(1.0f)) {
 
         std::vector<const char *> instanceExtensions = {
@@ -26,26 +24,22 @@ namespace test05 {
                 "VK_LAYER_KHRONOS_validation"
         };
 
-        mVulkanEngine = std::move(engine::VulkanEngineBuilder{}
-                                          .layers({}, layers)
-                                          .extensions({}, instanceExtensions)
-                                          .asGraphics());
+        mVulkanEngine = std::move(engine::VulkanEngineBuilder{}.layers({}, layers).extensions({}, instanceExtensions).asGraphics());
     }
 
-    void Test05TextureImage::init() {
+    void Test04MvpMatrix::init() {
         const std::vector<const char *> deviceExtensions = {
                 VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 
         // x轴朝右, y轴朝下, z轴朝前, 右手系 (x,y)->z
         std::vector<Vertex> vertices = {
-                {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}}, // 左上角
-                {{1.0f,  -1.0f, 0.0f}, {1.0f, 0.0f}}, // 右上角
-                {{-1.0f, 1.0f,  0.0f}, {0.0f, 1.0f}}, // 左下角
-                {{1.0f,  1.0f,  0.0f}, {1.0f, 1.0f}}, // 右下角
+                {{1.0f,  -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
+                {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
+                {{0.0f,  1.0f,  0.0f}, {0.0f, 0.0f, 1.0f}},
         };
 
-        std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
+        std::vector<uint32_t> indices = {0, 1, 2};
 
         mMvpMatrix = MvpMatrix{};
         float scale = 1.0f;
@@ -58,65 +52,42 @@ namespace test05 {
                                       glm::vec3(1.0f, 1.0f, 0.0f));
         mMvpMatrix.proj = glm::perspective(glm::radians(45.0f), (float) ANativeWindow_getWidth(mApp.window) / (float) ANativeWindow_getHeight(mApp.window), 0.1f, 10.0f);
 
-        int width, height, channels;
-        stbi_uc *pixels = stbi_load("/storage/emulated/0/01.png", &width, &height, &channels, STBI_rgb_alpha);
-        if (!pixels) {
-            throw std::runtime_error("Failed to load texture image!");
-        }
-        LOG_D("image: [ %d, x %d], channels: %d", width, height, channels);
-
-        std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/05_texture_image.vert.spv");
-        std::unique_ptr<engine::VulkanVertexShader> vertexShader = std::make_unique<engine::VulkanVertexShader>(vertexShaderCode);
-        (*vertexShader)
-                .addVertexBinding(sizeof(Vertex))
+        std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/04_mvp_matrix.vert.spv");
+        std::unique_ptr<engine::VulkanShader> vertexShader = std::make_unique<engine::VulkanShader>(vertexShaderCode);
+        vertexShader->addVertexBinding(sizeof(Vertex))
                 .addVertexAttribute(0, ShaderFormat::Vec3, offsetof(Vertex, position), 0)
-                .addVertexAttribute(1, ShaderFormat::Vec2, offsetof(Vertex, uv), 0)
+                .addVertexAttribute(1, ShaderFormat::Vec3, offsetof(Vertex, color), 0)
                 .setPushConstant(sizeof(glm::mat4));
 
-        std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/05_texture_image.frag.spv");
+        std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/04_mvp_matrix.frag.spv");
         std::unique_ptr<engine::VulkanFragmentShader> fragmentShader = std::make_unique<engine::VulkanFragmentShader>(fragmentShaderCode);
-        (*fragmentShader)
-                .addSampler(width, height, channels, mFrameCount, 0);
 
         std::unique_ptr<engine::VulkanSurface> surface = std::make_unique<engine::AndroidVulkanSurface>(mVulkanEngine->getVKInstance(), mApp.window);
-        LOG_D("mVulkanEngine->initVulkan");
         mVulkanEngine->initVulkan(surface, deviceExtensions, vertexShader, fragmentShader);
 
 //        mVulkanEngine->createDirectlyTransferVertexBuffer(mVertices.size() * sizeof(app::Vertex));
-        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
         mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
 //        mVulkanEngine->updateVertexBuffer(mVertices.data(), mVertices.size() * sizeof(Vertex));
-        LOG_D("mVulkanEngine->updateVertexBuffer");
         mVulkanEngine->updateVertexBuffer(vertices);
 
 //        mVulkanEngine->createDirectlyTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
-        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
         mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-        LOG_D("mVulkanEngine->updateIndexBuffer");
         mVulkanEngine->updateIndexBuffer(indices);
 
 //        mvpMatrix.model = glm::mat4(1.0f); // 单位矩阵
 //        mvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-        LOG_D("mVulkanEngine->updateVertexPushConstant");
         mVulkanEngine->updateVertexPushConstant(&(mvp));
-
-        for (int i = 0; i < mFrameCount; i++) {
-            LOG_D("mVulkanEngine->updateTextureSampler");
-            mVulkanEngine->updateTextureSampler(i, 0, 0, pixels, width * height * channels);
-        }
-
-        stbi_image_free(pixels);
     }
 
     // 检查是否准备好
-    bool Test05TextureImage::isReady() {
+    bool Test04MvpMatrix::isReady() {
         return true;
     }
 
     // 绘制三角形帧
-    void Test05TextureImage::drawFrame() {
+    void Test04MvpMatrix::drawFrame() {
         static auto startTime = std::chrono::high_resolution_clock::now();
         auto currentTime = std::chrono::high_resolution_clock::now();
         float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
@@ -137,7 +108,7 @@ namespace test05 {
     }
 
     // 清理操作
-    void Test05TextureImage::cleanup() {
+    void Test04MvpMatrix::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
         mVulkanEngine.reset();
     }

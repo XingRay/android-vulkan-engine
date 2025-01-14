@@ -4,7 +4,7 @@
 #ifdef WIN32
 
 #include "WindowsVulkanSurface.h"
-#include "Log.h"
+#include "engine/Log.h"
 
 namespace engine {
     WindowsVulkanSurface::WindowsVulkanSurface(const vk::Instance &instance, GLFWwindow *window) : mInstance(instance) {

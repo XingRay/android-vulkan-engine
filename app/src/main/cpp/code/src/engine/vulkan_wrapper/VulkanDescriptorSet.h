@@ -7,9 +7,7 @@
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanSwapchain.h"
-#include "engine/vulkan_wrapper/VulkanVertexShader.h"
-#include "engine/vulkan_wrapper/VulkanFragmentShader.h"
-//#include "VulkanUniformBuffer.h"
+#include "engine/vulkan_wrapper/VulkanShader.h"
 
 namespace engine {
 
@@ -27,8 +25,7 @@ namespace engine {
     public:
         VulkanDescriptorSet(const VulkanDevice &device,
                             uint32_t frameCount,
-                            const VulkanVertexShader &vertexShader,
-                            const VulkanFragmentShader &fragmentShader,
+                            const VulkanShader &vertexShader,
                             const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>>& uniformBuffers,
                             const std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>>& textureSamplers);
 

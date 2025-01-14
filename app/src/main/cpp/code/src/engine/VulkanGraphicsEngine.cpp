@@ -2,24 +2,95 @@
 // Created by leixing on 2024/12/16.
 //
 
-#include "VulkanGraphicsEngine.h"
-#include "engine/vulkan_wrapper/VkCheckCpp.h"
-#include "engine/vulkan_wrapper/VkCheck.h"
-#include "Log.h"
 #include <cassert>
 #include <utility>
 #include <string>
-#include "common/StringListSelector.h"
+
+#include "engine/VulkanGraphicsEngine.h"
+#include "engine/common/StringListSelector.h"
+#include "engine/VkCheckCpp.h"
+#include "engine/VkCheck.h"
+#include "engine/Log.h"
 
 namespace engine {
 
-    VulkanGraphicsEngine::VulkanGraphicsEngine(const std::string &applicationName,
-                                               uint32_t applicationVersion,
-                                               const std::string &engineName,
-                                               uint32_t engineVersion,
-                                               const common::StringListSelector &extensionsSelector,
-                                               const common::StringListSelector &layersSelector) {
-        mInstance = std::make_unique<VulkanInstance>(applicationName, applicationVersion, engineName, engineVersion, extensionsSelector, layersSelector);
+    VulkanGraphicsEngine::VulkanGraphicsEngine(std::unique_ptr<VulkanInstance> vulkanInstance,
+                                               std::unique_ptr<VulkanSurface> vulkanSurface,
+                                               std::unique_ptr<VulkanPhysicalDevice> vulkanPhysicalDevice,
+                                               std::unique_ptr<VulkanDevice> vulkanDevice,
+                                               std::unique_ptr<VulkanShader> vulkanShader,
+                                               uint32_t frameCount) {
+        mInstance = std::move(vulkanInstance);
+        mSurface = std::move(vulkanSurface);
+        mPhysicalDevice = std::move(vulkanPhysicalDevice);
+        mDevice = std::move(vulkanDevice);
+        mShader = std::move(vulkanShader);
+        mFrameCount = frameCount;
+
+        LOG_D("VulkanGraphicsEngine::init");
+        if (mFrameCount <= 0) {
+            throw std::runtime_error("mFrameCount<=0");
+        }
+        if (mInstance == nullptr) {
+            throw std::runtime_error("mInstance== nullptr");
+        }
+        if (mSurface == nullptr) {
+            throw std::runtime_error("mSurface== nullptr");
+        }
+
+        vk::Device device = mDevice->getDevice();
+
+        vk::Extent2D currentExtent = mDevice->getCapabilities().currentExtent;
+        LOG_D("currentExtent:[%d x %d]", currentExtent.width, currentExtent.height);
+        mSwapchain = std::make_unique<VulkanSwapchain>(*mDevice, *mSurface, currentExtent.width, currentExtent.height);
+
+        mRenderPass = std::make_unique<VulkanRenderPass>(*mDevice, *mSwapchain);
+        mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, mFrameCount);
+
+        const std::vector<uint32_t> &uniformSizes = mShader->getUniformSizes();
+        LOG_D("create VulkanUniformBuffer");
+        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
+            std::vector<std::unique_ptr<VulkanUniformBuffer>> uniformBuffers;
+            uniformBuffers.resize(uniformSizes.size());
+            for (unsigned int uniformSize: uniformSizes) {
+                uniformBuffers.push_back(std::make_unique<VulkanUniformBuffer>(*mDevice, uniformSize));
+            }
+            mUniformBuffers.push_back(std::move(uniformBuffers));
+        }
+
+        const std::vector<ImageSize> &imageSizes = mShader->getSamplerImageSizes();
+        LOG_D("create VulkanTextureSampler");
+        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
+            std::vector<std::unique_ptr<VulkanTextureSampler>> samplers;
+            samplers.resize(imageSizes.size());
+            for (int j = 0; j < imageSizes.size(); j++) {
+                const ImageSize &imageSize = imageSizes[j];
+                samplers[j] = std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels);
+            }
+            mTextureSamplers.push_back(std::move(samplers));
+        }
+
+        LOG_D("create VulkanDescriptorSet");
+        mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount, *mShader,  mUniformBuffers, mTextureSamplers);
+        LOG_D("create VulkanPipeline");
+        mPipeline = std::make_unique<VulkanPipeline>(*mDevice, *mSwapchain, *mDescriptorSet, *mRenderPass, *mShader);
+        LOG_D("create VulkanFrameBuffer");
+        mFrameBuffer = std::make_unique<VulkanFrameBuffer>(*mDevice, *mSwapchain, *mRenderPass, *mCommandPool);
+        LOG_D("create VulkanSyncObject");
+        mSyncObject = std::make_unique<VulkanSyncObject>(*mDevice, mFrameCount);
+
+        if (mShader->getVertexPushConstantRange().size > 0) {
+            mVertexPushConstantData.resize(mShader->getVertexPushConstantRange().size);
+        }
+        if (mShader->getFragmentPushConstantRange().size > 0) {
+            mFragmentPushConstantData.resize(mShader->getFragmentPushConstantRange().size);
+        }
+        uint32_t totalPushConstantsSize = mShader->getVertexPushConstantRange().size + mShader->getFragmentPushConstantRange().size;
+        uint32_t pushConstantsSizeLimit = mDevice->getPhysicalDevice().getProperties().limits.maxPushConstantsSize;
+        if (totalPushConstantsSize > pushConstantsSizeLimit) {
+            LOG_E("totalPushConstantsSize > pushConstantsSizeLimit, totalPushConstantsSize:%d, pushConstantsSizeLimit:%d", totalPushConstantsSize, pushConstantsSizeLimit);
+            throw std::runtime_error("totalPushConstantsSize > pushConstantsSizeLimit");
+        }
     }
 
     VulkanGraphicsEngine::~VulkanGraphicsEngine() {
@@ -51,76 +122,6 @@ namespace engine {
 
     vk::Device VulkanGraphicsEngine::getVKDevice() const {
         return mDevice->getDevice();
-    }
-
-    bool VulkanGraphicsEngine::initVulkan(std::unique_ptr<VulkanSurface> &vulkanSurface,
-                                          const std::vector<const char *> &deviceExtensions,
-                                          const std::unique_ptr<VulkanVertexShader> &vertexShader,
-                                          const std::unique_ptr<VulkanFragmentShader> &fragmentShader) {
-
-        mSurface = std::move(vulkanSurface);
-        mDevice = std::make_unique<VulkanDevice>(mInstance->getInstance(), mSurface->getSurface(), mInstance->getEnabledLayers(), deviceExtensions);
-        vk::Device device = mDevice->getDevice();
-
-        vk::Extent2D currentExtent = mDevice->getCapabilities().currentExtent;
-        LOG_D("currentExtent:[%d x %d]", currentExtent.width, currentExtent.height);
-        mSwapchain = std::make_unique<VulkanSwapchain>(*mDevice, *mSurface, currentExtent.width, currentExtent.height);
-
-        mRenderPass = std::make_unique<VulkanRenderPass>(*mDevice, *mSwapchain);
-        mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, mFrameCount);
-
-        LOG_D("merge uniform sizes");
-        std::vector<uint32_t> uniformSizes;
-        const std::vector<uint32_t> &vertexUniformSizes = vertexShader->getUniformSizes();
-        const std::vector<uint32_t> &fragmentUniformSizes = fragmentShader->getUniformSizes();
-        uniformSizes.insert(uniformSizes.end(), std::make_move_iterator(vertexUniformSizes.begin()), std::make_move_iterator(vertexUniformSizes.end()));
-        uniformSizes.insert(uniformSizes.end(), std::make_move_iterator(fragmentUniformSizes.begin()), std::make_move_iterator(fragmentUniformSizes.end()));
-
-        LOG_D("create VulkanUniformBuffer");
-        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
-            std::vector<std::unique_ptr<VulkanUniformBuffer>> uniformBuffers;
-            uniformBuffers.resize(uniformSizes.size());
-            for (unsigned int uniformSize: uniformSizes) {
-                uniformBuffers.push_back(std::make_unique<VulkanUniformBuffer>(*mDevice, uniformSize));
-            }
-            mUniformBuffers.push_back(std::move(uniformBuffers));
-        }
-
-        LOG_D("fragmentShader->getSamplerImageSizes");
-        const std::vector<ImageSize> &imageSizes = fragmentShader->getSamplerImageSizes();
-        LOG_D("create VulkanTextureSampler");
-        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
-            std::vector<std::unique_ptr<VulkanTextureSampler>> samplers;
-            samplers.resize(imageSizes.size());
-            for (int j = 0; j < imageSizes.size(); j++) {
-                const ImageSize &imageSize = imageSizes[j];
-                samplers[j] = std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels);
-            }
-            mTextureSamplers.push_back(std::move(samplers));
-        }
-
-        LOG_D("create VulkanDescriptorSet");
-        mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount, *vertexShader, *fragmentShader, mUniformBuffers, mTextureSamplers);
-        LOG_D("create VulkanPipeline");
-        mPipeline = std::make_unique<VulkanPipeline>(*mDevice, *mSwapchain, *mDescriptorSet, *mRenderPass, *vertexShader, *fragmentShader);
-        LOG_D("create VulkanFrameBuffer");
-        mFrameBuffer = std::make_unique<VulkanFrameBuffer>(*mDevice, *mSwapchain, *mRenderPass, *mCommandPool);
-        LOG_D("create VulkanSyncObject");
-        mSyncObject = std::make_unique<VulkanSyncObject>(*mDevice, mFrameCount);
-
-        if (vertexShader->getPushConstantRange().size > 0) {
-            mVertexPushConstantData.resize(vertexShader->getPushConstantRange().size);
-        }
-        if (fragmentShader->getPushConstantRange().size > 0) {
-            mFragmentPushConstantData.resize(fragmentShader->getPushConstantRange().size);
-        }
-        uint32_t totalPushConstantsSize = vertexShader->getPushConstantRange().size + fragmentShader->getPushConstantRange().size;
-        uint32_t pushConstantsSizeLimit = mDevice->getPhysicalDevice().getProperties().limits.maxPushConstantsSize;
-        if (totalPushConstantsSize > pushConstantsSizeLimit) {
-            LOG_E("totalPushConstantsSize > pushConstantsSizeLimit, totalPushConstantsSize:%d, pushConstantsSizeLimit:%d", totalPushConstantsSize, pushConstantsSizeLimit);
-            throw std::runtime_error("totalPushConstantsSize > pushConstantsSizeLimit");
-        }
-        return true;
     }
 
 

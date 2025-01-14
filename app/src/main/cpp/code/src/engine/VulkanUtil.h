@@ -6,11 +6,18 @@
 
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/VulkanPhysicalDeviceCandidate.h"
 
 namespace engine {
 
     class VulkanUtil {
     public:
+
+        static QueueFamilyIndices findQueueFamilies(const vk::PhysicalDevice &physicalDevice, const vk::SurfaceKHR &surface);
+
+        static bool isDeviceSupportedRequiredDeviceExtensions(const vk::PhysicalDevice &device,
+                                                              const std::vector<const char *> &requiredDeviceExtensions);
+
         static std::pair<vk::Buffer, vk::DeviceMemory> createBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize size, vk::BufferUsageFlags usage, vk::MemoryPropertyFlags properties);
 
         static uint32_t findMemoryType(const vk::PhysicalDeviceMemoryProperties &memoryProperties, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
@@ -35,26 +42,26 @@ namespace engine {
                                              imageAspect,
                                              uint32_t mipLevels);
 
-        static void printPhysicalDeviceInfo(const vk::PhysicalDevice &physicalDevice);
-
-        static void printPhysicalDeviceInfoWithSurface(const vk::PhysicalDevice &physicalDevice, const vk::SurfaceKHR &surface);
-
         static std::string sampleCountFlagsToString(vk::SampleCountFlags flags);
 
         static std::string formatDeviceSize(vk::DeviceSize size);
 
         static void recordTransitionImageLayoutCommand(const vk::CommandBuffer &commandBuffer,
-                                                            vk::Image image,
-                                                            vk::Format format,
-                                                            vk::ImageLayout oldImageLayout,
-                                                            vk::ImageLayout newImageLayout,
-                                                            uint32_t mipLevels);
+                                                       vk::Image image,
+                                                       vk::Format format,
+                                                       vk::ImageLayout oldImageLayout,
+                                                       vk::ImageLayout newImageLayout,
+                                                       uint32_t mipLevels);
 
         static bool hasStencilComponent(vk::Format format);
 
         static vk::Format findDepthFormat(const vk::PhysicalDevice &physicalDevice);
 
         static vk::Format findSupportedFormat(const vk::PhysicalDevice &physicalDevice, const std::vector<vk::Format> &candidates, vk::ImageTiling tiling, vk::FormatFeatureFlags features);
+
+        static vk::SampleCountFlagBits uint32ToSampleCountFlagBits(uint32_t sampleCount);
+
+        static uint32_t getFormatSize(vk::Format format);
     };
 
 } // engine

@@ -2,46 +2,27 @@
 // Created by leixing on 2024/12/23.
 //
 
-#include "VulkanDevice.h"
-#include "Log.h"
-#include <set>
 #include <map>
-#include "VulkanUtil.h"
 
+#include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/Log.h"
+#include "engine/VulkanUtil.h"
+
+#include "engine/common/StringUtil.h"
 
 namespace engine {
 
-    VulkanDevice::VulkanDevice(const vk::Instance &instance,
-                               const vk::SurfaceKHR &surface,
-                               const std::vector<const char *> &layers,
-                               const std::vector<const char *> &deviceExtensions) {
-        LOG_D("pickPhysicalDevice");
-        auto devices = instance.enumeratePhysicalDevices();
-        for (const auto &device: devices) {
-            vk::PhysicalDeviceProperties properties = device.getProperties();
-            LOG_D("\tdeviceName: %s\tdeviceType: %s", properties.deviceName.data(), to_string(properties.deviceType).data());
-        }
+    VulkanDevice::VulkanDevice(const VulkanPhysicalDevice &physicalDevice,
+                               const VulkanPhysicalDeviceSurfaceSupport &surfaceSupport,
+                               const std::vector<std::string> &deviceExtensions,
+                               const std::vector<std::string> &layers,
+                               uint32_t sampleCount)
+            : mPhysicalDevice(physicalDevice.getPhysicalDevice()) {
 
-        // 计算每张卡的分数, 取最高分
-        std::unique_ptr<PhysicalDeviceCandidate> candidate = nullptr;
-        std::multimap<int32_t, std::unique_ptr<PhysicalDeviceCandidate>> candidates;
-        for (const auto &device: devices) {
-            candidates.insert(calcDeviceSuitable(device, deviceExtensions, surface));
-        }
-        if (candidates.rbegin()->first > 0) {
-            candidate = std::move(candidates.rbegin()->second);
-        } else {
-            LOG_D("failed to find GPUs with vulkan support !");
-            throw std::runtime_error("failed to find GPUs with vulkan support !");
-        }
+        mMsaaSamples = VulkanUtil::uint32ToSampleCountFlagBits(sampleCount);
 
-        mPhysicalDevice = candidate->physicalDevice;
-//        VulkanUtil::printPhysicalDeviceInfo(mPhysicalDevice);
-//        VulkanUtil::printPhysicalDeviceInfoWithSurface(mPhysicalDevice, surface);
-
-        mMsaaSamples = getMaxUsableSampleCount(mPhysicalDevice);
-        mGraphicQueueFamilyIndex = candidate->graphicQueueFamilyIndex.value();
-        mPresentQueueFamilyIndex = candidate->presentQueueFamilyIndex.value();
+        mGraphicQueueFamilyIndex = surfaceSupport.graphicQueueFamilyIndex;
+        mPresentQueueFamilyIndex = surfaceSupport.presentQueueFamilyIndex;
         LOG_D("graphicFamilyIndex:%d, presentFamilyIndex:%d", mGraphicQueueFamilyIndex, mPresentQueueFamilyIndex);
 
         mQueueFamilyIndices.push_back(mGraphicQueueFamilyIndex);
@@ -53,7 +34,8 @@ namespace engine {
         std::array<float, 1> queuePriorities = {1.0f};
         for (uint32_t queueFamilyIndex: mQueueFamilyIndices) {
             vk::DeviceQueueCreateInfo queueCreateInfo{};
-            queueCreateInfo.setQueueFamilyIndex(queueFamilyIndex)
+            queueCreateInfo
+                    .setQueueFamilyIndex(queueFamilyIndex)
                     .setQueueCount(1)
                     .setQueuePriorities(queuePriorities);
             queueCreateInfos.push_back(queueCreateInfo);
@@ -69,21 +51,24 @@ namespace engine {
             deviceFeatures.setSampleRateShading(vk::True);
         }
 
+        std::vector<const char *> extensionNames = common::StringUtil::toStringPtrArray(deviceExtensions);
+        std::vector<const char *> layerNames = common::StringUtil::toStringPtrArray(layers);
+
         vk::DeviceCreateInfo deviceCreateInfo;
         deviceCreateInfo
                 .setQueueCreateInfos(queueCreateInfos)
                 .setPEnabledFeatures(&deviceFeatures)
-                .setPEnabledExtensionNames(deviceExtensions)
-                .setPEnabledLayerNames(layers);
+                .setPEnabledExtensionNames(extensionNames)
+                .setPEnabledLayerNames(layerNames);
 
         mDevice = mPhysicalDevice.createDevice(deviceCreateInfo);
 
         mGraphicsQueue = mDevice.getQueue(mGraphicQueueFamilyIndex, 0);
         mPresentQueue = mDevice.getQueue(mPresentQueueFamilyIndex, 0);
 
-        mCapabilities = mPhysicalDevice.getSurfaceCapabilitiesKHR(surface);
-        mFormats = mPhysicalDevice.getSurfaceFormatsKHR(surface);
-        mPresentModes = mPhysicalDevice.getSurfacePresentModesKHR(surface);
+        mCapabilities = surfaceSupport.capabilities;
+        mFormats = surfaceSupport.formats;
+        mPresentModes = surfaceSupport.presentModes;
     }
 
     VulkanDevice::~VulkanDevice() {
@@ -142,146 +127,6 @@ namespace engine {
         return mPresentModes;
     }
 
-    std::pair<int32_t, std::unique_ptr<PhysicalDeviceCandidate>> VulkanDevice::calcDeviceSuitable(
-            const vk::PhysicalDevice &device,
-            const std::vector<const char *> &requiredDeviceExtensions,
-            const vk::SurfaceKHR &surface) {
-        int32_t score = 0;
-
-        vk::PhysicalDeviceProperties deviceProperties = device.getProperties();
-        vk::PhysicalDeviceFeatures deviceFeatures = device.getFeatures();
-
-        QueueFamilyIndices indices = findQueueFamilies(device, surface);
-        if (!indices.isComplete()) {
-            LOG_D("device QueueFamilyIndices is not complete !");
-            return std::make_pair(score, nullptr);
-        }
-
-        if (!isDeviceSupportedRequiredDeviceExtensions(device, requiredDeviceExtensions)) {
-            LOG_D("isDeviceSupportedRequiredDeviceExtensions: false");
-            return std::make_pair(score, nullptr);
-        }
-
-        // 验证扩展可用后才尝试查询交换链支持
-        SwapChainSupportDetail swapChainSupportedDetail = querySwapChainSupported(device, surface);
-        if (swapChainSupportedDetail.formats.empty() || swapChainSupportedDetail.presentModes.empty()) {
-            LOG_D("swapChainSupportedDetail: formats or presentModes is empty");
-            return std::make_pair(score, nullptr);
-        }
-
-        if (!deviceFeatures.geometryShader || !deviceFeatures.samplerAnisotropy) {
-            return std::make_pair(score, nullptr);
-        }
-
-        switch (deviceProperties.deviceType) {
-            case vk::PhysicalDeviceType::eIntegratedGpu:
-                // 核显
-                score += 10;
-                break;
-
-            case vk::PhysicalDeviceType::eDiscreteGpu:
-                // 独显
-                score += 20;
-                break;
-
-            case vk::PhysicalDeviceType::eVirtualGpu:
-                // 虚拟GPU
-                score += 15; // 虚拟GPU在性能上可能低于独显，但高于CPU
-                break;
-
-            case vk::PhysicalDeviceType::eCpu:
-                // CPU
-                score += 5;  // CPU的性能通常较低，分数也低
-                break;
-
-            case vk::PhysicalDeviceType::eOther:
-            default:
-                // 其他类型的设备
-                score += 0;  // 对于未知类型或其他类型，默认不加分
-                break;
-        }
-
-        std::unique_ptr<PhysicalDeviceCandidate> candidate = std::make_unique<PhysicalDeviceCandidate>(device, indices.graphicQueueFamilyIndex, indices.presentQueueFamilyIndex,
-                                                                                                       swapChainSupportedDetail);
-        return std::make_pair(score, std::move(candidate));
-    }
-
-    QueueFamilyIndices VulkanDevice::findQueueFamilies(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface) {
-        QueueFamilyIndices indices;
-        auto queueFamilyProperties = device.getQueueFamilyProperties();
-
-        for (int i = 0; i < queueFamilyProperties.size(); i++) {
-            const auto &queueFamilyProperty = queueFamilyProperties[i];
-            const vk::QueueFlags &queueFlags = queueFamilyProperty.queueFlags;
-
-            if (queueFlags & vk::QueueFlagBits::eGraphics) {
-                LOG_D("graphicQueueFamily found, index:%d", i);
-                indices.graphicQueueFamilyIndex = i;
-            }
-
-            if (device.getSurfaceSupportKHR(i, surface)) {
-                LOG_D("presentQueueFamily found, index:%d", i);
-                indices.presentQueueFamilyIndex = i;
-            }
-
-            if (indices.isComplete()) {
-                break;
-            }
-        }
-
-        return indices;
-    }
-
-    vk::SampleCountFlagBits VulkanDevice::getMaxUsableSampleCount(const vk::PhysicalDevice &device) {
-        vk::PhysicalDeviceProperties properties = device.getProperties();
-        vk::PhysicalDeviceLimits &limits = properties.limits;
-
-        vk::SampleCountFlags counts = limits.framebufferColorSampleCounts & limits.framebufferDepthSampleCounts;
-        if (counts & vk::SampleCountFlagBits::e64) {
-            return vk::SampleCountFlagBits::e64;
-        } else if (counts & vk::SampleCountFlagBits::e32) {
-            return vk::SampleCountFlagBits::e32;
-        } else if (counts & vk::SampleCountFlagBits::e16) {
-            return vk::SampleCountFlagBits::e16;
-        } else if (counts & vk::SampleCountFlagBits::e8) {
-            return vk::SampleCountFlagBits::e8;
-        } else if (counts & vk::SampleCountFlagBits::e4) {
-            return vk::SampleCountFlagBits::e4;
-        } else if (counts & vk::SampleCountFlagBits::e2) {
-            return vk::SampleCountFlagBits::e2;
-        } else {
-            return vk::SampleCountFlagBits::e1;
-        }
-    }
-
-    bool VulkanDevice::isDeviceSupportedRequiredDeviceExtensions(const vk::PhysicalDevice &device,
-                                                                 const std::vector<const char *> &requiredDeviceExtensions) {
-        LOG_D("requiredExtensions");
-        for (const auto &extension: requiredDeviceExtensions) {
-            LOG_D("\t:%s", extension);
-        }
-
-        std::set<std::string> requiredExtensionSet(requiredDeviceExtensions.begin(), requiredDeviceExtensions.end());
-
-        std::vector<vk::ExtensionProperties> properties = device.enumerateDeviceExtensionProperties();
-//        LOG_D("device.enumerateDeviceExtensionProperties():");
-        for (const auto &property: properties) {
-//            LOG_D("\tproperty.extensionName: %s", property.extensionName.data());
-            requiredExtensionSet.erase(property.extensionName);
-        }
-        return requiredExtensionSet.empty();
-    }
-
-    SwapChainSupportDetail VulkanDevice::querySwapChainSupported(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface) {
-        SwapChainSupportDetail detail;
-
-        detail.capabilities = device.getSurfaceCapabilitiesKHR(surface);
-        detail.formats = device.getSurfaceFormatsKHR(surface);
-        detail.presentModes = device.getSurfacePresentModesKHR(surface);
-
-        return detail;
-    }
-
     vk::ShaderModule VulkanDevice::createShaderModule(const std::vector<char> &code) const {
         vk::ShaderModuleCreateInfo createInfo;
         createInfo
@@ -291,7 +136,4 @@ namespace engine {
         return mDevice.createShaderModule(createInfo);
     }
 
-    bool QueueFamilyIndices::isComplete() {
-        return graphicQueueFamilyIndex.has_value() && presentQueueFamilyIndex.has_value();
-    }
 } // engine

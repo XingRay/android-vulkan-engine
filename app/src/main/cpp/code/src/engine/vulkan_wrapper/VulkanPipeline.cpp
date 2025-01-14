@@ -3,15 +3,14 @@
 //
 
 #include "VulkanPipeline.h"
-#include "Log.h"
+#include "engine/Log.h"
 
 namespace engine {
     VulkanPipeline::VulkanPipeline(const VulkanDevice &vulkanDevice,
                                    const VulkanSwapchain &swapchain,
                                    const VulkanDescriptorSet &descriptorSet,
                                    const VulkanRenderPass &renderPass,
-                                   const VulkanVertexShader &vertexShader,
-                                   const VulkanFragmentShader &fragmentShader)
+                                   const VulkanShader &shader)
             : mDevice(vulkanDevice) {
         vk::Device device = vulkanDevice.getDevice();
 
@@ -52,10 +51,10 @@ namespace engine {
         // vertex shader
         vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
         vertexInputStateCreateInfo
-                .setVertexBindingDescriptions(vertexShader.getVertexDescriptions())
-                .setVertexAttributeDescriptions(vertexShader.getVertexInputAttributeDescriptions());
+                .setVertexBindingDescriptions(shader.getVertexDescriptions())
+                .setVertexAttributeDescriptions(shader.getVertexInputAttributeDescriptions());
 
-        vk::ShaderModule vertexShaderModule = mDevice.createShaderModule(vertexShader.getCode());
+        vk::ShaderModule vertexShaderModule = mDevice.createShaderModule(shader.getVertexShaderCode());
         vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo;
         vertexShaderStageCreateInfo.setStage(vk::ShaderStageFlagBits::eVertex)
                 .setModule(vertexShaderModule)
@@ -115,7 +114,7 @@ namespace engine {
                 .setAlphaToCoverageEnable(vk::False)
                 .setAlphaToOneEnable(vk::False);
 
-        vk::ShaderModule fragmentShaderModule = mDevice.createShaderModule(fragmentShader.getCode());
+        vk::ShaderModule fragmentShaderModule = mDevice.createShaderModule(shader.getFragmentShaderCode());
         // fragment shader
         vk::PipelineShaderStageCreateInfo fragmentShaderStageCreateInfo;
         fragmentShaderStageCreateInfo.setStage(vk::ShaderStageFlagBits::eFragment)
@@ -152,11 +151,11 @@ namespace engine {
         std::array<vk::DescriptorSetLayout, 1> descriptorSetLayouts = {descriptorSet.getDescriptorSetLayout()};
 
         std::vector<vk::PushConstantRange> pushConstantRanges;
-        vk::PushConstantRange vertexPushConstantRange = vertexShader.getPushConstantRange();
+        vk::PushConstantRange vertexPushConstantRange = shader.getVertexPushConstantRange();
         if (vertexPushConstantRange.size > 0) {
             pushConstantRanges.push_back(vertexPushConstantRange);
         }
-        vk::PushConstantRange fragmentPushConstantRange = fragmentShader.getPushConstantRange();
+        vk::PushConstantRange fragmentPushConstantRange = shader.getFragmentPushConstantRange();
         if (fragmentPushConstantRange.size > 0) {
             if (vertexPushConstantRange.size > 0) {
                 fragmentPushConstantRange.setOffset(vertexPushConstantRange.size);

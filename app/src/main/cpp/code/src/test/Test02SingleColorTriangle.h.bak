@@ -4,23 +4,28 @@
 
 #pragma once
 
-#include "Log.h"
-#include "TestBase.h"
+#include "engine/Log.h"
+#include "test/common/TestBase.h"
 
-#include "VulkanEngine.h"
+#include "engine/VulkanEngine.h"
 #include "engine/vulkan_wrapper/android/AndroidVulkanSurface.h"
+
 #include "game_activity/native_app_glue/android_native_app_glue.h"
+#include "test/common/glm.h"
 
-#include "glm.h"
-
-namespace test03 {
+namespace test02 {
 
     struct Vertex {
-        glm::vec3 position;
-        glm::vec3 color;
+        glm::vec3 pos;
     };
 
-    class Test03ColoredTriangle : public test::TestBase {
+    struct ColorUniformBufferObject {
+        // 颜色数据
+        alignas(16) glm::vec3 color;
+    };
+
+
+    class Test02SingleColorTriangle : public test::TestBase {
     private:
 
         const int mFrameCount = 2;
@@ -31,7 +36,7 @@ namespace test03 {
 
     public:
         // 构造函数初始化基类 TestBase，并传递 name
-        explicit Test03ColoredTriangle(const android_app &app, const std::string &name);
+        explicit Test02SingleColorTriangle(const android_app &app, const std::string &name);
 
         // 初始化操作
         void init() override;

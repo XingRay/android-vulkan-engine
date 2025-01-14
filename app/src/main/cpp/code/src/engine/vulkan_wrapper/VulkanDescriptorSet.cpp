@@ -6,25 +6,18 @@
 #include "VulkanUniformBuffer.h"
 #include "VulkanTextureSampler.h"
 
-#include "Log.h"
+#include "engine/Log.h"
 
 namespace engine {
     VulkanDescriptorSet::VulkanDescriptorSet(const VulkanDevice &device,
                                              uint32_t frameCount,
-                                             const VulkanVertexShader &vertexShader,
-                                             const VulkanFragmentShader &fragmentShader,
+                                             const VulkanShader &shader,
                                              const std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>> &uniformBuffers,
                                              const std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>> &textureSamplers)
             : mDevice(device) {
 
         LOG_D("VulkanDescriptorSet::VulkanDescriptorSet");
-        LOG_D("merge descriptorPoolSizes");
-        std::vector<vk::DescriptorPoolSize> descriptorPoolSizes;
-        std::vector<vk::DescriptorPoolSize> vertexDescriptorPoolSizes = vertexShader.getUniformDescriptorPoolSizes();
-        std::vector<vk::DescriptorPoolSize> fragmentDescriptorPoolSizes = fragmentShader.getUniformDescriptorPoolSizes();
-        // 使用 std::move 将 vec1 和 vec2 的内容移动到 mergedVec
-        descriptorPoolSizes.insert(descriptorPoolSizes.end(), std::make_move_iterator(vertexDescriptorPoolSizes.begin()), std::make_move_iterator(vertexDescriptorPoolSizes.end()));
-        descriptorPoolSizes.insert(descriptorPoolSizes.end(), std::make_move_iterator(fragmentDescriptorPoolSizes.begin()), std::make_move_iterator(fragmentDescriptorPoolSizes.end()));
+        std::vector<vk::DescriptorPoolSize> descriptorPoolSizes = shader.getUniformDescriptorPoolSizes();
 
         vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo;
         descriptorPoolCreateInfo
@@ -36,14 +29,8 @@ namespace engine {
         mDescriptorPool = mDevice.getDevice().createDescriptorPool(descriptorPoolCreateInfo);
 
 
-        LOG_D("merge descriptorSetLayoutBindings");
-        std::vector<vk::DescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-        std::vector<vk::DescriptorSetLayoutBinding> vertexDescriptorSetLayoutBinding = vertexShader.getUniformDescriptorSetLayoutBindings();
-        std::vector<vk::DescriptorSetLayoutBinding> fragmentDescriptorSetLayoutBinding = fragmentShader.getUniformDescriptorSetLayoutBindings();
-        descriptorSetLayoutBindings.insert(descriptorSetLayoutBindings.end(), std::make_move_iterator(vertexDescriptorSetLayoutBinding.begin()),
-                                           std::make_move_iterator(vertexDescriptorSetLayoutBinding.end()));
-        descriptorSetLayoutBindings.insert(descriptorSetLayoutBindings.end(), std::make_move_iterator(fragmentDescriptorSetLayoutBinding.begin()),
-                                           std::make_move_iterator(fragmentDescriptorSetLayoutBinding.end()));
+        LOG_D("descriptorSetLayoutBindings");
+        std::vector<vk::DescriptorSetLayoutBinding> descriptorSetLayoutBindings = shader.getUniformDescriptorSetLayoutBindings();
 
         LOG_D("create DescriptorSetLayout");
         vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
@@ -62,7 +49,7 @@ namespace engine {
         mDescriptorSets = mDevice.getDevice().allocateDescriptorSets(allocateInfo);
 
         LOG_D("update DescriptorSets");
-        const std::vector<uint32_t> &vertexUniformSizes = vertexShader.getUniformSizes();
+        const std::vector<uint32_t> &vertexUniformSizes = shader.getUniformSizes();
         for (int i = 0; i < uniformBuffers.size(); i++) {
             std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
             const std::vector<std::unique_ptr<VulkanUniformBuffer>> &uniformBuffersOfFrame = uniformBuffers[i];

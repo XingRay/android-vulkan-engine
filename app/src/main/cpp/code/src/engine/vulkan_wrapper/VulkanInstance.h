@@ -12,7 +12,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "common/StringListSelector.h"
+#include "engine/common/Selector.h"
+#include "engine/vulkan_wrapper/VulkanPhysicalDevice.h"
 
 namespace engine {
 
@@ -20,35 +21,32 @@ namespace engine {
     private:
         vk::Instance mInstance;
         vk::DebugReportCallbackEXT mDebugReportCallback;
-        std::vector<const char *> mEnabledInstanceExtensionNames;
-        std::vector<const char *> mEnabledLayerNames;
+        std::vector<std::string> mEnabledInstanceExtensionNames;
+        std::vector<std::string> mEnabledLayerNames;
 
         vk::DebugUtilsMessengerEXT mDebugMessenger;
 
     public:
-        VulkanInstance(const std::string& applicationName,
+        VulkanInstance(const std::string &applicationName,
                        uint32_t applicationVersion,
-                       const std::string& engineName,
+                       const std::string &engineName,
                        uint32_t engineVersion,
-                       const common::StringListSelector &extensionsSelector,
-                       const common::StringListSelector &layersSelector);
+                       const common::ListSelector<std::string> &extensionsSelector,
+                       const common::ListSelector<std::string> &layersSelector);
 
         ~VulkanInstance();
 
         [[nodiscard]]
-        const vk::Instance &getInstance() const {
-            return mInstance;
-        }
+        const vk::Instance &getInstance() const;
 
         [[nodiscard]]
-        const std::vector<const char *> &getEnabledExtensions() const {
-            return mEnabledInstanceExtensionNames;
-        }
+        const std::vector<std::string> &getEnabledExtensions() const;
 
         [[nodiscard]]
-        const std::vector<const char *> &getEnabledLayers() const {
-            return mEnabledLayerNames;
-        }
+        const std::vector<std::string> &getEnabledLayers() const;
+
+        [[nodiscard]]
+        std::vector<std::unique_ptr<VulkanPhysicalDevice>> listPhysicalDevices() const;
 
     private:
         void setupDebugCallback();

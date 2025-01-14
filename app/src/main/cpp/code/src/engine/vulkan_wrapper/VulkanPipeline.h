@@ -9,8 +9,7 @@
 #include "engine/vulkan_wrapper/VulkanSwapchain.h"
 #include "engine/vulkan_wrapper/VulkanDescriptorSet.h"
 #include "engine/vulkan_wrapper/VulkanRenderPass.h"
-#include "engine/vulkan_wrapper/VulkanVertexShader.h"
-#include "engine/vulkan_wrapper/VulkanFragmentShader.h"
+#include "engine/vulkan_wrapper/VulkanShader.h"
 
 namespace engine {
 
@@ -25,8 +24,7 @@ namespace engine {
                        const VulkanSwapchain &swapchain,
                        const VulkanDescriptorSet &descriptorSet,
                        const VulkanRenderPass &renderPass,
-                       const VulkanVertexShader &vertexShader,
-                       const VulkanFragmentShader &fragmentShader);
+                       const VulkanShader &vertexShader);
 
         ~VulkanPipeline();
 

@@ -27,7 +27,7 @@
 #include <poll.h>
 #include <pthread.h>
 #include <sched.h>
-#include "test/TestBase.h"
+#include "test/common/TestBase.h"
 
 #include "../GameActivity.h"
 

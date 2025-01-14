@@ -7,50 +7,49 @@
 #include <vector>
 #include <functional>
 
+#include "engine/common/Selector.h"
+
 namespace common {
 
-    class StringListSelector {
-    public:
-        virtual ~StringListSelector() = default;
+    class FixStringListSelector : public ListSelector<std::string> {
+    private:
+        std::vector<std::string> mSelected;
 
-        virtual std::vector<const char *> select(const std::vector<const char *> &candidate) const = 0;
+    public:
+        explicit FixStringListSelector(const std::vector<std::string> &selected);
+
+        ~FixStringListSelector() override;
+
+        [[nodiscard]]
+        std::vector<std::string> select(const std::vector<std::string> &candidate) const override;
     };
 
-    class FixStringListSelector : public StringListSelector {
+    class RequiredAndOptionalStringListSelector : public ListSelector<std::string> {
     private:
-        std::vector<const char *> mSelected;
-
+        std::vector<std::string> mRequired;
+        std::vector<std::string> mOptional;
     public:
-        FixStringListSelector(const std::vector<const char *> &selected);
+        explicit RequiredAndOptionalStringListSelector(const std::vector<std::string> &required,
+                                                       const std::vector<std::string> &optional = {});
 
-        ~FixStringListSelector();
+        ~RequiredAndOptionalStringListSelector() override;
 
-        std::vector<const char *> select(const std::vector<const char *> &candidate) const, override;
-    };
-
-    class RequiredAndOptionalStringListSelector : public StringListSelector {
-    private:
-        std::vector<const char *> mRequired;
-        std::vector<const char *> mOptional;
-    public:
-        explicit RequiredAndOptionalStringListSelector(const std::vector<const char *> &required, const std::vector<const char *> &optional = {});
-
-        ~RequiredAndOptionalStringListSelector();
-
-        std::vector<const char *> select(const std::vector<const char *> &candidate) const, override;
+        [[nodiscard]]
+        std::vector<std::string> select(const std::vector<std::string> &candidate) const override;
     };
 
 
-    class LambdaStringListSelector : public common::StringListSelector {
+    class LambdaStringListSelector : public ListSelector<std::string> {
     private:
-        std::function<std::vector<const char *>(const std::vector<const char *> &)> mSelector;
+        std::function<std::vector<std::string>(const std::vector<std::string> &)> mSelector;
 
     public:
-        explicit LambdaStringListSelector(std::function<std::vector<const char *>(const std::vector<const char *> &)> selector);
+        explicit LambdaStringListSelector(std::function<std::vector<std::string>(const std::vector<std::string> &)> selector);
 
-        ~LambdaStringListSelector();
+        ~LambdaStringListSelector() override;
 
-        std::vector<const char *> select(const std::vector<const char *> &candidate) const, override;
+        [[nodiscard]]
+        std::vector<std::string> select(const std::vector<std::string> &candidate) const override;
     };
 
 } // common

@@ -52,16 +52,14 @@ intEngine(){
     engine = EngineBuilder{}
     // set extensions
     .extensions(..)
-    // or select extensions
+    // or provide extensions
     .extensionsSelection([](availableExtensions)->vector<char>{ ... })
     // set layers
     .layers(..)
-    // select layers
+    // provide layers
     .layersSelection([](availablelayers)->vector<char>{ ... })
     // set work mode
     .asGraphics() // or asComputer(), return GraphicsEngine or ComputerEngine
-
-    engine
         // set surface
         .surface(WindowsSurface(..)) // or AndroidSurface(..)/LinuxSurface(..)/MacSurface(..)/IosSurface(..)
         // set PhysicalDevice , use one of apis
@@ -69,8 +67,8 @@ intEngine(){
         .selectPhysicalDevice(DefaultPhysicalDeviceSelector()) // or CustomPhysicalDeviceSelector
         .autoSelectPhysicalDevice()
         // set mass
-        .enableMsaa() // auto select
-        .enableMsaa(maxMsaa) // select less or equal maxMsaa Samples
+        .enableMsaa() // auto provide
+        .enableMsaa(maxMsaa) // provide less or equal maxMsaa Samples
         .enableMsaa([](vk::SampleCountFlags flags)->vk::SampleCountFlags) // by your own
         //vertex shader
         .vertexShaderBuilder()

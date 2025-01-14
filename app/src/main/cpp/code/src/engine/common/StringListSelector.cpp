@@ -5,11 +5,11 @@
 #include "StringListSelector.h"
 
 #include <utility>
-#include "Log.h"
+#include "engine/Log.h"
 
 namespace common {
 
-    FixStringListSelector::FixStringListSelector(const std::vector<const char *> &selected)
+    FixStringListSelector::FixStringListSelector(const std::vector<std::string> &selected)
             : mSelected(selected) {
 
     }
@@ -18,50 +18,39 @@ namespace common {
         mSelected.clear();
     }
 
-    std::vector<const char *> FixStringListSelector::select(const std::vector<const char *> &candidate) const {
+    std::vector<std::string> FixStringListSelector::select(const std::vector<std::string> &candidate) const {
         return mSelected;
     }
 
 
-    RequiredAndOptionalStringListSelector::RequiredAndOptionalStringListSelector(const std::vector<const char *> &required, const std::vector<const char *> &optional)
+    RequiredAndOptionalStringListSelector::RequiredAndOptionalStringListSelector(const std::vector<std::string> &required,
+                                                                                 const std::vector<std::string> &optional)
             : mRequired(required), mOptional(optional) {
 
     }
 
-    RequiredAndOptionalStringListSelector::~RequiredAndOptionalStringListSelector() {
-        mRequired.clear();
-        mOptional.clear();
-    }
+    RequiredAndOptionalStringListSelector::~RequiredAndOptionalStringListSelector() = default;
 
-    std::vector<const char *> RequiredAndOptionalStringListSelector::select(const std::vector<const char *> &candidate) const {
-        std::vector<const char *> result;
-
-        // 自定义比较函数：比较字符串内容
-        auto compareStrings = [](const char *a, const char *b) {
-            return std::strcmp(a, b) == 0;
-        };
+    std::vector<std::string> RequiredAndOptionalStringListSelector::select(const std::vector<std::string> &candidate) const {
+        std::vector<std::string> result;
 
         // 1. 检查 mRequired 中的所有字符串是否都在 candidate 中
-        for (const char *requiredStr: mRequired) {
-            auto it = std::find_if(candidate.begin(), candidate.end(), [&](const char *c) {
-                return compareStrings(c, requiredStr);
-            });
+        for (const std::string &requiredStr: mRequired) {
+            auto it = std::find(candidate.begin(), candidate.end(), requiredStr);
             if (it == candidate.end()) {
                 // 如果某个必需的字符串不在 candidate 中，抛出异常
-                throw std::runtime_error("Required string not found in candidate: " + std::string(requiredStr));
+                throw std::runtime_error("Required string not found in candidate: " + requiredStr);
             }
             // 如果找到，则添加到返回值中
             result.push_back(requiredStr);
         }
 
         // 2. 检查 mOptional 中的所有字符串是否在 candidate 中
-        for (const char *optionalStr: mOptional) {
-            auto it = std::find_if(candidate.begin(), candidate.end(), [&](const char *c) {
-                return compareStrings(c, optionalStr);
-            });
+        for (const std::string &optionalStr: mOptional) {
+            auto it = std::find(candidate.begin(), candidate.end(), optionalStr);
             if (it == candidate.end()) {
                 // 如果某个可选的字符串不在 candidate 中，打日志提示
-                LOG_W("Optional string not found in candidate: %s", optionalStr);
+                LOG_W("Optional string not found in candidate: %s\n", optionalStr.c_str());
             } else {
                 // 如果找到，则添加到返回值中
                 result.push_back(optionalStr);
@@ -72,14 +61,14 @@ namespace common {
     }
 
 
-    LambdaStringListSelector::LambdaStringListSelector(std::function<std::vector<const char *>(const std::vector<const char *> &)> selector)
+    LambdaStringListSelector::LambdaStringListSelector(std::function<std::vector<std::string>(const std::vector<std::string> &)> selector)
             : mSelector(std::move(selector)) {
 
     }
 
     LambdaStringListSelector::~LambdaStringListSelector() = default;
 
-    std::vector<const char *> LambdaStringListSelector::select(const std::vector<const char *> &candidate) const {
+    std::vector<std::string> LambdaStringListSelector::select(const std::vector<std::string> &candidate) const {
         return mSelector(candidate);
     }
 

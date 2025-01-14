@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/4.
 //
 
-#include "Test02SingleColorTriangle.h"
+#include "Test02SingleColorTriangle.h.bak"
 #include "FileUtil.h"
 
 namespace test02 {
@@ -12,7 +12,7 @@ namespace test02 {
 
         LOG_D("Test01SimpleTriangle::Test01SimpleTriangle");
 
-        std::vector<const char *> instanceExtensions = {
+        std::vector<std::string> instanceExtensions = {
                 VK_KHR_SURFACE_EXTENSION_NAME,
                 "VK_KHR_android_surface",
 
@@ -22,7 +22,7 @@ namespace test02 {
                 VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
         };
 
-        std::vector<const char *> layers = {
+        std::vector<std::string> layers = {
                 "VK_LAYER_KHRONOS_validation"
         };
 

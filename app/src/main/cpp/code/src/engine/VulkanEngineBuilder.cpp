@@ -2,47 +2,43 @@
 // Created by leixing on 2025/1/8.
 //
 
-#include "VulkanEngineBuilder.h"
+#include "engine/VulkanEngineBuilder.h"
 #include "common/StringUtil.h"
 
 namespace engine {
 
-    VulkanEngineBuilder &VulkanEngineBuilder::extensions(const std::vector<const char *> &required, const std::vector<const char *> &optional) {
+    VulkanEngineBuilder &VulkanEngineBuilder::extensions(const std::vector<std::string> required, const std::vector<std::string> optional) {
         mExtensionsSelector = std::make_unique<common::RequiredAndOptionalStringListSelector>(required, optional);
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::extensionsSelector(std::unique_ptr<common::StringListSelector> &selector) {
+    VulkanEngineBuilder &VulkanEngineBuilder::extensionsSelector(std::unique_ptr<common::ListSelector<std::string>> &selector) {
         mExtensionsSelector = std::move(selector);
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::extensionsSelector(const std::function<std::vector<const char *>(const std::vector<const char *> &)> selector) {
+    VulkanEngineBuilder &VulkanEngineBuilder::extensionsSelector(std::function<std::vector<std::string>(const std::vector<std::string> &)> selector) {
         mExtensionsSelector = std::make_unique<common::LambdaStringListSelector>(selector);
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::layers(const std::vector<const char *> &required, const std::vector<const char *> &optional) {
+    VulkanEngineBuilder &VulkanEngineBuilder::layers(const std::vector<std::string> required, const std::vector<std::string> optional) {
         mLayersSelector = std::make_unique<common::RequiredAndOptionalStringListSelector>(required, optional);
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::layersSelector(std::unique_ptr<common::StringListSelector> &selector) {
+    VulkanEngineBuilder &VulkanEngineBuilder::layersSelector(std::unique_ptr<common::ListSelector<std::string>> &selector) {
         mLayersSelector = std::move(selector);
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::layersSelector(const std::function<std::vector<const char *>(const std::vector<const char *> &)> selector) {
+    VulkanEngineBuilder &VulkanEngineBuilder::layersSelector(std::function<std::vector<std::string>(const std::vector<std::string> &)> selector) {
         mLayersSelector = std::make_unique<common::LambdaStringListSelector>(selector);
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::applicationName(const char *applicationName) {
-        if (applicationName) {
-            mApplicationName.assign(applicationName, applicationName + std::strlen(applicationName) + 1);
-        } else {
-            mApplicationName.clear();
-        }
+    VulkanEngineBuilder &VulkanEngineBuilder::applicationName(const std::string &applicationName) {
+        mApplicationName = applicationName;
         return *this;
     }
 
@@ -67,12 +63,8 @@ namespace engine {
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::engineName(const char *engineName) {
-        if (engineName) {
-            mEngineName.assign(engineName, engineName + std::strlen(engineName) + 1);
-        } else {
-            mEngineName.clear();
-        }
+    VulkanEngineBuilder &VulkanEngineBuilder::engineName(const std::string &engineName) {
+        mEngineName = engineName;
         return *this;
     }
 
@@ -97,15 +89,20 @@ namespace engine {
         return *this;
     }
 
-    std::unique_ptr<VulkanGraphicsEngine> VulkanEngineBuilder::asGraphics() {
-        return std::make_unique<VulkanGraphicsEngine>(mApplicationName, mApplicationVersion,
-                                                      mEngineName, mEngineVersion,
-                                                      *mExtensionsSelector, *mLayersSelector);
+    VulkanGraphicsEngineBuilder VulkanEngineBuilder::asGraphics() {
+        std::unique_ptr<VulkanInstance> instance = buildInstance();
+        return VulkanGraphicsEngineBuilder{std::move(instance)};
     }
 
-    std::unique_ptr<VulkanComputerEngine> asComputer() {
-        // todo
-        return std::make_unique<VulkanComputerEngine>();
+    VulkanComputerEngineBuilder VulkanEngineBuilder::asComputer() {
+        std::unique_ptr<VulkanInstance> instance = buildInstance();
+        return VulkanComputerEngineBuilder(std::move(instance));
+    }
+
+    std::unique_ptr<VulkanInstance> VulkanEngineBuilder::buildInstance() {
+        return std::make_unique<VulkanInstance>(mApplicationName, mApplicationVersion,
+                                                mEngineName, mEngineVersion,
+                                                *mExtensionsSelector, *mLayersSelector);
     }
 
 } // engine

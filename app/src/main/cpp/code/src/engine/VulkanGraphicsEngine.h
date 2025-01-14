@@ -8,7 +8,9 @@
 
 #include "engine/vulkan_wrapper/VulkanInstance.h"
 #include "engine/vulkan_wrapper/VulkanSurface.h"
+#include "engine/vulkan_wrapper/VulkanPhysicalDevice.h"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/VulkanShader.h"
 #include "engine/vulkan_wrapper/VulkanSwapchain.h"
 #include "engine/vulkan_wrapper/VulkanRenderPass.h"
 #include "engine/vulkan_wrapper/VulkanDescriptorSet.h"
@@ -19,11 +21,10 @@
 #include "engine/vulkan_wrapper/VulkanUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
-#include "engine/vulkan_wrapper/VulkanVertexShader.h"
-#include "engine/vulkan_wrapper/VulkanFragmentShader.h"
 #include "engine/vulkan_wrapper/VulkanTextureSampler.h"
 
-#include "common/StringListSelector.h"
+#include "engine/common/StringListSelector.h"
+#include "engine/VulkanPhysicalDeviceProvider.h"
 
 #include <functional>
 #include <memory>
@@ -34,15 +35,18 @@ namespace engine {
     class VulkanGraphicsEngine {
     public:
         bool mFrameBufferResized = false;
-        int mFrameCount = 2;
+        uint32_t mFrameCount = 2;
         uint32_t mCurrentFrame = 0;
-
         const std::array<float, 4> mClearColor = {0.2f, 0.4f, 0.6f, 1.0f};
         const std::array<float, 4> mDepthStencil = {1.0f, 0, 0, 0};
 
+
         std::unique_ptr<VulkanInstance> mInstance;
         std::unique_ptr<VulkanSurface> mSurface;
+        std::unique_ptr<VulkanPhysicalDevice> mPhysicalDevice;
         std::unique_ptr<VulkanDevice> mDevice;
+        std::unique_ptr<VulkanShader> mShader;
+
         std::unique_ptr<VulkanSwapchain> mSwapchain;
         std::unique_ptr<VulkanRenderPass> mRenderPass;
 
@@ -66,12 +70,12 @@ namespace engine {
         std::vector<uint8_t> mFragmentPushConstantData;
 
     public:
-        VulkanGraphicsEngine(const std::string &applicationName,
-                             uint32_t applicationVersion,
-                             const std::string &engineName,
-                             uint32_t engineVersion,
-                             const common::StringListSelector &extensionsSelector,
-                             const common::StringListSelector &layersSelector);
+        VulkanGraphicsEngine(std::unique_ptr<VulkanInstance> vulkanInstance,
+                             std::unique_ptr<VulkanSurface> vulkanSurface,
+                             std::unique_ptr<VulkanPhysicalDevice> vulkanPhysicalDevice,
+                             std::unique_ptr<VulkanDevice> vulkanDevice,
+                             std::unique_ptr<VulkanShader> vulkanShader,
+                             uint32_t frameCount);
 
         ~VulkanGraphicsEngine();
 
@@ -80,11 +84,6 @@ namespace engine {
 
         [[nodiscard]]
         vk::Device getVKDevice() const;
-
-        bool initVulkan(std::unique_ptr<VulkanSurface> &vulkanSurface,
-                        const std::vector<const char *> &deviceExtensions,
-                        const std::unique_ptr<VulkanVertexShader> &vertexShader,
-                        const std::unique_ptr<VulkanFragmentShader> &fragmentShader);
 
         void drawFrame();
 

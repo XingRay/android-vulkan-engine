@@ -7,35 +7,13 @@
 #include <vulkan/vulkan.hpp>
 #include <optional>
 
+#include "engine/common/StringListSelector.h"
+#include "engine/SwapChainSupportDetail.h"
+#include "engine/QueueFamilyIndices.h"
+#include "engine/VulkanPhysicalDeviceSurfaceSupport.h"
+#include "engine/vulkan_wrapper/VulkanPhysicalDevice.h"
+
 namespace engine {
-
-    class SwapChainSupportDetail {
-    public:
-        vk::SurfaceCapabilitiesKHR capabilities;
-        std::vector<vk::SurfaceFormatKHR> formats;
-        std::vector<vk::PresentModeKHR> presentModes;
-    };
-
-    class QueueFamilyIndices {
-
-    public:
-        std::optional<uint32_t> graphicQueueFamilyIndex;
-        std::optional<uint32_t> presentQueueFamilyIndex;
-
-    public:
-        bool isComplete();
-    };
-
-    class PhysicalDeviceCandidate {
-
-    public:
-        vk::PhysicalDevice physicalDevice;
-
-        std::optional<uint32_t> graphicQueueFamilyIndex;
-        std::optional<uint32_t> presentQueueFamilyIndex;
-
-        SwapChainSupportDetail swapChainSupportDetail;
-    };
 
     class VulkanDevice {
     private:
@@ -56,10 +34,11 @@ namespace engine {
         std::vector<vk::PresentModeKHR> mPresentModes;
 
     public:
-        VulkanDevice(const vk::Instance &instance,
-                     const vk::SurfaceKHR &surface,
-                     const std::vector<const char *> &layers,
-                     const std::vector<const char *> &deviceExtensions);
+        VulkanDevice(const VulkanPhysicalDevice &physicalDevice,
+                     const VulkanPhysicalDeviceSurfaceSupport &surfaceSupport,
+                     const std::vector<std::string> &deviceExtensions,
+                     const std::vector<std::string> &layers,
+                     uint32_t sampleCount);
 
         ~VulkanDevice();
 
@@ -96,18 +75,11 @@ namespace engine {
         [[nodiscard]]
         std::vector<vk::PresentModeKHR> getPresentModes() const;
 
-        static std::pair<int32_t, std::unique_ptr<PhysicalDeviceCandidate>> calcDeviceSuitable(const vk::PhysicalDevice &device,
-                                                                                               const std::vector<const char *> &requiredDeviceExtensions,
-                                                                                               const vk::SurfaceKHR &surface);
-
         static QueueFamilyIndices findQueueFamilies(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface);
 
         static vk::SampleCountFlagBits getMaxUsableSampleCount(const vk::PhysicalDevice &device);
 
-        static bool isDeviceSupportedRequiredDeviceExtensions(const vk::PhysicalDevice &device,
-                                                              const std::vector<const char *> &requiredDeviceExtensions);
-
-        static SwapChainSupportDetail querySwapChainSupported(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface);
+//        static SwapChainSupportDetail querySwapChainSupported(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface);
 
         [[nodiscard]]
         vk::ShaderModule createShaderModule(const std::vector<char> &code) const;

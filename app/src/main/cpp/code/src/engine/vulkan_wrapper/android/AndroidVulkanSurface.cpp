@@ -3,7 +3,7 @@
 //
 
 #include "AndroidVulkanSurface.h"
-#include "Log.h"
+#include "engine/Log.h"
 
 namespace engine {
     AndroidVulkanSurface::AndroidVulkanSurface(const vk::Instance& instance, ANativeWindow *window) : mInstance(instance) {
@@ -27,6 +27,13 @@ namespace engine {
         } else {
             LOG_W("surface is null");
         }
+    }
+
+    std::function<std::unique_ptr<VulkanSurface>(const VulkanInstance &)> AndroidVulkanSurface::surfaceBuilder(ANativeWindow *window) {
+        return [window](const VulkanInstance &instance) -> std::unique_ptr<VulkanSurface> {
+            // 创建 AndroidVulkanSurface 实例
+            return std::make_unique<AndroidVulkanSurface>(instance.getInstance(), window);
+        };
     }
 
 } // engine

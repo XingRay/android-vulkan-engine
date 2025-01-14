@@ -3,7 +3,7 @@
 //
 
 #include "VulkanSyncObject.h"
-#include "Log.h"
+#include "engine/Log.h"
 
 namespace engine {
     VulkanSyncObject::VulkanSyncObject(const VulkanDevice &vulkanDevice, uint32_t count) : mDevice(vulkanDevice) {
