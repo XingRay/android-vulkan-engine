@@ -114,9 +114,9 @@ namespace engine {
         std::unique_ptr<VulkanShader> vulkanShader = std::make_unique<VulkanShader>();
         (*vulkanShader).setVertexShaderCode(std::move(mVertexShaderCode));
         (*vulkanShader).setFragmentShaderCode(std::move(mFragmentShaderCode));
-        for (const Vertex &vertex: mVertices) {
+        for (const VulkanVertex &vertex: mVertices) {
             (*vulkanShader).addVertexBinding(vertex.binding, vertex.size);
-            for (const VertexAttribute &attribute: vertex.attributes) {
+            for (const VulkanVertexAttribute &attribute: vertex.attributes) {
                 (*vulkanShader).addVertexAttribute(attribute.binding, attribute.location, attribute.format, attribute.offset);
             }
         }
@@ -135,7 +135,7 @@ namespace engine {
         return *this;
     }
 
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setVertices(std::vector<Vertex> &&vertices) {
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setVertices(std::vector<VulkanVertex> &&vertices) {
         mVertices = std::move(vertices);
         return *this;
     }

@@ -18,14 +18,14 @@ namespace engine {
         return *this;
     }
 
-    VulkanVertexShaderBuilder &VulkanVertexShaderBuilder::vertex(std::function<void(VertexBuilder &)> configure) {
-        VertexBuilder builder(*this);
+    VulkanVertexShaderBuilder &VulkanVertexShaderBuilder::vertex(std::function<void(VulkanVertexBuilder &)> configure) {
+        VulkanVertexBuilder builder(*this);
         configure(builder);
         builder.build();
         return *this;
     }
 
-    VulkanVertexShaderBuilder &VulkanVertexShaderBuilder::addVertex(const Vertex &vertex) {
+    VulkanVertexShaderBuilder &VulkanVertexShaderBuilder::addVertex(const VulkanVertex &vertex) {
         mVertices.push_back(vertex);
         return *this;
     }
@@ -37,65 +37,18 @@ namespace engine {
     }
 
 
-    VertexBuilder &VulkanVertexShaderBuilder::addVertex(uint32_t size) {
-        return addVertex(size, mCurrentBinding + 1);
+    VulkanVertexBuilder &VulkanVertexShaderBuilder::addVertex(uint32_t size) {
+        return addVertex(size, mCurrentVertexBinding + 1);
     }
 
-    VertexBuilder &VulkanVertexShaderBuilder::addVertex(uint32_t size, uint32_t binding) {
-        mCurrentBinding = binding;
+    VulkanVertexBuilder &VulkanVertexShaderBuilder::addVertex(uint32_t size, uint32_t binding) {
+        mCurrentVertexBinding = binding;
 
-        VertexBuilder builder = VertexBuilder{*this};
+        VulkanVertexBuilder builder = VulkanVertexBuilder{*this};
         builder.binding(binding).size(size);
 
         mVertexBuilders.push_back(builder);
         return mVertexBuilders.back();
-    }
-
-    VertexBuilder::VertexBuilder(VulkanVertexShaderBuilder &builder)
-            : mBuilder(builder) {
-
-    }
-
-    VertexBuilder &VertexBuilder::size(uint32_t size) {
-        mSize = size;
-        return *this;
-    }
-
-    VertexBuilder &VertexBuilder::binding(uint32_t binding) {
-        mBinding = binding;
-        return *this;
-    }
-
-    VertexBuilder &VertexBuilder::addAttribute(ShaderFormat format) {
-        return addAttribute(ShaderFormatHelper::toVkFormat(format));
-    }
-
-    VertexBuilder &VertexBuilder::addAttribute(vk::Format format) {
-        addAttribute(mCurrentLocation + 1, mBinding, format, mCurrentOffset);
-        return *this;
-    }
-
-    VertexBuilder &VertexBuilder::addAttribute(uint32_t location, uint32_t binding, ShaderFormat format, uint32_t offset) {
-        return addAttribute(location, binding, ShaderFormatHelper::toVkFormat(format), offset);
-    }
-
-    VertexBuilder &VertexBuilder::addAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset) {
-        mCurrentLocation = location;
-
-        mAttributes.push_back(VertexAttribute{binding, location, format, offset});
-
-        mCurrentOffset += VulkanUtil::getFormatSize(format);
-
-        return *this;
-    }
-
-    Vertex VertexBuilder::buildVertex() {
-        return Vertex{mBinding, mSize, mAttributes};
-    }
-
-    VulkanVertexShaderBuilder &VertexBuilder::build() {
-        mBuilder.addVertex(buildVertex());
-        return mBuilder;
     }
 
 } // engine

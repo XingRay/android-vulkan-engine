@@ -73,7 +73,7 @@ intEngine(){
         //vertex shader
         .vertexShaderBuilder()
             .code(vertexShaderCode)
-            .addVertex(sizeof(app::Vertex)) // return VertexBuilder
+            .addVertex(sizeof(app::Vertex)) // return VulkanVertexBuilder
                 .addAttrbute(ShaderFormat::Vec3) // binding = 0 location = 0, offset = 0
                                                  // offset += offsetof(app::Vertex, attr1) , location++
                 .addAttrbute(ShaderFormat::Vec3) // binding = 0 location = 1, offset = 16 

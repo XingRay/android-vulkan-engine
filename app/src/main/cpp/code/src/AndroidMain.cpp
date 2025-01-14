@@ -25,7 +25,7 @@
 
 
 #include "test/Test01SimpleTriangle.h"
-//#include "test/Test02SingleColorTriangle.h.bak"
+#include "test/Test02SingleColorTriangle.h"
 //#include "test/Test03ColoredTriangle.h.bak"
 //#include "test/Test04MvpMatrix.h.bak"
 //#include "test/Test05TextureImage.h.bak"

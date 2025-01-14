@@ -23,7 +23,7 @@ namespace engine {
     class VulkanVertexShaderBuilder;
     class VulkanFragmentShaderBuilder;
 
-    class Vertex;
+    class VulkanVertex;
 
     class VulkanGraphicsEngineBuilder {
         friend class VulkanVertexShaderBuilder;
@@ -43,7 +43,7 @@ namespace engine {
         std::unique_ptr<VulkanFragmentShaderBuilder> mFragmentShaderBuilder;
 
         std::vector<char> mVertexShaderCode;
-        std::vector<Vertex> mVertices;
+        std::vector<VulkanVertex> mVertices;
 
         std::vector<char> mFragmentShaderCode;
 
@@ -82,7 +82,7 @@ namespace engine {
 
         VulkanGraphicsEngineBuilder &setVertexShaderCode(std::vector<char> &&code);
 
-        VulkanGraphicsEngineBuilder &setVertices(std::vector<Vertex> &&vertices);
+        VulkanGraphicsEngineBuilder &setVertices(std::vector<VulkanVertex> &&vertices);
 
         VulkanFragmentShaderBuilder &fragmentShaderBuilder();
 
