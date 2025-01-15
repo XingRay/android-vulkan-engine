@@ -28,7 +28,7 @@ namespace test01 {
 
     public:
         // 构造函数初始化基类 TestBase，并传递 name
-        explicit Test01SimpleTriangle(const android_app &fragmentShaderBuilder, const std::string &name);
+        explicit Test01SimpleTriangle(const android_app &vertexConfigure, const std::string &name);
 
         // 初始化操作
         void init() override;

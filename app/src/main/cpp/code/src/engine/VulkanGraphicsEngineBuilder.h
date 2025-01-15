@@ -13,18 +13,18 @@
 #include "engine/VulkanPhysicalDeviceProvider.h"
 
 #include "engine/VulkanGraphicsEngine.h"
-#include "engine/VulkanShaderBuilder.h"
+#include "engine/VulkanShaderConfigure.h"
 
 #include "engine/common/Selector.h"
 
 namespace engine {
 
-    class VulkanShaderBuilder;
+    class VulkanShaderConfigure;
 
     class VulkanVertex;
 
     class VulkanGraphicsEngineBuilder {
-        friend class VulkanShaderBuilder;
+        friend class VulkanShaderConfigure;
 
         friend class VulkanFragmentShaderBuilder;
 
@@ -37,8 +37,6 @@ namespace engine {
 
         std::unique_ptr<VulkanPhysicalDeviceProvider> mVulkanPhysicalDeviceProvider;
         std::unique_ptr<common::ValueSelector<uint32_t>> mMsaaSelector;
-
-        std::unique_ptr<VulkanShaderBuilder> mShaderBuilder;
 
         std::vector<char> mVertexShaderCode;
         std::vector<VulkanVertex> mVertices;
@@ -72,9 +70,7 @@ namespace engine {
 
         VulkanGraphicsEngineBuilder &enableMsaa(const std::function<uint32_t(const std::vector<uint32_t> &)> &selector);
 
-        VulkanShaderBuilder &vertexShaderBuilder();
-
-        VulkanGraphicsEngineBuilder &shader(const std::function<void(VulkanShaderBuilder &)> &configure);
+        VulkanGraphicsEngineBuilder &shader(const std::function<void(VulkanShaderConfigure &)> &configure);
 
         VulkanGraphicsEngineBuilder &setVertexShaderCode(std::vector<char> &&code);
 

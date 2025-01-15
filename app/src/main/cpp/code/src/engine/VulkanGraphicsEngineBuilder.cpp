@@ -71,13 +71,8 @@ namespace engine {
         return *this;
     }
 
-    VulkanShaderBuilder &VulkanGraphicsEngineBuilder::vertexShaderBuilder() {
-        mShaderBuilder = std::make_unique<VulkanShaderBuilder>(*this);
-        return *mShaderBuilder;
-    }
-
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::shader(const std::function<void(VulkanShaderBuilder &)>& configure) {
-        VulkanShaderBuilder builder(*this);
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::shader(const std::function<void(VulkanShaderConfigure &)>& configure) {
+        VulkanShaderConfigure builder(*this);
         configure(builder);
         builder.build();
         return *this;

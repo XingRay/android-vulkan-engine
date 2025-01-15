@@ -41,18 +41,18 @@ namespace test02 {
                 .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-                .shader([&](engine::VulkanShaderBuilder &shaderBuilder) {
-                    shaderBuilder
+                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
+                    shaderConfigure
                             .vertexShaderCode(std::move(vertexShaderCode))
                             .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-                            .vertex([](engine::VulkanVertexBuilder &vertexBuilder) {
-                                vertexBuilder
+                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
+                                vertexConfigure
                                         .binding(0)
                                         .size(sizeof(Vertex))
                                         .addAttribute(ShaderFormat::Vec3);
                             })
-                            .uniformSet([](engine::VulkanUniformSetBuilder &uniformSetBuilder) {
-                                uniformSetBuilder
+                            .uniformSet([](engine::VulkanUniformSetConfigure &uniformSetConfigure) {
+                                uniformSetConfigure
                                         .set(0);
 //                                        .addBindingNormal(0, sizeof(ColorUniformBufferObject));
 //                                .addBindingSampler(1,)
