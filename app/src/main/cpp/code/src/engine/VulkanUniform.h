@@ -9,29 +9,34 @@
 namespace engine {
 
     class VulkanUniform {
-    private:
-        uint32_t set;
-        uint32_t binding;
+    protected:
+        uint32_t mBinding;
+        vk::DescriptorType mDescriptorType;
 
     public:
 
-        virtual ~VulkanUniform() = default;
+        VulkanUniform(uint32_t binding, vk::DescriptorType descriptorType);
 
-        virtual vk::DescriptorType getDescriptorType() = 0;
+        virtual ~VulkanUniform();
+
+        vk::DescriptorType getDescriptorType();
     };
 
     class VulkanNormalUniform : public VulkanUniform {
 
     public:
-        vk::DescriptorType getDescriptorType() override;
+        VulkanNormalUniform(uint32_t binding);
 
+        ~VulkanNormalUniform();
     };
 
     class VulkanSamplerUniform : public VulkanUniform {
 
     public:
-        vk::DescriptorType getDescriptorType() override;
 
+        VulkanSamplerUniform(uint32_t binding);
+
+        ~VulkanSamplerUniform();
     };
 
 } // engine

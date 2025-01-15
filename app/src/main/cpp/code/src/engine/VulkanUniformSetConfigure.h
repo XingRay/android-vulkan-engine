@@ -5,6 +5,7 @@
 #pragma once
 
 #include "engine/VulkanShaderConfigure.h"
+#include "engine/VulkanUniformSet.h"
 
 namespace engine {
 
@@ -12,17 +13,21 @@ namespace engine {
     private:
         VulkanShaderConfigure &mBuilder;
 
-        uint32_t mSet;
+        VulkanUniformSet mUniformSet;
 
     public:
 
-        VulkanUniformSetConfigure(VulkanShaderConfigure& builder);
+        VulkanUniformSetConfigure(VulkanShaderConfigure &builder);
 
         ~VulkanUniformSetConfigure();
 
-        VulkanUniformSetConfigure& set(uint32_t set);
+        VulkanUniformSetConfigure &set(uint32_t set);
 
-        VulkanShaderConfigure& build();
+        VulkanUniformSetConfigure &addNormalBinding(uint32_t binding);
+
+        VulkanUniformSetConfigure &addSamplerBinding(uint32_t binding);
+
+        VulkanShaderConfigure &build();
     };
 
 } // engine

@@ -53,8 +53,8 @@ namespace test02 {
                             })
                             .uniformSet([](engine::VulkanUniformSetConfigure &uniformSetConfigure) {
                                 uniformSetConfigure
-                                        .set(0);
-//                                        .addBindingNormal(0, sizeof(ColorUniformBufferObject));
+                                        .set(0)
+                                        .addNormalBinding(0/*sizeof(ColorUniformBufferObject)*/);
 //                                .addBindingSampler(1,)
                             });
                 })

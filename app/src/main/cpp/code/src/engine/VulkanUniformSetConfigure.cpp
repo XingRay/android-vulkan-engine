@@ -7,19 +7,29 @@
 namespace engine {
 
     VulkanUniformSetConfigure::VulkanUniformSetConfigure(VulkanShaderConfigure &builder)
-            : mBuilder(builder), mSet(0) {
+            : mBuilder(builder), mUniformSet({}) {
 
     }
 
     VulkanUniformSetConfigure::~VulkanUniformSetConfigure() = default;
 
     VulkanUniformSetConfigure &VulkanUniformSetConfigure::set(uint32_t set) {
-        mSet = set;
+        mUniformSet.set = set;
+        return *this;
+    }
+
+    VulkanUniformSetConfigure &VulkanUniformSetConfigure::addNormalBinding(uint32_t binding){
+        mUniformSet.uniforms.push_back(VulkanNormalUniform(binding));
+        return *this;
+    }
+
+    VulkanUniformSetConfigure &VulkanUniformSetConfigure::addSamplerBinding(uint32_t binding){
+        mUniformSet.uniforms.push_back(VulkanSamplerUniform(binding));
         return *this;
     }
 
     VulkanShaderConfigure &VulkanUniformSetConfigure::build() {
-//        mBuilder.addUniformSet();
+        mBuilder.addUniformSet(mUniformSet);
 
         return mBuilder;
     }

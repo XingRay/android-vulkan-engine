@@ -6,11 +6,47 @@
 
 namespace engine {
 
-    vk::DescriptorType VulkanNormalUniform::getDescriptorType() {
-        return vk::DescriptorType::eUniformBuffer;
+    /**
+     *
+     * VulkanUniform
+     *
+     */
+    VulkanUniform::VulkanUniform(uint32_t binding, vk::DescriptorType descriptorType)
+            : mBinding(binding), mDescriptorType(descriptorType) {
+
     }
 
-    vk::DescriptorType VulkanSamplerUniform::getDescriptorType() {
-        return vk::DescriptorType::eCombinedImageSampler;
+    VulkanUniform::~VulkanUniform() = default;
+
+    vk::DescriptorType VulkanUniform::getDescriptorType() {
+        return mDescriptorType;
     }
+
+
+    /**
+     *
+     * VulkanNormalUniform
+     *
+     */
+    VulkanNormalUniform::VulkanNormalUniform(uint32_t binding)
+            : VulkanUniform{binding, vk::DescriptorType::eUniformBuffer} {
+
+    }
+
+    VulkanNormalUniform::~VulkanNormalUniform() {
+
+    }
+
+
+    /**
+     *
+     * VulkanSamplerUniform
+     *
+     */
+    VulkanSamplerUniform::VulkanSamplerUniform(uint32_t binding)
+            : VulkanUniform{binding, vk::DescriptorType::eCombinedImageSampler} {
+
+    }
+
+    VulkanSamplerUniform::~VulkanSamplerUniform() = default;
 }

@@ -15,7 +15,7 @@ namespace engine {
 
     VulkanGraphicsEngineBuilder::~VulkanGraphicsEngineBuilder() = default;
 
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::surface(const std::function<std::unique_ptr<VulkanSurface>(const VulkanInstance &)>& surfaceBuilder) {
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::surface(const std::function<std::unique_ptr<VulkanSurface>(const VulkanInstance &)> &surfaceBuilder) {
         mSurface = std::move(surfaceBuilder(*mInstance));
         return *this;
     }
@@ -66,15 +66,35 @@ namespace engine {
         return *this;
     }
 
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::enableMsaa(const std::function<uint32_t(const std::vector<uint32_t> &)>& selector) {
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::enableMsaa(const std::function<uint32_t(const std::vector<uint32_t> &)> &selector) {
         mMsaaSelector = std::make_unique<common::LambdaUint32Selector>(selector);
         return *this;
     }
 
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::shader(const std::function<void(VulkanShaderConfigure &)>& configure) {
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::shader(const std::function<void(VulkanShaderConfigure &)> &configure) {
         VulkanShaderConfigure builder(*this);
         configure(builder);
         builder.build();
+        return *this;
+    }
+
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setVertexShaderCode(std::vector<char> &&code) {
+        mVertexShaderCode = std::move(code);
+        return *this;
+    }
+
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setFragmentShaderCode(std::vector<char> &&code) {
+        mFragmentShaderCode = std::move(code);
+        return *this;
+    }
+
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setVertices(std::vector<VulkanVertex> &&vertices) {
+        mVertices = std::move(vertices);
+        return *this;
+    }
+
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setUniformSets(std::vector<VulkanUniformSet> &&uniformSets) {
+        mUniformSets = std::move(uniformSets);
         return *this;
     }
 
@@ -110,21 +130,6 @@ namespace engine {
                                                       std::move(vulkanDevice),
                                                       std::move(vulkanShader),
                                                       mFrameCount);
-    }
-
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setVertexShaderCode(std::vector<char> &&code) {
-        mVertexShaderCode = std::move(code);
-        return *this;
-    }
-
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setVertices(std::vector<VulkanVertex> &&vertices) {
-        mVertices = std::move(vertices);
-        return *this;
-    }
-
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setFragmentShaderCode(std::vector<char> &&code) {
-        mFragmentShaderCode = std::move(code);
-        return *this;
     }
 
 } // engine

@@ -30,20 +30,7 @@ namespace engine {
         return *this;
     }
 
-//    VulkanVertexBuilder &VulkanShaderBuilder::addVertex(uint32_t size) {
-//        return addVertex(size, mCurrentVertexBinding + 1);
-//    }
-//
-//    VulkanVertexBuilder &VulkanShaderBuilder::addVertex(uint32_t size, uint32_t binding) {
-//        mCurrentVertexBinding = binding;
-//
-//        VulkanVertexBuilder builder = VulkanVertexBuilder{*this};
-//        builder.binding(binding).size(size);
-//
-//        mVertexBuilders.push_back(builder);
-//        return mVertexBuilders.back();
-//    }
-
+    // todo: move
     VulkanShaderConfigure &VulkanShaderConfigure::addVertex(const VulkanVertex &vertex) {
         mVertices.push_back(vertex);
         return *this;
@@ -56,8 +43,9 @@ namespace engine {
         return *this;
     }
 
-    VulkanShaderConfigure &VulkanShaderConfigure::addUniformSet(uint32_t set, uint32_t binding, uint32_t size) {
-
+    // todo: move
+    VulkanShaderConfigure &VulkanShaderConfigure::addUniformSet(const VulkanUniformSet& uniformSet) {
+        mUniformSets.push_back(uniformSet);
         return *this;
     }
 
@@ -66,7 +54,7 @@ namespace engine {
         mBuilder.setFragmentShaderCode(std::move(mFragmentShaderCode));
 
         mBuilder.setVertices(std::move(mVertices));
-//        mBuilder.setUniformSets();
+        mBuilder.setUniformSets(std::move(mUniformSets));
 
         return mBuilder;
     }

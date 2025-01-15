@@ -22,6 +22,7 @@ namespace engine {
     class VulkanShaderConfigure;
 
     class VulkanVertex;
+    class VulkanUniformSet;
 
     class VulkanGraphicsEngineBuilder {
         friend class VulkanShaderConfigure;
@@ -39,11 +40,10 @@ namespace engine {
         std::unique_ptr<common::ValueSelector<uint32_t>> mMsaaSelector;
 
         std::vector<char> mVertexShaderCode;
-        std::vector<VulkanVertex> mVertices;
-
         std::vector<char> mFragmentShaderCode;
 
-        std::vector<uint32_t> mUniformSizes;
+        std::vector<VulkanVertex> mVertices;
+        std::vector<VulkanUniformSet> mUniformSets;
 
     public:
         VulkanGraphicsEngineBuilder(std::unique_ptr<VulkanInstance> instance);
@@ -74,9 +74,12 @@ namespace engine {
 
         VulkanGraphicsEngineBuilder &setVertexShaderCode(std::vector<char> &&code);
 
+        VulkanGraphicsEngineBuilder &setFragmentShaderCode(std::vector<char> &&code);
+
         VulkanGraphicsEngineBuilder &setVertices(std::vector<VulkanVertex> &&vertices);
 
-        VulkanGraphicsEngineBuilder &setFragmentShaderCode(std::vector<char> &&code);
+        VulkanGraphicsEngineBuilder &setUniformSets(std::vector<VulkanUniformSet> &&uniformSets);
+
 
         std::unique_ptr<VulkanGraphicsEngine> build();
     };

@@ -8,8 +8,11 @@
 
 #include "engine/ShaderFormat.h"
 #include "engine/VulkanGraphicsEngineBuilder.h"
+
 #include "engine/VulkanVertex.h"
 #include "engine/VulkanVertexConfigure.h"
+
+#include "engine/VulkanUniformSet.h"
 #include "engine/VulkanUniformSetConfigure.h"
 
 namespace engine {
@@ -25,15 +28,21 @@ namespace engine {
 
         VulkanGraphicsEngineBuilder &mBuilder;
 
-//        std::vector<VulkanVertexBuilder> mVertexBuilders;
-
+        /**
+         * shader code
+         */
         std::vector<char> mVertexShaderCode;
-
         std::vector<char> mFragmentShaderCode;
 
+        /**
+         * vertex
+         */
         std::vector<VulkanVertex> mVertices;
 
-        uint32_t mCurrentVertexBinding = -1;
+        /**
+         * uniform
+         */
+        std::vector<VulkanUniformSet> mUniformSets;
 
     public:
 
@@ -41,22 +50,41 @@ namespace engine {
 
         ~VulkanShaderConfigure();
 
+        /**
+         *
+         * shader coce
+         *
+         */
         VulkanShaderConfigure &vertexShaderCode(std::vector<char> &&code);
 
         VulkanShaderConfigure &fragmentShaderCode(std::vector<char> &&code);
 
-        VulkanShaderConfigure &vertex(const std::function<void(VulkanVertexConfigure &)> &configure);
 
-//        VulkanVertexBuilder &addVertex(uint32_t size);
-//
-//        VulkanVertexBuilder &addVertex(uint32_t size, uint32_t binding);
+        /**
+         *
+         * vertex
+         *
+         */
+        VulkanShaderConfigure &vertex(const std::function<void(VulkanVertexConfigure &)> &configure);
 
         VulkanShaderConfigure &addVertex(const VulkanVertex &vertex);
 
+
+        /**
+         *
+         * uniform
+         *
+         */
+        VulkanShaderConfigure &addUniformSet(const VulkanUniformSet &uniformSet);
+
         VulkanShaderConfigure &uniformSet(const std::function<void(VulkanUniformSetConfigure &)> &configure);
 
-        VulkanShaderConfigure &addUniformSet(uint32_t set, uint32_t binding, uint32_t size);
 
+        /**
+         *
+         * build
+         *
+         */
         VulkanGraphicsEngineBuilder &build();
     };
 
