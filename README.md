@@ -10,7 +10,7 @@ todo list
 - [x] 02 single color filled triangle (uniform buffer)
 
 
-- [x] 03 colored triangle (vertex buffer with multiple attributes)
+- [x] 03 colored triangle (vertex buffer with multiple uniforms)
 
 - [ ] 04 texture image (sampler2D)
 
@@ -82,8 +82,8 @@ intEngine(){
             .build() // binding ++ , location = 0, offset = 0 , return to vertexShaderBuilder
             .addVertex(..)...build()
             .setPushConstants(sizeof(app:MvpMatrix))
-            .addUniform(sizeof(app::Ubo1)) // binding = 0, binding++
-            .addUniform(sizeof(app::Ubo2)) // binding = 1
+            .addUniformSet(sizeof(app::Ubo1)) // binding = 0, binding++
+            .addUniformSet(sizeof(app::Ubo2)) // binding = 1
         .build() // vertexShaderBuilder, return to engine
         .fragmentShaderBuilder()
             .code(fragmentShaderCode)

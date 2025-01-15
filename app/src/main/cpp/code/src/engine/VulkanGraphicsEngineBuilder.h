@@ -13,20 +13,19 @@
 #include "engine/VulkanPhysicalDeviceProvider.h"
 
 #include "engine/VulkanGraphicsEngine.h"
-#include "engine/VulkanVertexShaderBuilder.h"
-#include "engine/VulkanFragmentShaderBuilder.h"
+#include "engine/VulkanShaderBuilder.h"
 
 #include "engine/common/Selector.h"
 
 namespace engine {
 
-    class VulkanVertexShaderBuilder;
-    class VulkanFragmentShaderBuilder;
+    class VulkanShaderBuilder;
 
     class VulkanVertex;
 
     class VulkanGraphicsEngineBuilder {
-        friend class VulkanVertexShaderBuilder;
+        friend class VulkanShaderBuilder;
+
         friend class VulkanFragmentShaderBuilder;
 
     private:
@@ -39,8 +38,7 @@ namespace engine {
         std::unique_ptr<VulkanPhysicalDeviceProvider> mVulkanPhysicalDeviceProvider;
         std::unique_ptr<common::ValueSelector<uint32_t>> mMsaaSelector;
 
-        std::unique_ptr<VulkanVertexShaderBuilder> mVertexShaderBuilder;
-        std::unique_ptr<VulkanFragmentShaderBuilder> mFragmentShaderBuilder;
+        std::unique_ptr<VulkanShaderBuilder> mShaderBuilder;
 
         std::vector<char> mVertexShaderCode;
         std::vector<VulkanVertex> mVertices;
@@ -54,7 +52,7 @@ namespace engine {
 
         ~VulkanGraphicsEngineBuilder();
 
-        VulkanGraphicsEngineBuilder &surface(std::function<std::unique_ptr<VulkanSurface>(const VulkanInstance &)> surfaceBuilder);
+        VulkanGraphicsEngineBuilder &surface(const std::function<std::unique_ptr<VulkanSurface>(const VulkanInstance &)> &surfaceBuilder);
 
         VulkanGraphicsEngineBuilder &deviceExtensions(std::vector<std::string> &&deviceExtensions);
 
@@ -72,19 +70,15 @@ namespace engine {
 
         VulkanGraphicsEngineBuilder &enableMsaaMax(uint32_t msaaSamplesMax);
 
-        VulkanGraphicsEngineBuilder &enableMsaa(std::function<uint32_t(const std::vector<uint32_t> &)> selector);
+        VulkanGraphicsEngineBuilder &enableMsaa(const std::function<uint32_t(const std::vector<uint32_t> &)> &selector);
 
-        VulkanVertexShaderBuilder &vertexShaderBuilder();
+        VulkanShaderBuilder &vertexShaderBuilder();
 
-        VulkanGraphicsEngineBuilder &vertexShader(std::function<void(VulkanVertexShaderBuilder &)> configure);
-
-        VulkanGraphicsEngineBuilder &fragmentShader(std::function<void(VulkanFragmentShaderBuilder &)> configure);
+        VulkanGraphicsEngineBuilder &shader(const std::function<void(VulkanShaderBuilder &)> &configure);
 
         VulkanGraphicsEngineBuilder &setVertexShaderCode(std::vector<char> &&code);
 
         VulkanGraphicsEngineBuilder &setVertices(std::vector<VulkanVertex> &&vertices);
-
-        VulkanFragmentShaderBuilder &fragmentShaderBuilder();
 
         VulkanGraphicsEngineBuilder &setFragmentShaderCode(std::vector<char> &&code);
 

@@ -5,7 +5,10 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
+
 #include "engine/ShaderFormat.h"
+#include "engine/ImageSize.h"
+#include "engine/VulkanUniform.h"
 
 /**
  *
@@ -18,19 +21,12 @@
 
  code:
 
- vertexShader->addVertexBinding(sizeof(app::Vertex))
+ shader->addVertexBinding(sizeof(app::Vertex))
     //.addVertexAttribute(vk::Format::eR32G32B32Sfloat);
     .addVertexAttribute(ShaderFormat::Vec3);
 
  */
 namespace engine {
-
-    class ImageSize {
-    public:
-        uint32_t width;
-        uint32_t height;
-        uint32_t channels;
-    };
 
     class VulkanShader {
     private:
@@ -47,9 +43,7 @@ namespace engine {
 
         std::vector<vk::DescriptorSetLayoutBinding> mUniformDescriptorSetLayoutBindings;
 
-        std::vector<uint32_t> mUniformSizes;
-
-        std::vector<ImageSize> mSamplerImageSizes;
+        std::vector<std::unique_ptr<VulkanUniform>> mUniforms;
 
         // push constant
         vk::PushConstantRange mVertexPushConstantRange{vk::ShaderStageFlagBits::eVertex, 0, 0};
@@ -92,10 +86,7 @@ namespace engine {
         const std::vector<vk::DescriptorSetLayoutBinding> &getUniformDescriptorSetLayoutBindings() const;
 
         [[nodiscard]]
-        const std::vector<uint32_t> &getUniformSizes() const;
-
-        [[nodiscard]]
-        const std::vector<ImageSize> &getSamplerImageSizes() const;
+        const std::vector<std::unique_ptr<VulkanUniform>> &getUniforms() const;
 
 
         VulkanShader &setVertexPushConstant(uint32_t size, uint32_t offset);

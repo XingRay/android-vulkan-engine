@@ -80,9 +80,7 @@ namespace engine {
         auto [stagingBuffer, stagingBufferMemory] = VulkanUtil::createBuffer(mDevice, mImageSize, vk::BufferUsageFlagBits::eTransferSrc,
                                                                              vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
         void *data = mDevice.getDevice().mapMemory(stagingBufferMemory, 0, mImageSize, vk::MemoryMapFlags{});
-        {
-            memcpy(data, pixels, mImageSize);
-        }
+        memcpy(data, pixels, mImageSize);
         mDevice.getDevice().unmapMemory(stagingBufferMemory);
 
         copyBufferToImage(stagingBuffer, mTextureImage, mWidth, mHeight);
@@ -93,7 +91,7 @@ namespace engine {
         generateMipmaps(mTextureImage, vk::Format::eR8G8B8A8Srgb, mWidth, mHeight, mMipLevels);
     }
 
-    void VulkanTextureSampler::generateMipmaps(vk::Image image, vk::Format imageFormat, int textureWidth, int textureHeight, uint32_t mipLevels) {
+    void VulkanTextureSampler::generateMipmaps(vk::Image image, vk::Format imageFormat, uint32_t textureWidth, uint32_t textureHeight, uint32_t mipLevels) {
         vk::FormatProperties formatProperties = mDevice.getPhysicalDevice().getFormatProperties(imageFormat);
         if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear)) {
             throw std::runtime_error("texture image format does not support linear blitting!");

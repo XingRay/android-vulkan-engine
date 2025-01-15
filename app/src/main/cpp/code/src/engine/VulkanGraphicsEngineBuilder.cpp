@@ -15,7 +15,7 @@ namespace engine {
 
     VulkanGraphicsEngineBuilder::~VulkanGraphicsEngineBuilder() = default;
 
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::surface(std::function<std::unique_ptr<VulkanSurface>(const VulkanInstance &)> surfaceBuilder) {
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::surface(const std::function<std::unique_ptr<VulkanSurface>(const VulkanInstance &)>& surfaceBuilder) {
         mSurface = std::move(surfaceBuilder(*mInstance));
         return *this;
     }
@@ -66,35 +66,22 @@ namespace engine {
         return *this;
     }
 
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::enableMsaa(std::function<uint32_t(const std::vector<uint32_t> &)> selector) {
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::enableMsaa(const std::function<uint32_t(const std::vector<uint32_t> &)>& selector) {
         mMsaaSelector = std::make_unique<common::LambdaUint32Selector>(selector);
         return *this;
     }
 
-    VulkanVertexShaderBuilder &VulkanGraphicsEngineBuilder::vertexShaderBuilder() {
-        mVertexShaderBuilder = std::make_unique<VulkanVertexShaderBuilder>(*this);
-        return *mVertexShaderBuilder;
+    VulkanShaderBuilder &VulkanGraphicsEngineBuilder::vertexShaderBuilder() {
+        mShaderBuilder = std::make_unique<VulkanShaderBuilder>(*this);
+        return *mShaderBuilder;
     }
 
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::vertexShader(std::function<void(VulkanVertexShaderBuilder &)> configure) {
-        VulkanVertexShaderBuilder builder(*this);
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::shader(const std::function<void(VulkanShaderBuilder &)>& configure) {
+        VulkanShaderBuilder builder(*this);
         configure(builder);
         builder.build();
         return *this;
     }
-
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::fragmentShader(std::function<void(VulkanFragmentShaderBuilder &)> configure) {
-        VulkanFragmentShaderBuilder builder(*this);
-        configure(builder);
-        builder.build();
-        return *this;
-    }
-
-    VulkanFragmentShaderBuilder &VulkanGraphicsEngineBuilder::fragmentShaderBuilder() {
-        mFragmentShaderBuilder = std::make_unique<VulkanFragmentShaderBuilder>(*this);
-        return *mFragmentShaderBuilder;
-    }
-
 
     std::unique_ptr<VulkanGraphicsEngine> VulkanGraphicsEngineBuilder::build() {
         std::unique_ptr<VulkanPhysicalDeviceCandidate> candidate = std::move(mVulkanPhysicalDeviceProvider->provide());

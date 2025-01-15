@@ -4,15 +4,15 @@
 
 #pragma once
 
-#include "engine/VulkanVertexShaderBuilder.h"
+#include "engine/VulkanShaderBuilder.h"
 
 namespace engine {
 
-    class VulkanVertexShaderBuilder;
+    class VulkanShaderBuilder;
 
     class VulkanVertexBuilder {
     private:
-        VulkanVertexShaderBuilder &mBuilder;
+        VulkanShaderBuilder &mBuilder;
 
         uint32_t mSize;
         uint32_t mBinding;
@@ -22,7 +22,7 @@ namespace engine {
         uint32_t mCurrentOffset = 0;
 
     public:
-        VulkanVertexBuilder(VulkanVertexShaderBuilder &builder);
+        VulkanVertexBuilder(VulkanShaderBuilder &builder);
 
         VulkanVertexBuilder &size(uint32_t size);
 
@@ -36,7 +36,7 @@ namespace engine {
 
         VulkanVertexBuilder &addAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset);
 
-        VulkanVertexShaderBuilder &build();
+        VulkanShaderBuilder &build();
 
         VulkanVertex buildVertex();
     };

@@ -5,5 +5,4 @@
 #pragma once
 
 #include "engine/VulkanEngineBuilder.h"
-#include "engine/VulkanVertexShaderBuilder.h"
-#include "engine/VulkanFragmentShaderBuilder.h"
+#include "engine/VulkanShaderBuilder.h"

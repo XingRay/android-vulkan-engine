@@ -7,8 +7,8 @@
 
 namespace engine {
 
-    VulkanVertexBuilder::VulkanVertexBuilder(VulkanVertexShaderBuilder &builder)
-            : mBuilder(builder) {
+    VulkanVertexBuilder::VulkanVertexBuilder(VulkanShaderBuilder &builder)
+            : mBuilder(builder), mSize(0), mBinding(0), mAttributes({}) {
 
     }
 
@@ -49,7 +49,7 @@ namespace engine {
         return VulkanVertex{mBinding, mSize, mAttributes};
     }
 
-    VulkanVertexShaderBuilder &VulkanVertexBuilder::build() {
+    VulkanShaderBuilder &VulkanVertexBuilder::build() {
         mBuilder.addVertex(buildVertex());
         return mBuilder;
     }

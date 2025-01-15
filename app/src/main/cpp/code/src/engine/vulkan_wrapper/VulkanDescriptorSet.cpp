@@ -44,12 +44,13 @@ namespace engine {
         // 大小为 imageCount，并且每个元素都初始化为 mDescriptorSetLayout
         std::vector<vk::DescriptorSetLayout> layouts(frameCount, mDescriptorSetLayout);
         vk::DescriptorSetAllocateInfo allocateInfo{};
-        allocateInfo.setDescriptorPool(mDescriptorPool)
+        allocateInfo
+                .setDescriptorPool(mDescriptorPool)
                 .setSetLayouts(layouts);
         mDescriptorSets = mDevice.getDevice().allocateDescriptorSets(allocateInfo);
 
         LOG_D("update DescriptorSets");
-        const std::vector<uint32_t> &vertexUniformSizes = shader.getUniformSizes();
+        const std::vector<uint32_t> &vertexUniformSizes{};// = shader.getUniformSizes();
         for (int i = 0; i < uniformBuffers.size(); i++) {
             std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
             const std::vector<std::unique_ptr<VulkanUniformBuffer>> &uniformBuffersOfFrame = uniformBuffers[i];

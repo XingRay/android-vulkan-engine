@@ -51,12 +51,8 @@ namespace engine {
         return mUniformDescriptorSetLayoutBindings;
     }
 
-    const std::vector<uint32_t> &VulkanShader::getUniformSizes() const {
-        return mUniformSizes;
-    }
-
-    const std::vector<ImageSize> &VulkanShader::getSamplerImageSizes() const {
-        return mSamplerImageSizes;
+    const std::vector<std::unique_ptr<VulkanUniform>> &VulkanShader::getUniforms() const {
+        return mUniforms;
     }
 
     /**
@@ -126,10 +122,10 @@ namespace engine {
 
         mUniformDescriptorSetLayoutBindings.push_back(uniformBufferObjectLayoutBinding);
 
-        if (mUniformSizes.size() < uniformBinding + 1) {
-            mUniformSizes.resize(uniformBinding + 1);
-        }
-        mUniformSizes[uniformBinding] = size;
+//        if (mUniformSizes.size() < uniformBinding + 1) {
+//            mUniformSizes.resize(uniformBinding + 1);
+//        }
+//        mUniformSizes[uniformBinding] = size;
 
         return *this;
     }

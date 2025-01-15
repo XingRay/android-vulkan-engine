@@ -42,7 +42,7 @@ namespace engine {
 
     private:
 
-        void generateMipmaps(vk::Image image, vk::Format imageFormat, int textureWidth, int textureHeight, uint32_t mipLevels);
+        void generateMipmaps(vk::Image image, vk::Format imageFormat, uint32_t textureWidth, uint32_t textureHeight, uint32_t mipLevels);
 
         void copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height);
     };

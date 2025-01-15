@@ -47,28 +47,28 @@ namespace engine {
         mRenderPass = std::make_unique<VulkanRenderPass>(*mDevice, *mSwapchain);
         mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, mFrameCount);
 
-        const std::vector<uint32_t> &uniformSizes = mShader->getUniformSizes();
-        LOG_D("create VulkanUniformBuffer");
-        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
-            std::vector<std::unique_ptr<VulkanUniformBuffer>> uniformBuffers;
-            uniformBuffers.resize(uniformSizes.size());
-            for (unsigned int uniformSize: uniformSizes) {
-                uniformBuffers.push_back(std::make_unique<VulkanUniformBuffer>(*mDevice, uniformSize));
-            }
-            mUniformBuffers.push_back(std::move(uniformBuffers));
-        }
+//        const std::vector<uint32_t> &uniformSizes = mShader->getUniforms()
+//        LOG_D("create VulkanUniformBuffer");
+//        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
+//            std::vector<std::unique_ptr<VulkanUniformBuffer>> uniformBuffers;
+//            uniformBuffers.resize(uniformSizes.size());
+//            for (unsigned int uniformSize: uniformSizes) {
+//                uniformBuffers.push_back(std::make_unique<VulkanUniformBuffer>(*mDevice, uniformSize));
+//            }
+//            mUniformBuffers.push_back(std::move(uniformBuffers));
+//        }
 
-        const std::vector<ImageSize> &imageSizes = mShader->getSamplerImageSizes();
-        LOG_D("create VulkanTextureSampler");
-        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
-            std::vector<std::unique_ptr<VulkanTextureSampler>> samplers;
-            samplers.resize(imageSizes.size());
-            for (int j = 0; j < imageSizes.size(); j++) {
-                const ImageSize &imageSize = imageSizes[j];
-                samplers[j] = std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels);
-            }
-            mTextureSamplers.push_back(std::move(samplers));
-        }
+//        const std::vector<ImageSize> &imageSizes = mShader->getSamplerImageSizes();
+//        LOG_D("create VulkanTextureSampler");
+//        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
+//            std::vector<std::unique_ptr<VulkanTextureSampler>> samplers;
+//            samplers.resize(imageSizes.size());
+//            for (int j = 0; j < imageSizes.size(); j++) {
+//                const ImageSize &imageSize = imageSizes[j];
+//                samplers[j] = std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels);
+//            }
+//            mTextureSamplers.push_back(std::move(samplers));
+//        }
 
         LOG_D("create VulkanDescriptorSet");
         mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount, *mShader,  mUniformBuffers, mTextureSamplers);

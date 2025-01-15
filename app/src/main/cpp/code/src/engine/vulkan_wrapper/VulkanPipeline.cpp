@@ -82,8 +82,8 @@ namespace engine {
                         // 设置面剔除策略, 这里设置为反面被剔除
                 .setCullMode(vk::CullModeFlagBits::eBack)
 //                .setCullMode(vk::CullModeFlagBits::eNone)
-                        // 设置正面的方向
-                .setFrontFace(vk::FrontFace::eCounterClockwise)
+
+                .setFrontFace(vk::FrontFace::eCounterClockwise) // 设置正面的方向
                 .setDepthBiasEnable(vk::False)
                 .setDepthBiasConstantFactor(0.0f)
                 .setDepthBiasClamp(0.0f)
@@ -92,9 +92,7 @@ namespace engine {
         // depth & stencil testing
         vk::PipelineDepthStencilStateCreateInfo depthStencilStateCreateInfo;
         depthStencilStateCreateInfo
-//                .setDepthTestEnable(vk::True)
                 .setDepthTestEnable(vk::False)
-//                .setDepthWriteEnable(vk::True)
                 .setDepthWriteEnable(vk::False)
                 .setDepthCompareOp(vk::CompareOp::eLess)
                 .setDepthBoundsTestEnable(vk::False)
@@ -106,8 +104,8 @@ namespace engine {
 
 
         // Multisampling
-        vk::PipelineMultisampleStateCreateInfo multisampleStateCreateInfo;
-        multisampleStateCreateInfo.setSampleShadingEnable(vk::True)
+        vk::PipelineMultisampleStateCreateInfo multiSampleStateCreateInfo;
+        multiSampleStateCreateInfo.setSampleShadingEnable(vk::True)
                 .setRasterizationSamples(vulkanDevice.getMsaaSamples())
                 .setMinSampleShading(0.2f)
                 .setPSampleMask(nullptr)
@@ -147,7 +145,7 @@ namespace engine {
                 .setAttachments(colorBlendAttachmentStates)
                 .setBlendConstants(std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
 
-
+        // todo: multi uniform set
         std::array<vk::DescriptorSetLayout, 1> descriptorSetLayouts = {descriptorSet.getDescriptorSetLayout()};
 
         std::vector<vk::PushConstantRange> pushConstantRanges;
@@ -178,7 +176,7 @@ namespace engine {
                 .setPInputAssemblyState(&inputAssemblyStateCreateInfo)
                 .setPViewportState(&viewportStateCreateInfo)
                 .setPRasterizationState(&rasterizationStateCreateInfo)
-                .setPMultisampleState(&multisampleStateCreateInfo)
+                .setPMultisampleState(&multiSampleStateCreateInfo)
                 .setPDepthStencilState(&depthStencilStateCreateInfo)
                 .setPColorBlendState(&colorBlendStateCreateInfo)
                 .setPDynamicState(&dynamicStateCreateInfo)
