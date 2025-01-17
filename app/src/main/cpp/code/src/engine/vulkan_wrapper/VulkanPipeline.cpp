@@ -92,8 +92,8 @@ namespace engine {
         // depth & stencil testing
         vk::PipelineDepthStencilStateCreateInfo depthStencilStateCreateInfo;
         depthStencilStateCreateInfo
-                .setDepthTestEnable(vk::False)
-                .setDepthWriteEnable(vk::False)
+                .setDepthTestEnable(vk::True)
+                .setDepthWriteEnable(vk::True)
                 .setDepthCompareOp(vk::CompareOp::eLess)
                 .setDepthBoundsTestEnable(vk::False)
                 .setMinDepthBounds(0.0f)

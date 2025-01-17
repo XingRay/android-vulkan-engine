@@ -13,11 +13,21 @@ namespace std {
     template<>
     struct hash<test06::Vertex> {
         size_t operator()(test06::Vertex const &vertex) const {
-            return ((hash<glm::vec3>()(vertex.position) ^
-                     (hash<glm::vec2>()(vertex.uv) << 1)) >> 1);
+            size_t seed = 0;
+
+            // 哈希 position
+            hash<glm::vec3> vec3Hash;
+            seed ^= vec3Hash(vertex.position) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+            // 哈希 uv
+            hash<glm::vec2> vec2Hash;
+            seed ^= vec2Hash(vertex.uv) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+
+            return seed;
         }
     };
 }
+
 
 namespace test06 {
 
@@ -51,6 +61,7 @@ namespace test06 {
 
         int width, height, channels;
         stbi_uc *pixels = stbi_load(TEXTURE_PATH, &width, &height, &channels, STBI_rgb_alpha);
+        channels = 4;
 
         std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
                 .layers({}, layers)
@@ -91,7 +102,7 @@ namespace test06 {
         glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         mMvpMatrix.model = model;
-        mMvpMatrix.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f),
+        mMvpMatrix.view = glm::lookAt(glm::vec3(3.0f, 3.0f, 3.0f),
                                       glm::vec3(0.0f, 0.0f, 0.0f),
                                       glm::vec3(0.0f, 0.0f, 1.0f));
         mMvpMatrix.proj = glm::perspective(glm::radians(45.0f), (float) ANativeWindow_getWidth(mApp.window) / (float) ANativeWindow_getHeight(mApp.window), 0.1f, 10.0f);
