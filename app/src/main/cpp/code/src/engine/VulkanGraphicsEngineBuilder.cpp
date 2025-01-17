@@ -93,8 +93,8 @@ namespace engine {
         return *this;
     }
 
-    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setUniformSets(std::vector<VulkanUniformSet> &&uniformSets) {
-        mUniformSets = std::move(uniformSets);
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setUniformSets(std::vector<VulkanDescriptorSet> &&uniformSets) {
+        mDescriptorSets = std::move(uniformSets);
         return *this;
     }
 
@@ -113,21 +113,19 @@ namespace engine {
                                                                                     mInstance->getEnabledLayers(),
                                                                                     sampleCount);
 
-        std::unique_ptr<VulkanShader> vulkanShader = std::make_unique<VulkanShader>();
-        (*vulkanShader).setVertexShaderCode(std::move(mVertexShaderCode));
-        (*vulkanShader).setFragmentShaderCode(std::move(mFragmentShaderCode));
-        for (const VulkanVertex &vertex: mVertices) {
-            (*vulkanShader).addVertexBinding(vertex.binding, vertex.size);
-            for (const VulkanVertexAttribute &attribute: vertex.attributes) {
-                (*vulkanShader).addVertexAttribute(attribute.binding, attribute.location, attribute.format, attribute.offset);
-            }
-        }
+        std::unique_ptr<VulkanCommandPool> commandPool = std::make_unique<VulkanCommandPool>(*vulkanDevice, mFrameCount);
 
+        std::unique_ptr<VulkanShader> vulkanShader = std::make_unique<VulkanShader>(*vulkanDevice, *commandPool, mFrameCount,
+                                                                                    std::move(mVertexShaderCode),
+                                                                                    std::move(mFragmentShaderCode),
+                                                                                    std::move(mVertices),
+                                                                                    std::move(mDescriptorSets));
 
         return std::make_unique<VulkanGraphicsEngine>(std::move(mInstance),
                                                       std::move(mSurface),
                                                       std::move(vulkanPhysicalDevice),
                                                       std::move(vulkanDevice),
+                                                      std::move(commandPool),
                                                       std::move(vulkanShader),
                                                       mFrameCount);
     }

@@ -7,7 +7,8 @@
 #include "engine/Log.h"
 
 namespace engine {
-    VulkanUniformBuffer::VulkanUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize) : mDevice(vulkanDevice), mBufferSize(bufferSize) {
+    VulkanUniformBuffer::VulkanUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize)
+            : mDevice(vulkanDevice), mBufferSize(bufferSize), VulkanBuffer(VulkanBufferType::NORMAL) {
         LOG_D("VulkanUniformBuffer::VulkanUniformBuffer#bufferSize: %lu", bufferSize);
         std::tie(mUniformBuffer, mUniformBufferMemory) = VulkanUtil::createBuffer(vulkanDevice, bufferSize,
                                                                                   vk::BufferUsageFlagBits::eUniformBuffer,
@@ -37,6 +38,14 @@ namespace engine {
 
     const vk::DeviceMemory &VulkanUniformBuffer::getUniformBufferMemory() const {
         return mUniformBufferMemory;
+    }
+
+    uint32_t VulkanUniformBuffer::getBufferSize() const {
+        return mBufferSize;
+    }
+
+    uint32_t VulkanUniformBuffer::getOffset() const {
+        return mOffset;
     }
 
     void VulkanUniformBuffer::updateBuffer(void *data, uint32_t size) {

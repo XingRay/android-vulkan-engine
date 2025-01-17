@@ -92,16 +92,11 @@ namespace engine {
                 .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
                 .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
 
+        auto subpassDescriptions = std::array<vk::SubpassDescription, 1>{subpassDescription};
         vk::RenderPassCreateInfo renderPassCreateInfo{};
         renderPassCreateInfo
-//            .setAttachmentCount(attachments.size())
-//                .setPAttachments(attachments.data())
                 .setAttachments(attachments)
-//        std::array<vk::SubpassDescription, 1> subpassDescriptions = std::array<vk::SubpassDescription, 1>{subpassDescription};
-//                .setSubpasses(subpassDescriptions)
-                .setSubpassCount(1)
-                .setPSubpasses(&subpassDescription)
-
+                .setSubpasses(subpassDescriptions)
 //            .setDependencyCount(1)
 //            .setPDependencies(&subpassDependency);
                 .setDependencyCount(0)

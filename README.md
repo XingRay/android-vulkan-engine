@@ -10,7 +10,7 @@ todo list
 - [x] 02 single color filled triangle (uniform buffer)
 
 
-- [x] 03 colored triangle (vertex buffer with multiple uniforms)
+- [x] 03 colored triangle (vertex buffer with multiple descriptors)
 
 - [ ] 04 texture image (sampler2D)
 

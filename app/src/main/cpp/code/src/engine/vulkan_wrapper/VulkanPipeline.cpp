@@ -8,7 +8,6 @@
 namespace engine {
     VulkanPipeline::VulkanPipeline(const VulkanDevice &vulkanDevice,
                                    const VulkanSwapchain &swapchain,
-                                   const VulkanDescriptorSet &descriptorSet,
                                    const VulkanRenderPass &renderPass,
                                    const VulkanShader &shader)
             : mDevice(vulkanDevice) {
@@ -54,7 +53,7 @@ namespace engine {
                 .setVertexBindingDescriptions(shader.getVertexDescriptions())
                 .setVertexAttributeDescriptions(shader.getVertexInputAttributeDescriptions());
 
-        vk::ShaderModule vertexShaderModule = mDevice.createShaderModule(shader.getVertexShaderCode());
+        vk::ShaderModule vertexShaderModule = shader.getVertexShaderModule();
         vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo;
         vertexShaderStageCreateInfo.setStage(vk::ShaderStageFlagBits::eVertex)
                 .setModule(vertexShaderModule)
@@ -112,7 +111,7 @@ namespace engine {
                 .setAlphaToCoverageEnable(vk::False)
                 .setAlphaToOneEnable(vk::False);
 
-        vk::ShaderModule fragmentShaderModule = mDevice.createShaderModule(shader.getFragmentShaderCode());
+        vk::ShaderModule fragmentShaderModule = shader.getFragmentShaderModule();
         // fragment shader
         vk::PipelineShaderStageCreateInfo fragmentShaderStageCreateInfo;
         fragmentShaderStageCreateInfo.setStage(vk::ShaderStageFlagBits::eFragment)
@@ -145,26 +144,10 @@ namespace engine {
                 .setAttachments(colorBlendAttachmentStates)
                 .setBlendConstants(std::array<float, 4>{0.0f, 0.0f, 0.0f, 0.0f});
 
-        // todo: multi uniform set
-        std::array<vk::DescriptorSetLayout, 1> descriptorSetLayouts = {descriptorSet.getDescriptorSetLayout()};
-
-        std::vector<vk::PushConstantRange> pushConstantRanges;
-        vk::PushConstantRange vertexPushConstantRange = shader.getVertexPushConstantRange();
-        if (vertexPushConstantRange.size > 0) {
-            pushConstantRanges.push_back(vertexPushConstantRange);
-        }
-        vk::PushConstantRange fragmentPushConstantRange = shader.getFragmentPushConstantRange();
-        if (fragmentPushConstantRange.size > 0) {
-            if (vertexPushConstantRange.size > 0) {
-                fragmentPushConstantRange.setOffset(vertexPushConstantRange.size);
-            }
-            pushConstantRanges.push_back(fragmentPushConstantRange);
-        }
-
         vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
         pipelineLayoutCreateInfo
-                .setSetLayouts(descriptorSetLayouts)
-                .setPushConstantRanges(pushConstantRanges);
+                .setSetLayouts(shader.getDescriptorSetLayouts())
+                .setPushConstantRanges(shader.getPushConstantRanges());
 
         mPipelineLayout = vulkanDevice.getDevice().createPipelineLayout(pipelineLayoutCreateInfo);
 
@@ -191,9 +174,6 @@ namespace engine {
             throw std::runtime_error("createGraphicsPipelines failed");
         }
         mPipeline = pipeline;
-
-        mDevice.getDevice().destroy(vertexShaderModule);
-        mDevice.getDevice().destroy(fragmentShaderModule);
     }
 
     VulkanPipeline::~VulkanPipeline() {

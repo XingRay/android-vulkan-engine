@@ -5,15 +5,16 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
-#include "engine/VulkanUniform.h"
+#include "engine/VulkanDescriptor.h"
 
 namespace engine {
 
-    class VulkanUniformSet {
+    class VulkanDescriptorSet {
     public:
         uint32_t set;
-        std::vector<VulkanUniform> uniforms;
+        std::vector<VulkanDescriptor> descriptors;
     };
 
 } // engine

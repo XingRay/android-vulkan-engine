@@ -8,9 +8,11 @@
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
+#include "engine/vulkan_wrapper/VulkanBuffer.h"
+
 namespace engine {
 
-    class VulkanTextureSampler {
+    class VulkanSamplerBuffer : public VulkanBuffer {
     private:
         const VulkanDevice &mDevice;
         const VulkanCommandPool &mCommandPool;
@@ -30,15 +32,17 @@ namespace engine {
 
     public:
 
-        VulkanTextureSampler(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool, uint32_t width, uint32_t height, uint32_t channels);
+        VulkanSamplerBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool, uint32_t width, uint32_t height, uint32_t channels);
 
-        ~VulkanTextureSampler();
+        ~VulkanSamplerBuffer() override;
 
+        [[nodiscard]]
         const vk::ImageView &getTextureImageView() const;
 
+        [[nodiscard]]
         const vk::Sampler &getTextureSampler() const;
 
-        void update(void *pixels);
+        void updateBuffer(void *data, uint32_t size) override;
 
     private:
 

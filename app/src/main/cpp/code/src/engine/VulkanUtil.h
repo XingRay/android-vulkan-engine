@@ -62,6 +62,8 @@ namespace engine {
         static vk::SampleCountFlagBits uint32ToSampleCountFlagBits(uint32_t sampleCount);
 
         static uint32_t getFormatSize(vk::Format format);
+
+        static vk::DescriptorPoolSize &getOrCreateDescriptorPoolSize(std::vector<vk::DescriptorPoolSize> &descriptorPoolSizes, vk::DescriptorType type);
     };
 
 } // engine

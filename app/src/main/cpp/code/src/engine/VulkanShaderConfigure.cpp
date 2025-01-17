@@ -36,25 +36,33 @@ namespace engine {
         return *this;
     }
 
-    VulkanShaderConfigure &VulkanShaderConfigure::uniformSet(const std::function<void(VulkanUniformSetConfigure &)> &configure) {
-        VulkanUniformSetConfigure builder(*this);
+    VulkanShaderConfigure &VulkanShaderConfigure::uniformSet(const std::function<void(VulkanDescriptorSetConfigure &)> &configure) {
+        VulkanDescriptorSetConfigure builder(*this);
         configure(builder);
         builder.build();
         return *this;
     }
 
     // todo: move
-    VulkanShaderConfigure &VulkanShaderConfigure::addUniformSet(const VulkanUniformSet& uniformSet) {
+    VulkanShaderConfigure &VulkanShaderConfigure::addUniformSet(const VulkanDescriptorSet& uniformSet) {
         mUniformSets.push_back(uniformSet);
         return *this;
     }
 
     VulkanGraphicsEngineBuilder &VulkanShaderConfigure::build() {
+        // shader code
         mBuilder.setVertexShaderCode(std::move(mVertexShaderCode));
         mBuilder.setFragmentShaderCode(std::move(mFragmentShaderCode));
 
+        // vertices
         mBuilder.setVertices(std::move(mVertices));
+
+        // uniform / sampler / storage ...
         mBuilder.setUniformSets(std::move(mUniformSets));
+
+        // push constant
+        // todo
+
 
         return mBuilder;
     }

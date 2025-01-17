@@ -1,6 +1,7 @@
 //
 // Created by leixing on 2025/1/14.
 //
+#pragma once
 
 #include "engine/VulkanVertexAttribute.h"
 #include <vector>

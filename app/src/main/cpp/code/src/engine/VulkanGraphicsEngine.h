@@ -13,7 +13,6 @@
 #include "engine/vulkan_wrapper/VulkanShader.h"
 #include "engine/vulkan_wrapper/VulkanSwapchain.h"
 #include "engine/vulkan_wrapper/VulkanRenderPass.h"
-#include "engine/vulkan_wrapper/VulkanDescriptorSet.h"
 #include "engine/vulkan_wrapper/VulkanPipeline.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/vulkan_wrapper/VulkanVertexBuffer.h"
@@ -21,7 +20,7 @@
 #include "engine/vulkan_wrapper/VulkanUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
-#include "engine/vulkan_wrapper/VulkanTextureSampler.h"
+#include "engine/vulkan_wrapper/VulkanSamplerBuffer.h"
 
 #include "engine/common/StringListSelector.h"
 #include "engine/VulkanPhysicalDeviceProvider.h"
@@ -50,7 +49,6 @@ namespace engine {
         std::unique_ptr<VulkanSwapchain> mSwapchain;
         std::unique_ptr<VulkanRenderPass> mRenderPass;
 
-        std::unique_ptr<VulkanDescriptorSet> mDescriptorSet;
         std::unique_ptr<VulkanPipeline> mPipeline;
         std::unique_ptr<VulkanCommandPool> mCommandPool;
         std::unique_ptr<VulkanFrameBuffer> mFrameBuffer;
@@ -60,9 +58,6 @@ namespace engine {
         std::vector<vk::DeviceSize> mVertexBufferOffsets;
 
         std::unique_ptr<VulkanIndexBuffer> mIndexBuffer;
-
-        std::vector<std::vector<std::unique_ptr<VulkanUniformBuffer>>> mUniformBuffers;
-        std::vector<std::vector<std::unique_ptr<VulkanTextureSampler>>> mTextureSamplers;
 
         std::unique_ptr<VulkanSyncObject> mSyncObject;
 
@@ -74,6 +69,7 @@ namespace engine {
                              std::unique_ptr<VulkanSurface> vulkanSurface,
                              std::unique_ptr<VulkanPhysicalDevice> vulkanPhysicalDevice,
                              std::unique_ptr<VulkanDevice> vulkanDevice,
+                             std::unique_ptr<VulkanCommandPool> commandPool,
                              std::unique_ptr<VulkanShader> vulkanShader,
                              uint32_t frameCount);
 

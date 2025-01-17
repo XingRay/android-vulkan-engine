@@ -12,8 +12,8 @@
 #include "engine/VulkanVertex.h"
 #include "engine/VulkanVertexConfigure.h"
 
-#include "engine/VulkanUniformSet.h"
-#include "engine/VulkanUniformSetConfigure.h"
+#include "engine/VulkanDescriptorSet.h"
+#include "engine/VulkanDescriptorSetConfigure.h"
 
 namespace engine {
 
@@ -21,7 +21,7 @@ namespace engine {
 
     class VulkanVertexConfigure;
 
-    class VulkanUniformSetConfigure;
+    class VulkanDescriptorSetConfigure;
 
     class VulkanShaderConfigure {
     private:
@@ -42,7 +42,7 @@ namespace engine {
         /**
          * uniform
          */
-        std::vector<VulkanUniformSet> mUniformSets;
+        std::vector<VulkanDescriptorSet> mUniformSets;
 
     public:
 
@@ -75,9 +75,9 @@ namespace engine {
          * uniform
          *
          */
-        VulkanShaderConfigure &addUniformSet(const VulkanUniformSet &uniformSet);
+        VulkanShaderConfigure &addUniformSet(const VulkanDescriptorSet &uniformSet);
 
-        VulkanShaderConfigure &uniformSet(const std::function<void(VulkanUniformSetConfigure &)> &configure);
+        VulkanShaderConfigure &uniformSet(const std::function<void(VulkanDescriptorSetConfigure &)> &configure);
 
 
         /**

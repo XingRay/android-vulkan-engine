@@ -18,12 +18,14 @@ namespace engine {
                                                std::unique_ptr<VulkanSurface> vulkanSurface,
                                                std::unique_ptr<VulkanPhysicalDevice> vulkanPhysicalDevice,
                                                std::unique_ptr<VulkanDevice> vulkanDevice,
+                                               std::unique_ptr<VulkanCommandPool> commandPool,
                                                std::unique_ptr<VulkanShader> vulkanShader,
                                                uint32_t frameCount) {
         mInstance = std::move(vulkanInstance);
         mSurface = std::move(vulkanSurface);
         mPhysicalDevice = std::move(vulkanPhysicalDevice);
         mDevice = std::move(vulkanDevice);
+        mCommandPool = std::move(commandPool);
         mShader = std::move(vulkanShader);
         mFrameCount = frameCount;
 
@@ -43,9 +45,7 @@ namespace engine {
         vk::Extent2D currentExtent = mDevice->getCapabilities().currentExtent;
         LOG_D("currentExtent:[%d x %d]", currentExtent.width, currentExtent.height);
         mSwapchain = std::make_unique<VulkanSwapchain>(*mDevice, *mSurface, currentExtent.width, currentExtent.height);
-
         mRenderPass = std::make_unique<VulkanRenderPass>(*mDevice, *mSwapchain);
-        mCommandPool = std::make_unique<VulkanCommandPool>(*mDevice, mFrameCount);
 
 //        const std::vector<uint32_t> &uniformSizes = mShader->getUniforms()
 //        LOG_D("create VulkanUniformBuffer");
@@ -70,27 +70,25 @@ namespace engine {
 //            mTextureSamplers.push_back(std::move(samplers));
 //        }
 
-        LOG_D("create VulkanDescriptorSet");
-        mDescriptorSet = std::make_unique<VulkanDescriptorSet>(*mDevice, mFrameCount, *mShader,  mUniformBuffers, mTextureSamplers);
         LOG_D("create VulkanPipeline");
-        mPipeline = std::make_unique<VulkanPipeline>(*mDevice, *mSwapchain, *mDescriptorSet, *mRenderPass, *mShader);
+        mPipeline = std::make_unique<VulkanPipeline>(*mDevice, *mSwapchain, *mRenderPass, *mShader);
         LOG_D("create VulkanFrameBuffer");
         mFrameBuffer = std::make_unique<VulkanFrameBuffer>(*mDevice, *mSwapchain, *mRenderPass, *mCommandPool);
         LOG_D("create VulkanSyncObject");
         mSyncObject = std::make_unique<VulkanSyncObject>(*mDevice, mFrameCount);
 
-        if (mShader->getVertexPushConstantRange().size > 0) {
-            mVertexPushConstantData.resize(mShader->getVertexPushConstantRange().size);
-        }
-        if (mShader->getFragmentPushConstantRange().size > 0) {
-            mFragmentPushConstantData.resize(mShader->getFragmentPushConstantRange().size);
-        }
-        uint32_t totalPushConstantsSize = mShader->getVertexPushConstantRange().size + mShader->getFragmentPushConstantRange().size;
-        uint32_t pushConstantsSizeLimit = mDevice->getPhysicalDevice().getProperties().limits.maxPushConstantsSize;
-        if (totalPushConstantsSize > pushConstantsSizeLimit) {
-            LOG_E("totalPushConstantsSize > pushConstantsSizeLimit, totalPushConstantsSize:%d, pushConstantsSizeLimit:%d", totalPushConstantsSize, pushConstantsSizeLimit);
-            throw std::runtime_error("totalPushConstantsSize > pushConstantsSizeLimit");
-        }
+//        if (mShader->getVertexPushConstantRange().size > 0) {
+//            mVertexPushConstantData.resize(mShader->getVertexPushConstantRange().size);
+//        }
+//        if (mShader->getFragmentPushConstantRange().size > 0) {
+//            mFragmentPushConstantData.resize(mShader->getFragmentPushConstantRange().size);
+//        }
+//        uint32_t totalPushConstantsSize = mShader->getVertexPushConstantRange().size + mShader->getFragmentPushConstantRange().size;
+//        uint32_t pushConstantsSizeLimit = mDevice->getPhysicalDevice().getProperties().limits.maxPushConstantsSize;
+//        if (totalPushConstantsSize > pushConstantsSizeLimit) {
+//            LOG_E("totalPushConstantsSize > pushConstantsSizeLimit, totalPushConstantsSize:%d, pushConstantsSizeLimit:%d", totalPushConstantsSize, pushConstantsSizeLimit);
+//            throw std::runtime_error("totalPushConstantsSize > pushConstantsSizeLimit");
+//        }
     }
 
     VulkanGraphicsEngine::~VulkanGraphicsEngine() {
@@ -100,14 +98,11 @@ namespace engine {
 
         mSyncObject.reset();
 
-        mUniformBuffers.clear();
-
         mIndexBuffer.reset();
         mVertexBuffers.clear();
         mFrameBuffer.reset();
 
         mPipeline.reset();
-        mDescriptorSet.reset();
 
         mRenderPass.reset();
         mSwapchain.reset();
@@ -164,7 +159,7 @@ namespace engine {
                                                     commandBuffer.bindVertexBuffers(0, mVertexBuffers, mVertexBufferOffsets);
                                                     commandBuffer.bindIndexBuffer(mIndexBuffer->getIndexBuffer(), 0, vk::IndexType::eUint32);
                                                     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipeline->getPipelineLayout(), 0,
-                                                                                     {mDescriptorSet->getDescriptorSets()[mCurrentFrame]}, nullptr);
+                                                                                     mShader->getDescriptorSets(mCurrentFrame), nullptr);
                                                     if (!mVertexPushConstantData.empty()) {
                                                         commandBuffer.pushConstants(mPipeline->getPipelineLayout(), vk::ShaderStageFlagBits::eVertex,
                                                                                     0,
@@ -279,11 +274,7 @@ namespace engine {
     }
 
     void VulkanGraphicsEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
-        mUniformBuffers[frameIndex][binding]->updateBuffer(data, size);
-    }
-
-    void VulkanGraphicsEngine::updateTextureSampler(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
-        mTextureSamplers[frameIndex][binding]->update(data);
+        mShader->updateBuffer(frameIndex, set, binding, data, size);
     }
 
     void VulkanGraphicsEngine::updateVertexPushConstant(const void *data) {

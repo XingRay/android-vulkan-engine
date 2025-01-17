@@ -574,4 +574,20 @@ namespace engine {
         }
     }
 
+    vk::DescriptorPoolSize &VulkanUtil::getOrCreateDescriptorPoolSize(std::vector<vk::DescriptorPoolSize> &descriptorPoolSizes, vk::DescriptorType type) {
+        // 查找指定类型的 DescriptorPoolSize
+        auto it = std::find_if(descriptorPoolSizes.begin(), descriptorPoolSizes.end(), [type](const vk::DescriptorPoolSize &poolSize) {
+            return poolSize.type == type;
+        });
+
+        // 如果找到，返回该对象的引用
+        if (it != descriptorPoolSizes.end()) {
+            return *it;
+        }
+
+        // 如果没有找到，创建一个新的 DescriptorPoolSize 并添加到列表中
+        descriptorPoolSizes.push_back({type, 0}); // 初始 descriptorCount 为 0
+        return descriptorPoolSizes.back();
+    }
+
 } // engine

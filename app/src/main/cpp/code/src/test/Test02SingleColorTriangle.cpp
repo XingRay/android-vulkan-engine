@@ -51,11 +51,10 @@ namespace test02 {
                                         .size(sizeof(Vertex))
                                         .addAttribute(ShaderFormat::Vec3);
                             })
-                            .uniformSet([](engine::VulkanUniformSetConfigure &uniformSetConfigure) {
+                            .uniformSet([](engine::VulkanDescriptorSetConfigure &uniformSetConfigure) {
                                 uniformSetConfigure
                                         .set(0)
-                                        .addNormalBinding(0/*sizeof(ColorUniformBufferObject)*/);
-//                                .addBindingSampler(1,)
+                                        .addUniform(0, vk::ShaderStageFlagBits::eVertex, sizeof(ColorUniformBufferObject));
                             });
                 })
                 .build();
@@ -74,30 +73,13 @@ namespace test02 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-//        std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/02_triangle_color.vert.spv");
-//        std::unique_ptr<engine::VulkanVertexShader> vertexShader = std::make_unique<engine::VulkanVertexShader>(vertexShaderCode);
-//        vertexShader->addVertexBinding(sizeof(Vertex))
-////                .addVertexAttribute(vk::Format::eR32G32B32Sfloat);
-//                .addVertexAttribute(ShaderFormat::Vec3)
-//                .addUniform(sizeof(ColorUniformBufferObject), mFrameCount);
-
-//        std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/02_triangle_color.frag.spv");
-//        std::unique_ptr<engine::VulkanFragmentShader> fragmentShader = std::make_unique<engine::VulkanFragmentShader>(fragmentShaderCode);
-
-//        std::unique_ptr<engine::VulkanSurface> surface = std::make_unique<engine::AndroidVulkanSurface>(mVulkanEngine->getVKInstance(), mApp.window);
-//        mVulkanEngine->initVulkan(surface, deviceExtensions, vertexShader, fragmentShader);
-
-//        mVulkanEngine->createDirectlyTransferVertexBuffer(mVertices.size() * sizeof(app::Vertex));
         mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
-//        mVulkanEngine->updateVertexBuffer(mVertices.data(), mVertices.size() * sizeof(Vertex));
         mVulkanEngine->updateVertexBuffer(vertices);
 
-//        mVulkanEngine->createDirectlyTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
         mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
         mVulkanEngine->updateIndexBuffer(indices);
 
-        ColorUniformBufferObject colorUniformBufferObject;
-        colorUniformBufferObject.color = {0.2f, 0.8f, 0.4f};
+        ColorUniformBufferObject colorUniformBufferObject{{0.2f, 0.8f, 0.4f}};
 
         for (int i = 0; i < mFrameCount; i++) {
             mVulkanEngine->updateUniformBuffer(i, 0, 0, &colorUniformBufferObject, sizeof(ColorUniformBufferObject));

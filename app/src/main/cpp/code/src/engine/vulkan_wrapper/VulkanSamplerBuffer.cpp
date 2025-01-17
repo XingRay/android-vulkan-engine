@@ -2,13 +2,13 @@
 // Created by leixing on 2025/1/7.
 //
 
-#include "VulkanTextureSampler.h"
+#include "VulkanSamplerBuffer.h"
 #include "engine/VulkanUtil.h"
 
 namespace engine {
 
-    VulkanTextureSampler::VulkanTextureSampler(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool, uint32_t width, uint32_t height, uint32_t channels)
-            : mDevice(vulkanDevice), mCommandPool(commandPool), mWidth(width), mHeight(height), mChannels(channels) {
+    VulkanSamplerBuffer::VulkanSamplerBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool, uint32_t width, uint32_t height, uint32_t channels)
+            : mDevice(vulkanDevice), mCommandPool(commandPool), mWidth(width), mHeight(height), mChannels(channels), VulkanBuffer(VulkanBufferType::TEXTURE_SAMPLER) {
 
         const vk::Device device = vulkanDevice.getDevice();
 
@@ -59,7 +59,7 @@ namespace engine {
         mTextureSampler = device.createSampler(samplerCreateInfo);
     }
 
-    VulkanTextureSampler::~VulkanTextureSampler() {
+    VulkanSamplerBuffer::~VulkanSamplerBuffer() {
         vk::Device device = mDevice.getDevice();
 
         device.destroy(mTextureSampler);
@@ -68,19 +68,19 @@ namespace engine {
         device.unmapMemory(mTextureImageMemory);
     }
 
-    const vk::ImageView &VulkanTextureSampler::getTextureImageView() const {
+    const vk::ImageView &VulkanSamplerBuffer::getTextureImageView() const {
         return mTextureImageView;
     }
 
-    const vk::Sampler &VulkanTextureSampler::getTextureSampler() const {
+    const vk::Sampler &VulkanSamplerBuffer::getTextureSampler() const {
         return mTextureSampler;
     }
 
-    void VulkanTextureSampler::update(void *pixels) {
+    void VulkanSamplerBuffer::updateBuffer(void *data, uint32_t size) {
         auto [stagingBuffer, stagingBufferMemory] = VulkanUtil::createBuffer(mDevice, mImageSize, vk::BufferUsageFlagBits::eTransferSrc,
                                                                              vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-        void *data = mDevice.getDevice().mapMemory(stagingBufferMemory, 0, mImageSize, vk::MemoryMapFlags{});
-        memcpy(data, pixels, mImageSize);
+        void *mappedMemory = mDevice.getDevice().mapMemory(stagingBufferMemory, 0, mImageSize, vk::MemoryMapFlags{});
+        memcpy(mappedMemory, data, mImageSize);
         mDevice.getDevice().unmapMemory(stagingBufferMemory);
 
         copyBufferToImage(stagingBuffer, mTextureImage, mWidth, mHeight);
@@ -91,7 +91,7 @@ namespace engine {
         generateMipmaps(mTextureImage, vk::Format::eR8G8B8A8Srgb, mWidth, mHeight, mMipLevels);
     }
 
-    void VulkanTextureSampler::generateMipmaps(vk::Image image, vk::Format imageFormat, uint32_t textureWidth, uint32_t textureHeight, uint32_t mipLevels) {
+    void VulkanSamplerBuffer::generateMipmaps(vk::Image image, vk::Format imageFormat, uint32_t textureWidth, uint32_t textureHeight, uint32_t mipLevels) {
         vk::FormatProperties formatProperties = mDevice.getPhysicalDevice().getFormatProperties(imageFormat);
         if (!(formatProperties.optimalTilingFeatures & vk::FormatFeatureFlagBits::eSampledImageFilterLinear)) {
             throw std::runtime_error("texture image format does not support linear blitting!");
@@ -183,7 +183,7 @@ namespace engine {
         });
     }
 
-    void VulkanTextureSampler::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height) {
+    void VulkanSamplerBuffer::copyBufferToImage(vk::Buffer buffer, vk::Image image, uint32_t width, uint32_t height) {
         mCommandPool.submitOneTimeCommand([&](const vk::CommandBuffer &commandBuffer) {
             vk::ImageSubresourceLayers imageSubresourceLayers;
             imageSubresourceLayers.setAspectMask(vk::ImageAspectFlagBits::eColor)

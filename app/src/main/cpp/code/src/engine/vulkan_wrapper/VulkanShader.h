@@ -6,72 +6,52 @@
 
 #include "vulkan/vulkan.hpp"
 
+#include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/ShaderFormat.h"
 #include "engine/ImageSize.h"
-#include "engine/VulkanUniform.h"
+#include "engine/VulkanDescriptorSet.h"
+#include "engine/VulkanVertex.h"
+#include "engine/vulkan_wrapper/VulkanBuffer.h"
 
-/**
- *
-
- data:
-
- struct Vertex {
-    glm::vec3 pos;
- };
-
- code:
-
- shader->addVertexBinding(sizeof(app::Vertex))
-    //.addVertexAttribute(vk::Format::eR32G32B32Sfloat);
-    .addVertexAttribute(ShaderFormat::Vec3);
-
- */
 namespace engine {
+    class VulkanCommandPool;
 
     class VulkanShader {
     private:
-        std::vector<char> mVertexShaderCode;
-        std::vector<char> mFragmentShaderCode;
+        const VulkanDevice &mVulkanDevice;
 
-        // vertex
+        vk::ShaderModule mVertexShaderModule;
+        vk::ShaderModule mFragmentShaderModule;
+
         std::vector<vk::VertexInputBindingDescription> mVertexDescriptions;
-
         std::vector<vk::VertexInputAttributeDescription> mVertexInputAttributeDescriptions;
 
-        // uniform
-        std::vector<vk::DescriptorPoolSize> mUniformDescriptorPoolSizes;
-
-        std::vector<vk::DescriptorSetLayoutBinding> mUniformDescriptorSetLayoutBindings;
-
-        std::vector<std::unique_ptr<VulkanUniform>> mUniforms;
+        // uniform buffer/ texture sampler / storage buffer
+        std::vector<vk::DescriptorSetLayout> mDescriptorSetLayouts;
+        std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
+        vk::DescriptorPool mDescriptorPool;
+        std::vector<std::vector<std::vector<std::unique_ptr<VulkanBuffer>>>> mBuffers;
 
         // push constant
-        vk::PushConstantRange mVertexPushConstantRange{vk::ShaderStageFlagBits::eVertex, 0, 0};
-
-        vk::PushConstantRange mFragmentPushConstantRange{vk::ShaderStageFlagBits::eFragment, 0, 0};
+        std::vector<vk::PushConstantRange> mPushConstantRanges;
 
     public:
-        explicit VulkanShader();
+        explicit VulkanShader(const VulkanDevice &vulkanDevice,
+                              const VulkanCommandPool& commandPool,
+                              uint32_t frameCount,
+                              const std::vector<char> &vertexShaderCode,
+                              const std::vector<char> &fragmentShaderCode,
+                              const std::vector<VulkanVertex> &vertices,
+                              const std::vector<VulkanDescriptorSet> &descriptorSets);
 
         ~VulkanShader();
 
         [[nodiscard]]
-        const std::vector<char> &getVertexShaderCode() const;
-
-        void setVertexShaderCode(std::vector<char> &&code);
-
+        const vk::ShaderModule &getVertexShaderModule() const;
 
         [[nodiscard]]
-        const std::vector<char> &getFragmentShaderCode() const;
-
-        void setFragmentShaderCode(std::vector<char> &&code);
-
-
-        [[nodiscard]]
-        const vk::PushConstantRange &getVertexPushConstantRange() const;
-
-        [[nodiscard]]
-        const vk::PushConstantRange &getFragmentPushConstantRange() const;
+        const vk::ShaderModule &getFragmentShaderModule() const;
 
         [[nodiscard]]
         const std::vector<vk::VertexInputBindingDescription> &getVertexDescriptions() const;
@@ -80,26 +60,19 @@ namespace engine {
         const std::vector<vk::VertexInputAttributeDescription> &getVertexInputAttributeDescriptions() const;
 
         [[nodiscard]]
-        const std::vector<vk::DescriptorPoolSize> &getUniformDescriptorPoolSizes() const;
+        const std::vector<vk::DescriptorSetLayout> &getDescriptorSetLayouts() const;
 
         [[nodiscard]]
-        const std::vector<vk::DescriptorSetLayoutBinding> &getUniformDescriptorSetLayoutBindings() const;
+        const std::vector<vk::DescriptorSet> &getDescriptorSets(uint32_t frameIndex) const;
+
 
         [[nodiscard]]
-        const std::vector<std::unique_ptr<VulkanUniform>> &getUniforms() const;
+        const std::vector<vk::PushConstantRange> &getPushConstantRanges() const;
 
+//        [[nodiscard]]
+//        const std::vector<vk::DescriptorSetLayoutBinding> &getDescriptorSetLayoutBindings() const;
 
-        VulkanShader &setVertexPushConstant(uint32_t size, uint32_t offset);
-
-        VulkanShader &setFragmentPushConstant(uint32_t size, uint32_t offset);
-
-        VulkanShader &addVertexBinding(uint32_t binding, uint32_t elementSize);
-
-        VulkanShader &addVertexAttribute(uint32_t binding, uint32_t location, vk::Format format, uint32_t offset);
-
-        VulkanShader &addUniform(uint32_t size, uint32_t descriptorCount, uint32_t uniformBinding, vk::ShaderStageFlags stageFlags);
-
-
+        void updateBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
     };
 
 } // engine
