@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/4.
 //
 
-#include "Test05TextureImage.h.bak"
+#include "Test05TextureImage.h"
 #include "FileUtil.h"
 
 #include "stb_image.h"
@@ -26,17 +26,47 @@ namespace test05 {
                 "VK_LAYER_KHRONOS_validation"
         };
 
-//        mVulkanEngine = std::move(engine::VulkanEngineBuilder{}
-//                                          .layers({}, layers)
-//                                          .extensions({}, instanceExtensions)
-//                                          .asGraphics());
-    }
-
-    void Test05TextureImage::init() {
-        const std::vector<std::string> deviceExtensions = {
+        std::vector<std::string> deviceExtensions = {
                 VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 
+        std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/05_texture_image.vert.spv");
+        std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/05_texture_image.frag.spv");
+
+        int width, height, channels;
+        stbi_uc *pixels = stbi_load("/storage/emulated/0/01.png", &width, &height, &channels, STBI_rgb_alpha);
+
+        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
+                .layers({}, layers)
+                .extensions({}, instanceExtensions)
+                .asGraphics()
+                .deviceExtensions(std::move(deviceExtensions))
+                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
+                .enableMsaa()
+                .physicalDeviceAsDefault()
+                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
+                    shaderConfigure
+                            .vertexShaderCode(std::move(vertexShaderCode))
+                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
+                                vertexConfigure
+                                        .binding(0)
+                                        .size(sizeof(Vertex))
+                                        .addAttribute(ShaderFormat::Vec3)
+                                        .addAttribute(ShaderFormat::Vec2);
+                            })
+                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
+                                engine::ImageSize imageSize(width, height, channels);
+                                configure.addSampler(0, vk::ShaderStageFlagBits::eFragment, imageSize);
+                            })
+                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex);
+                })
+                .build();
+
+        mVulkanEngine = std::move(engine);
+    }
+
+    void Test05TextureImage::init() {
         // x轴朝右, y轴朝下, z轴朝前, 右手系 (x,y)->z
         std::vector<Vertex> vertices = {
                 {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}}, // 左上角
@@ -65,46 +95,24 @@ namespace test05 {
         }
         LOG_D("image: [ %d, x %d], channels: %d", width, height, channels);
 
-        std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/05_texture_image.vert.spv");
-        std::unique_ptr<engine::VulkanVertexShader> vertexShader = std::make_unique<engine::VulkanVertexShader>(vertexShaderCode);
-        (*vertexShader)
-                .addVertexBinding(sizeof(Vertex))
-                .addVertexAttribute(0, ShaderFormat::Vec3, offsetof(Vertex, position), 0)
-                .addVertexAttribute(1, ShaderFormat::Vec2, offsetof(Vertex, uv), 0)
-                .setPushConstant(sizeof(glm::mat4));
-
-        std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/05_texture_image.frag.spv");
-        std::unique_ptr<engine::VulkanFragmentShader> fragmentShader = std::make_unique<engine::VulkanFragmentShader>(fragmentShaderCode);
-        (*fragmentShader)
-                .addSampler(width, height, channels, mFrameCount, 0);
-
-        std::unique_ptr<engine::VulkanSurface> surface = std::make_unique<engine::AndroidVulkanSurface>(mVulkanEngine->getVKInstance(), mApp.window);
-        LOG_D("mVulkanEngine->initVulkan");
-//        mVulkanEngine->initVulkan(surface, deviceExtensions, vertexShader, fragmentShader);
-
-//        mVulkanEngine->createDirectlyTransferVertexBuffer(mVertices.size() * sizeof(app::Vertex));
         LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
         mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
-//        mVulkanEngine->updateVertexBuffer(mVertices.data(), mVertices.size() * sizeof(Vertex));
+
         LOG_D("mVulkanEngine->updateVertexBuffer");
         mVulkanEngine->updateVertexBuffer(vertices);
 
-//        mVulkanEngine->createDirectlyTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
         LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
         mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
         LOG_D("mVulkanEngine->updateIndexBuffer");
         mVulkanEngine->updateIndexBuffer(indices);
 
-//        mvpMatrix.model = glm::mat4(1.0f); // 单位矩阵
-//        mvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
-//        mvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
-        glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-        LOG_D("mVulkanEngine->updateVertexPushConstant");
-        mVulkanEngine->updateVertexPushConstant(&(mvp));
+//        glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
+//        LOG_D("mVulkanEngine->updateVertexPushConstant");
+//        mVulkanEngine->updatePushConstant(0, &(mvp));
 
         for (int i = 0; i < mFrameCount; i++) {
             LOG_D("mVulkanEngine->updateTextureSampler");
-            mVulkanEngine->updateTextureSampler(i, 0, 0, pixels, width * height * channels);
+            mVulkanEngine->updateUniformBuffer(i, 0, 0, pixels, width * height * channels);
         }
 
         stbi_image_free(pixels);
@@ -131,7 +139,7 @@ namespace test05 {
 //        mMvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mMvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-        mVulkanEngine->updateVertexPushConstant(&(mvp));
+        mVulkanEngine->updatePushConstant(0, &(mvp));
 
         mVulkanEngine->drawFrame();
     }

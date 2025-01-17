@@ -116,8 +116,6 @@ namespace engine {
 
         void updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
 
-        void updateTextureSampler(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
-
         void updatePushConstant(uint32_t index, const void *data);
 
     private:

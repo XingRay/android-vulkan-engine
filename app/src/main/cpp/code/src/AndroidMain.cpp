@@ -28,7 +28,7 @@
 #include "test/Test02SingleColorTriangle.h"
 #include "test/Test03ColoredTriangle.h"
 #include "test/Test04MvpMatrix.h"
-//#include "test/Test05TextureImage.h.bak"
+#include "test/Test05TextureImage.h"
 
 void handle_cmd(android_app *app, int32_t cmd) {
     LOG_D("AndroidMain#handle_cmd, cmd:%d", cmd);
@@ -38,8 +38,8 @@ void handle_cmd(android_app *app, int32_t cmd) {
 //            app->test = new test01::Test01SimpleTriangle(*app, "Test01SimpleTriangle");
 //            app->test = new test02::Test02SingleColorTriangle(*app, "Test02SingleColorTriangle");
 //            app->test = new test03::Test03ColoredTriangle(*app, "Test03ColoredTriangle");
-            app->test = new test04::Test04MvpMatrix(*app, "Test04MvpMatrix");
-//            app->test = new test05::Test05TextureImage(*app, "Test05TextureImage");
+//            app->test = new test04::Test04MvpMatrix(*app, "Test04MvpMatrix");
+            app->test = new test05::Test05TextureImage(*app, "Test05TextureImage");
             app->test->init();
         }
             break;
