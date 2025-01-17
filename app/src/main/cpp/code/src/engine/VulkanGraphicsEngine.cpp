@@ -160,19 +160,23 @@ namespace engine {
                                                     commandBuffer.bindIndexBuffer(mIndexBuffer->getIndexBuffer(), 0, vk::IndexType::eUint32);
                                                     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipeline->getPipelineLayout(), 0,
                                                                                      mShader->getDescriptorSets(mCurrentFrame), nullptr);
-                                                    if (!mVertexPushConstantData.empty()) {
-                                                        commandBuffer.pushConstants(mPipeline->getPipelineLayout(), vk::ShaderStageFlagBits::eVertex,
-                                                                                    0,
-                                                                                    mVertexPushConstantData.size(),
-                                                                                    mVertexPushConstantData.data());
+
+                                                    // push constants
+                                                    const std::vector<vk::PushConstantRange> &pushConstantRanges = mShader->getPushConstantRanges();
+                                                    const std::vector<std::vector<uint8_t>> &pushConstantDataList = mShader->getPushConstantDataList();
+                                                    if (!pushConstantRanges.empty()) {
+                                                        for (uint32_t pushConstantIndex = 0; pushConstantIndex < pushConstantRanges.size(); pushConstantIndex++) {
+                                                            const vk::PushConstantRange &pushConstantRange = pushConstantRanges[pushConstantIndex];
+                                                            const std::vector<uint8_t> pushConstantData = pushConstantDataList[pushConstantIndex];
+
+                                                            commandBuffer.pushConstants(mPipeline->getPipelineLayout(), pushConstantRange.stageFlags,
+                                                                                        pushConstantRange.offset,
+                                                                                        pushConstantRange.size,
+                                                                                        pushConstantData.data());
+                                                        }
                                                     }
-                                                    if (!mFragmentPushConstantData.empty()) {
-                                                        LOG_D("mFragmentPushConstantData: size:%ld", mFragmentPushConstantData.size());
-                                                        commandBuffer.pushConstants(mPipeline->getPipelineLayout(), vk::ShaderStageFlagBits::eFragment,
-                                                                                    mVertexPushConstantData.size(), // offset
-                                                                                    mFragmentPushConstantData.size(),
-                                                                                    mFragmentPushConstantData.data());
-                                                    }
+
+                                                    // draw call
                                                     commandBuffer.drawIndexed(mIndexBuffer->getIndicesCount(), 1, 0, 0, 0);
                                                 });
 
@@ -277,12 +281,8 @@ namespace engine {
         mShader->updateBuffer(frameIndex, set, binding, data, size);
     }
 
-    void VulkanGraphicsEngine::updateVertexPushConstant(const void *data) {
-        std::memcpy(mVertexPushConstantData.data(), data, mVertexPushConstantData.size());
-    }
-
-    void VulkanGraphicsEngine::updateFragmentPushConstant(const void *data) {
-        std::memcpy(mFragmentPushConstantData.data(), data, mFragmentPushConstantData.size());
+    void VulkanGraphicsEngine::updatePushConstant(uint32_t index, const void *data) {
+        mShader->updatePushConstant(index, data);
     }
 
     void VulkanGraphicsEngine::recreateSwapChain() {

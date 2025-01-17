@@ -98,6 +98,11 @@ namespace engine {
         return *this;
     }
 
+    VulkanGraphicsEngineBuilder &VulkanGraphicsEngineBuilder::setPushConstants(std::vector<VulkanPushConstant> &&pushConstants) {
+        mPushConstants = std::move(pushConstants);
+        return *this;
+    }
+
     std::unique_ptr<VulkanGraphicsEngine> VulkanGraphicsEngineBuilder::build() {
         std::unique_ptr<VulkanPhysicalDeviceCandidate> candidate = std::move(mVulkanPhysicalDeviceProvider->provide());
         std::unique_ptr<VulkanPhysicalDevice> &vulkanPhysicalDevice = candidate->getPhysicalDevice();
@@ -116,10 +121,11 @@ namespace engine {
         std::unique_ptr<VulkanCommandPool> commandPool = std::make_unique<VulkanCommandPool>(*vulkanDevice, mFrameCount);
 
         std::unique_ptr<VulkanShader> vulkanShader = std::make_unique<VulkanShader>(*vulkanDevice, *commandPool, mFrameCount,
-                                                                                    std::move(mVertexShaderCode),
-                                                                                    std::move(mFragmentShaderCode),
-                                                                                    std::move(mVertices),
-                                                                                    std::move(mDescriptorSets));
+                                                                                    mVertexShaderCode,
+                                                                                    mFragmentShaderCode,
+                                                                                    mVertices,
+                                                                                    mDescriptorSets,
+                                                                                    mPushConstants);
 
         return std::make_unique<VulkanGraphicsEngine>(std::move(mInstance),
                                                       std::move(mSurface),

@@ -44,8 +44,13 @@ namespace engine {
     }
 
     // todo: move
-    VulkanShaderConfigure &VulkanShaderConfigure::addUniformSet(const VulkanDescriptorSet& uniformSet) {
-        mUniformSets.push_back(uniformSet);
+    VulkanShaderConfigure &VulkanShaderConfigure::addUniformSet(const VulkanDescriptorSet &uniformSet) {
+        mDescriptorSets.push_back(uniformSet);
+        return *this;
+    }
+
+    VulkanShaderConfigure &VulkanShaderConfigure::addPushConstant(uint32_t size, uint32_t offset, vk::ShaderStageFlagBits stageFlagBits) {
+        mPushConstants.push_back(VulkanPushConstant(size, offset, stageFlagBits));
         return *this;
     }
 
@@ -58,10 +63,10 @@ namespace engine {
         mBuilder.setVertices(std::move(mVertices));
 
         // uniform / sampler / storage ...
-        mBuilder.setUniformSets(std::move(mUniformSets));
+        mBuilder.setUniformSets(std::move(mDescriptorSets));
 
         // push constant
-        // todo
+        mBuilder.setPushConstants(std::move(mPushConstants));
 
 
         return mBuilder;

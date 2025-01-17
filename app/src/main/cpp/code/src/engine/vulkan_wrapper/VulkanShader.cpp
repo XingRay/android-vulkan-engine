@@ -17,7 +17,8 @@ namespace engine {
                                const std::vector<char> &vertexShaderCode,
                                const std::vector<char> &fragmentShaderCode,
                                const std::vector<VulkanVertex> &vertices,
-                               const std::vector<VulkanDescriptorSet> &descriptorSets)
+                               const std::vector<VulkanDescriptorSet> &descriptorSets,
+                               const std::vector<VulkanPushConstant> &pushConstants)
             : mVulkanDevice(vulkanDevice) {
 
         mVertexShaderModule = vulkanDevice.createShaderModule(vertexShaderCode);
@@ -181,7 +182,21 @@ namespace engine {
         }
         vulkanDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
 
-        LOG_D("VulkanDescriptorSet::VulkanDescriptorSet end");
+
+        // push constant
+        for (const VulkanPushConstant &pushConstant: pushConstants) {
+            vk::PushConstantRange pushConstantRange{};
+            pushConstantRange
+                    .setStageFlags(pushConstant.stageFlagBits)
+                    .setOffset(pushConstant.offset)
+                    .setSize(pushConstant.size);
+            mPushConstantRanges.push_back(pushConstantRange);
+
+            // create data
+            std::vector<uint8_t> data;
+            data.resize(pushConstant.size);
+            mPushConstantDataList.push_back(std::move(data));
+        }
     }
 
     VulkanShader::~VulkanShader() {
@@ -198,20 +213,15 @@ namespace engine {
         }
     }
 
+    /**
+     * shader code
+     */
     const vk::ShaderModule &VulkanShader::getVertexShaderModule() const {
         return mVertexShaderModule;
     }
 
     const vk::ShaderModule &VulkanShader::getFragmentShaderModule() const {
         return mFragmentShaderModule;
-    }
-
-    const std::vector<vk::DescriptorSetLayout> &VulkanShader::getDescriptorSetLayouts() const {
-        return mDescriptorSetLayouts;
-    }
-
-    const std::vector<vk::DescriptorSet> &VulkanShader::getDescriptorSets(uint32_t frameIndex) const {
-        return mDescriptorSets[frameIndex];
     }
 
     const std::vector<vk::VertexInputBindingDescription> &VulkanShader::getVertexDescriptions() const {
@@ -222,11 +232,28 @@ namespace engine {
         return mVertexInputAttributeDescriptions;
     }
 
+    const std::vector<vk::DescriptorSetLayout> &VulkanShader::getDescriptorSetLayouts() const {
+        return mDescriptorSetLayouts;
+    }
+
+    const std::vector<vk::DescriptorSet> &VulkanShader::getDescriptorSets(uint32_t frameIndex) const {
+        return mDescriptorSets[frameIndex];
+    }
+
+
     const std::vector<vk::PushConstantRange> &VulkanShader::getPushConstantRanges() const {
         return mPushConstantRanges;
     }
 
+    const std::vector<std::vector<uint8_t>> &VulkanShader::getPushConstantDataList() const {
+        return mPushConstantDataList;
+    }
+
     void VulkanShader::updateBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
         mBuffers[frameIndex][set][binding]->updateBuffer(data, size);
+    }
+
+    void VulkanShader::updatePushConstant(uint32_t index, const void *data) {
+        std::memcpy(mPushConstantDataList[index].data(), data, mPushConstantDataList[index].size());
     }
 } // engine

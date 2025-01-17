@@ -61,9 +61,6 @@ namespace engine {
 
         std::unique_ptr<VulkanSyncObject> mSyncObject;
 
-        std::vector<uint8_t> mVertexPushConstantData;
-        std::vector<uint8_t> mFragmentPushConstantData;
-
     public:
         VulkanGraphicsEngine(std::unique_ptr<VulkanInstance> vulkanInstance,
                              std::unique_ptr<VulkanSurface> vulkanSurface,
@@ -121,9 +118,7 @@ namespace engine {
 
         void updateTextureSampler(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
 
-        void updateVertexPushConstant(const void *data);
-
-        void updateFragmentPushConstant(const void *data);
+        void updatePushConstant(uint32_t index, const void *data);
 
     private:
         void recreateSwapChain();

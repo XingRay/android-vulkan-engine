@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/4.
 //
 
-#include "Test04MvpMatrix.h.bak"
+#include "Test04MvpMatrix.h"
 #include "FileUtil.h"
 
 namespace test04 {
@@ -10,7 +10,7 @@ namespace test04 {
     Test04MvpMatrix::Test04MvpMatrix(const android_app &app, const std::string &name)
             : TestBase(name), mApp(app), mMvpMatrix(glm::mat4(1.0f)) {
 
-        std::vector<const char *> instanceExtensions = {
+        std::vector<std::string> instanceExtensions = {
                 VK_KHR_SURFACE_EXTENSION_NAME,
                 "VK_KHR_android_surface",
 
@@ -20,18 +20,46 @@ namespace test04 {
                 VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
         };
 
-        std::vector<const char *> layers = {
+        std::vector<std::string> layers = {
                 "VK_LAYER_KHRONOS_validation"
         };
 
-        mVulkanEngine = std::move(engine::VulkanEngineBuilder{}.layers({}, layers).extensions({}, instanceExtensions).asGraphics());
-    }
-
-    void Test04MvpMatrix::init() {
-        const std::vector<const char *> deviceExtensions = {
+        std::vector<std::string> deviceExtensions = {
                 VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
 
+        std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/04_mvp_matrix.vert.spv");
+        std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/04_mvp_matrix.frag.spv");
+
+        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
+                .layers({}, layers)
+                .extensions({}, instanceExtensions)
+                .asGraphics()
+                .deviceExtensions(std::move(deviceExtensions))
+                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
+                .enableMsaa()
+                .physicalDeviceAsDefault()
+                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
+                    shaderConfigure
+                            .vertexShaderCode(std::move(vertexShaderCode))
+                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
+                                vertexConfigure
+                                        .binding(0)
+                                        .size(sizeof(Vertex))
+                                        .addAttribute(ShaderFormat::Vec3)
+                                                //.addAttribute(1, 0, ShaderFormat::Vec3, sizeof(ShaderFormat::Vec3)) //error
+                                                //.addAttribute(1, 0, ShaderFormat::Vec3, engine::VulkanUtil::getFormatSize(vk::Format::eR32G32B32Sfloat)); //ok
+                                        .addAttribute(ShaderFormat::Vec3); //simple, binding set as vertexConfigure#binding, location and offset auto calc
+                            })
+                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex);
+                })
+                .build();
+
+        mVulkanEngine = std::move(engine);
+    }
+
+    void Test04MvpMatrix::init() {
         // x轴朝右, y轴朝下, z轴朝前, 右手系 (x,y)->z
         std::vector<Vertex> vertices = {
                 {{1.0f,  -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
@@ -52,25 +80,9 @@ namespace test04 {
                                       glm::vec3(1.0f, 1.0f, 0.0f));
         mMvpMatrix.proj = glm::perspective(glm::radians(45.0f), (float) ANativeWindow_getWidth(mApp.window) / (float) ANativeWindow_getHeight(mApp.window), 0.1f, 10.0f);
 
-        std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/04_mvp_matrix.vert.spv");
-        std::unique_ptr<engine::VulkanShader> vertexShader = std::make_unique<engine::VulkanShader>(vertexShaderCode);
-        vertexShader->addVertexBinding(sizeof(Vertex))
-                .addVertexAttribute(0, ShaderFormat::Vec3, offsetof(Vertex, position), 0)
-                .addVertexAttribute(1, ShaderFormat::Vec3, offsetof(Vertex, color), 0)
-                .setPushConstant(sizeof(glm::mat4));
-
-        std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/04_mvp_matrix.frag.spv");
-        std::unique_ptr<engine::VulkanFragmentShader> fragmentShader = std::make_unique<engine::VulkanFragmentShader>(fragmentShaderCode);
-
-        std::unique_ptr<engine::VulkanSurface> surface = std::make_unique<engine::AndroidVulkanSurface>(mVulkanEngine->getVKInstance(), mApp.window);
-        mVulkanEngine->initVulkan(surface, deviceExtensions, vertexShader, fragmentShader);
-
-//        mVulkanEngine->createDirectlyTransferVertexBuffer(mVertices.size() * sizeof(app::Vertex));
         mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
-//        mVulkanEngine->updateVertexBuffer(mVertices.data(), mVertices.size() * sizeof(Vertex));
         mVulkanEngine->updateVertexBuffer(vertices);
 
-//        mVulkanEngine->createDirectlyTransferIndexBuffer(mIndices.size() * sizeof(uint32_t));
         mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
         mVulkanEngine->updateIndexBuffer(indices);
 
@@ -78,7 +90,7 @@ namespace test04 {
 //        mvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-        mVulkanEngine->updateVertexPushConstant(&(mvp));
+        mVulkanEngine->updatePushConstant(0, &(mvp));
     }
 
     // 检查是否准备好
@@ -102,7 +114,7 @@ namespace test04 {
 //        mMvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mMvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-        mVulkanEngine->updateVertexPushConstant(&(mvp));
+        mVulkanEngine->updatePushConstant(0, &(mvp));
 
         mVulkanEngine->drawFrame();
     }

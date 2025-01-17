@@ -14,6 +14,7 @@
 
 #include "engine/VulkanDescriptorSet.h"
 #include "engine/VulkanDescriptorSetConfigure.h"
+#include "engine/VulkanPushConstant.h"
 
 namespace engine {
 
@@ -42,7 +43,12 @@ namespace engine {
         /**
          * uniform
          */
-        std::vector<VulkanDescriptorSet> mUniformSets;
+        std::vector<VulkanDescriptorSet> mDescriptorSets;
+
+        /**
+         * push constant
+         */
+        std::vector<VulkanPushConstant> mPushConstants;
 
     public:
 
@@ -72,13 +78,18 @@ namespace engine {
 
         /**
          *
-         * uniform
+         * DescriptorSet
          *
          */
         VulkanShaderConfigure &addUniformSet(const VulkanDescriptorSet &uniformSet);
 
         VulkanShaderConfigure &uniformSet(const std::function<void(VulkanDescriptorSetConfigure &)> &configure);
 
+
+        /**
+         * push constant
+         */
+        VulkanShaderConfigure &addPushConstant(uint32_t size, uint32_t offset, vk::ShaderStageFlagBits stageFlagBits);
 
         /**
          *

@@ -13,6 +13,8 @@
 #include "engine/VulkanDescriptorSet.h"
 #include "engine/VulkanVertex.h"
 #include "engine/vulkan_wrapper/VulkanBuffer.h"
+#include "engine/VulkanPushConstant.h"
+
 
 namespace engine {
     class VulkanCommandPool;
@@ -35,15 +37,17 @@ namespace engine {
 
         // push constant
         std::vector<vk::PushConstantRange> mPushConstantRanges;
+        std::vector<std::vector<uint8_t>> mPushConstantDataList;
 
     public:
         explicit VulkanShader(const VulkanDevice &vulkanDevice,
-                              const VulkanCommandPool& commandPool,
+                              const VulkanCommandPool &commandPool,
                               uint32_t frameCount,
                               const std::vector<char> &vertexShaderCode,
                               const std::vector<char> &fragmentShaderCode,
                               const std::vector<VulkanVertex> &vertices,
-                              const std::vector<VulkanDescriptorSet> &descriptorSets);
+                              const std::vector<VulkanDescriptorSet> &descriptorSets,
+                              const std::vector<VulkanPushConstant> &pushConstants);
 
         ~VulkanShader();
 
@@ -69,10 +73,12 @@ namespace engine {
         [[nodiscard]]
         const std::vector<vk::PushConstantRange> &getPushConstantRanges() const;
 
-//        [[nodiscard]]
-//        const std::vector<vk::DescriptorSetLayoutBinding> &getDescriptorSetLayoutBindings() const;
+        [[nodiscard]]
+        const std::vector<std::vector<uint8_t>>& getPushConstantDataList() const;
 
         void updateBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
+
+        void updatePushConstant(uint32_t index, const void *data);
     };
 
 } // engine
