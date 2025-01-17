@@ -13,8 +13,6 @@ namespace engine {
         mInstance = std::move(instance);
     }
 
-    VulkanComputerEngineBuilder::~VulkanComputerEngineBuilder() {
-        // todo
-    }
+    VulkanComputerEngineBuilder::~VulkanComputerEngineBuilder() = default;
 
 } // engine

@@ -181,78 +181,6 @@ namespace engine {
         }
         vulkanDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
 
-//        for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-//            std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
-//            const std::vector<VulkanBuffer> &uniformBuffersOfFrame = uniformBuffers[frameIndex];
-//            for (int j = 0; j < uniformBuffersOfFrame.size(); j++) {
-//                const auto &uniformBuffer = uniformBuffersOfFrame[j];
-//                VulkanBufferType type = uniformBuffer.getType();
-//                vk::WriteDescriptorSet writeDescriptorSet{};
-//
-//                if (type == VulkanBufferType::NORMAL) {
-//                    const auto normalUniformBuffer = dynamic_cast<const VulkanUniformBuffer *>(&uniformBuffer);
-//                    if (!normalUniformBuffer) {
-//                        throw std::runtime_error("Invalid uniform buffer type");
-//                    }
-//
-//                    vk::DescriptorBufferInfo descriptorBufferInfo{};
-//                    descriptorBufferInfo
-//                            .setBuffer(normalUniformBuffer->getUniformBuffer())
-//                            .setOffset(normalUniformBuffer->getOffset())
-//                            .setRange(normalUniformBuffer->getBufferSize());
-//
-//                    std::array<vk::DescriptorBufferInfo, 1> descriptorBufferInfos = {descriptorBufferInfo};
-//
-//                    writeDescriptorSet.setDstSet(mDescriptorSets[frameIndex])
-//                            .setDstBinding(normalUniformBuffer->getBinding())
-//                            .setDstArrayElement(normalUniformBuffer->getIndex())
-//                            .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-//                            .setBufferInfo(descriptorBufferInfos);
-//
-//                    writeDescriptorSets.push_back(writeDescriptorSet);
-//                } else if (type == VulkanBufferType::TEXTURE_SAMPLER) {
-//                    const auto textureSamplerUniformBuffer = dynamic_cast<const VulkanSamplerBuffer *>(&uniformBuffer);
-//                    if (!textureSamplerUniformBuffer) {
-//                        throw std::runtime_error("Invalid uniform buffer type");
-//                    }
-//
-//                    vk::DescriptorImageInfo samplerDescriptorImageInfo;
-//                    samplerDescriptorImageInfo
-//                            .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-//                            .setImageView(textureSamplerUniformBuffer->getTextureImageView())
-//                            .setSampler(textureSamplerUniformBuffer->getTextureSampler());
-//
-//                    std::array<vk::DescriptorImageInfo, 1> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};
-//
-//                    LOG_D("samplerWriteDescriptorSet: {mDescriptorSets[%d], setDstBinding:%d, DstArrayElement:0, DescriptorType:eCombinedImageSampler, DescriptorCount:1}", frameIndex, j);
-//                    writeDescriptorSet
-//                            .setDstSet(mDescriptorSets[frameIndex])
-//                            .setDstBinding(textureSamplerUniformBuffer->getBinding())
-//                            .setDstArrayElement(textureSamplerUniformBuffer->getIndex())
-//                            .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
-//                            .setImageInfo(samplerDescriptorImageInfos);
-//                }
-//                writeDescriptorSets.push_back(writeDescriptorSet);
-//            }
-//
-//            // 更新描述符集
-//            mVulkanDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
-//        }
-
-
-//        std::vector<vk::PushConstantRange> pushConstantRanges;
-//        vk::PushConstantRange vertexPushConstantRange = getVertexPushConstantRange();
-//        if (vertexPushConstantRange.size > 0) {
-//            pushConstantRanges.push_back(vertexPushConstantRange);
-//        }
-//        vk::PushConstantRange fragmentPushConstantRange = getFragmentPushConstantRange();
-//        if (fragmentPushConstantRange.size > 0) {
-//            if (vertexPushConstantRange.size > 0) {
-//                fragmentPushConstantRange.setOffset(vertexPushConstantRange.size);
-//            }
-//            pushConstantRanges.push_back(fragmentPushConstantRange);
-//        }
-
         LOG_D("VulkanDescriptorSet::VulkanDescriptorSet end");
     }
 
@@ -281,10 +209,6 @@ namespace engine {
     const std::vector<vk::DescriptorSetLayout> &VulkanShader::getDescriptorSetLayouts() const {
         return mDescriptorSetLayouts;
     }
-//
-//    const vk::DescriptorPool &VulkanShader::getDescriptorPool() const {
-//        return mDescriptorPool;
-//    }
 
     const std::vector<vk::DescriptorSet> &VulkanShader::getDescriptorSets(uint32_t frameIndex) const {
         return mDescriptorSets[frameIndex];
@@ -298,66 +222,9 @@ namespace engine {
         return mVertexInputAttributeDescriptions;
     }
 
-
     const std::vector<vk::PushConstantRange> &VulkanShader::getPushConstantRanges() const {
         return mPushConstantRanges;
     }
-
-
-//    const std::vector<vk::DescriptorPoolSize> &VulkanShader::getDescriptorPoolSizes() const {
-//        return mDescriptorPoolSizes;
-//    }
-//
-//    const std::vector<vk::DescriptorSetLayoutBinding> &VulkanShader::getDescriptorSetLayoutBindings() const {
-//        return mDescriptorSetLayoutBindings;
-//    }
-
-    /**
-     *
-     *              Getters end
-     *
-     */
-
-
-//    VulkanShader &VulkanShader::addUniform(uint32_t set, uint32_t uniformBinding, vk::ShaderStageFlags stageFlags) {
-//        // vk::DescriptorPoolSize 统计每种描述符(uniform/sampler/storage)出现的次数
-//
-//        vk::DescriptorPoolSize uniformBufferObjectPoolSize = getOrCreateDescriptorPoolSize(vk::DescriptorType::eUniformBuffer);
-//        uniformBufferObjectPoolSize.descriptorCount++;
-//
-//        vk::DescriptorSetLayoutBinding uniformBufferObjectLayoutBinding{};
-//        uniformBufferObjectLayoutBinding
-//                .setBinding(uniformBinding)
-//                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-//                .setDescriptorCount(1)
-//                .setStageFlags(stageFlags) // vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment
-//                .setPImmutableSamplers(nullptr);
-//
-//        mDescriptorSetLayoutBindings.push_back(uniformBufferObjectLayoutBinding);
-//
-////        if (mUniformSizes.size() < uniformBinding + 1) {
-////            mUniformSizes.resize(uniformBinding + 1);
-////        }
-////        mUniformSizes[uniformBinding] = size;
-//
-//        return *this;
-//    }
-
-//    VulkanShader &VulkanShader::setVertexPushConstant(uint32_t size, uint32_t offset) {
-//        mVertexPushConstantRange
-//                .setStageFlags(vk::ShaderStageFlagBits::eVertex)
-//                .setSize(size)
-//                .setOffset(offset);
-//        return *this;
-//    }
-//
-//    VulkanShader &VulkanShader::setFragmentPushConstant(uint32_t size, uint32_t offset) {
-//        mVertexPushConstantRange
-//                .setStageFlags(vk::ShaderStageFlagBits::eFragment)
-//                .setSize(size)
-//                .setOffset(offset);
-//        return *this;
-//    }
 
     void VulkanShader::updateBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
         mBuffers[frameIndex][set][binding]->updateBuffer(data, size);
