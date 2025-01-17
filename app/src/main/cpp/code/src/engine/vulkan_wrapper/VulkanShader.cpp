@@ -184,7 +184,24 @@ namespace engine {
 
 
         // push constant
+        vk::PhysicalDeviceProperties deviceProperties = vulkanDevice.getPhysicalDevice().getProperties();
+        uint32_t maxPushConstantsSize = deviceProperties.limits.maxPushConstantsSize;
+        uint32_t totalPushConstantSize = 0;
         for (const VulkanPushConstant &pushConstant: pushConstants) {
+            // 检查单个 Push Constant 的大小是否合理
+            if (pushConstant.size == 0) {
+                throw std::runtime_error("Push Constant size cannot be zero");
+            }
+
+            // 检查偏移和大小是否超出设备限制
+            if (pushConstant.offset + pushConstant.size > maxPushConstantsSize) {
+                throw std::runtime_error(
+                        "Push Constant range (offset: " + std::to_string(pushConstant.offset) +
+                        ", size: " + std::to_string(pushConstant.size) +
+                        ") exceeds device limit: " + std::to_string(maxPushConstantsSize)
+                );
+            }
+
             vk::PushConstantRange pushConstantRange{};
             pushConstantRange
                     .setStageFlags(pushConstant.stageFlagBits)
@@ -192,10 +209,19 @@ namespace engine {
                     .setSize(pushConstant.size);
             mPushConstantRanges.push_back(pushConstantRange);
 
-            // create data
-            std::vector<uint8_t> data;
-            data.resize(pushConstant.size);
+            // 创建数据缓冲区
+            std::vector<uint8_t> data(pushConstant.size);
             mPushConstantDataList.push_back(std::move(data));
+
+            totalPushConstantSize += pushConstant.size;
+        }
+
+        // 检查总大小是否超出设备限制
+        if (totalPushConstantSize > maxPushConstantsSize) {
+            throw std::runtime_error(
+                    "Total Push Constant size (" + std::to_string(totalPushConstantSize) +
+                    ") exceeds device limit: " + std::to_string(maxPushConstantsSize)
+            );
         }
     }
 
