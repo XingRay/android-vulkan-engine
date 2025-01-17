@@ -85,12 +85,6 @@ namespace test04 {
 
         mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
         mVulkanEngine->updateIndexBuffer(indices);
-
-//        mvpMatrix.model = glm::mat4(1.0f); // 单位矩阵
-//        mvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
-//        mvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
-        glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-        mVulkanEngine->updatePushConstant(0, &(mvp));
     }
 
     // 检查是否准备好

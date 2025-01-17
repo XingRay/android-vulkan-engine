@@ -106,10 +106,6 @@ namespace test05 {
         LOG_D("mVulkanEngine->updateIndexBuffer");
         mVulkanEngine->updateIndexBuffer(indices);
 
-//        glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-//        LOG_D("mVulkanEngine->updateVertexPushConstant");
-//        mVulkanEngine->updatePushConstant(0, &(mvp));
-
         for (int i = 0; i < mFrameCount; i++) {
             LOG_D("mVulkanEngine->updateTextureSampler");
             mVulkanEngine->updateUniformBuffer(i, 0, 0, pixels, width * height * channels);
