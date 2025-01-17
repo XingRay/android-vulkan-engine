@@ -29,7 +29,7 @@ namespace engine {
         void *mUniformBuffersMapped;
 
     public:
-        VulkanUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize);
+        VulkanUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize, uint32_t binding, uint32_t index);
 
         ~VulkanUniformBuffer() override;
 

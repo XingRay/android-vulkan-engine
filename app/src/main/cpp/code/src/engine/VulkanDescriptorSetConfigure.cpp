@@ -20,13 +20,13 @@ namespace engine {
 
     VulkanDescriptorSetConfigure &VulkanDescriptorSetConfigure::addUniform(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t size) {
         VulkanUniformData data{size};
-        mUniformSet.descriptors.push_back(VulkanDescriptor(binding, shaderStageFlagBits, data));
+        mUniformSet.descriptors.emplace_back(binding, shaderStageFlagBits, data);
         return *this;
     }
 
     VulkanDescriptorSetConfigure &VulkanDescriptorSetConfigure::addSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, ImageSize imageSize) {
         VulkanSamplerData data{imageSize};
-        mUniformSet.descriptors.push_back(VulkanDescriptor(binding, shaderStageFlagBits, data));
+        mUniformSet.descriptors.emplace_back(binding, shaderStageFlagBits, data);
         return *this;
     }
 

@@ -7,8 +7,8 @@
 #include "engine/Log.h"
 
 namespace engine {
-    VulkanUniformBuffer::VulkanUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize)
-            : mDevice(vulkanDevice), mBufferSize(bufferSize), VulkanBuffer(VulkanBufferType::NORMAL) {
+    VulkanUniformBuffer::VulkanUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize, uint32_t binding, uint32_t index)
+            : mDevice(vulkanDevice), mBufferSize(bufferSize), VulkanBuffer(binding, VulkanBufferType::NORMAL, index) {
         LOG_D("VulkanUniformBuffer::VulkanUniformBuffer#bufferSize: %lu", bufferSize);
         std::tie(mUniformBuffer, mUniformBufferMemory) = VulkanUtil::createBuffer(vulkanDevice, bufferSize,
                                                                                   vk::BufferUsageFlagBits::eUniformBuffer,
@@ -61,11 +61,6 @@ namespace engine {
             LOG_E("Data size (%u) exceeds buffer size (%d)!", size, mBufferSize);
             return;
         }
-
-        LOG_D("mUniformBuffersMapped: %p", mUniformBuffersMapped);
-        LOG_D("data: %p", data);
-        LOG_D("size: %u", size);
-        LOG_D("mBufferSize: %d", mBufferSize);
 
         memcpy(mUniformBuffersMapped, data, size);
     }

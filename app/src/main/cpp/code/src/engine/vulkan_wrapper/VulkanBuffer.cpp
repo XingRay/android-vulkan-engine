@@ -6,7 +6,7 @@
 
 namespace engine {
 
-    VulkanBuffer::VulkanBuffer(VulkanBufferType type) : mType(type), mIndex(0), mBinding(0) {
+    VulkanBuffer::VulkanBuffer(uint32_t binding, VulkanBufferType type, uint32_t index) : mBinding(binding), mType(type), mIndex(index) {
 
     }
 

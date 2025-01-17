@@ -50,7 +50,7 @@ namespace engine {
     }
 
     VulkanShaderConfigure &VulkanShaderConfigure::addPushConstant(uint32_t size, uint32_t offset, vk::ShaderStageFlagBits stageFlagBits) {
-        mPushConstants.push_back(VulkanPushConstant(size, offset, stageFlagBits));
+        mPushConstants.emplace_back(size, offset, stageFlagBits);
         return *this;
     }
 

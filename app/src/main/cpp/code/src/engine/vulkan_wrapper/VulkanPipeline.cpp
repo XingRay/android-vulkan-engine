@@ -80,9 +80,10 @@ namespace engine {
                 .setLineWidth(1.0f)
                         // 设置面剔除策略, 这里设置为反面被剔除
                 .setCullMode(vk::CullModeFlagBits::eBack)
-//                .setCullMode(vk::CullModeFlagBits::eNone)
+                        //.setCullMode(vk::CullModeFlagBits::eNone)
 
-                .setFrontFace(vk::FrontFace::eCounterClockwise) // 设置正面的方向
+                        // 设置正面的方向
+                .setFrontFace(vk::FrontFace::eCounterClockwise)
                 .setDepthBiasEnable(vk::False)
                 .setDepthBiasConstantFactor(0.0f)
                 .setDepthBiasClamp(0.0f)

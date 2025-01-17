@@ -114,10 +114,12 @@ namespace engine {
 
                     if (type == vk::DescriptorType::eUniformBuffer) {
                         vk::DeviceSize uniformSize = descriptor.getUniformData().size;
-                        buffersOfSet.push_back(std::make_unique<VulkanUniformBuffer>(vulkanDevice, uniformSize));
+                        buffersOfSet.push_back(std::make_unique<VulkanUniformBuffer>(vulkanDevice, uniformSize, descriptor.getBinding(), descriptor.getIndex()));
                     } else if (type == vk::DescriptorType::eCombinedImageSampler) {
                         const ImageSize &imageSize = descriptor.getSamplerData().imageSize;
-                        buffersOfSet.push_back(std::make_unique<VulkanSamplerBuffer>(vulkanDevice, commandPool, imageSize.width, imageSize.height, imageSize.channels));
+                        buffersOfSet.push_back(std::make_unique<VulkanSamplerBuffer>(vulkanDevice, commandPool,
+                                                                                     imageSize.width, imageSize.height, imageSize.channels,
+                                                                                     descriptor.getBinding(), descriptor.getIndex()));
                     } else {
                         throw std::runtime_error("unsupported type of descriptor");
                     }

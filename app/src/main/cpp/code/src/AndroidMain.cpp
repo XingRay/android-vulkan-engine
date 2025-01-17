@@ -20,8 +20,10 @@
 #include "engine/Log.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-
 #include <stb_image.h>
+
+#define TINYOBJLOADER_IMPLEMENTATION
+#include <tiny_obj_loader.h>
 
 
 #include "test/Test01SimpleTriangle.h"
@@ -29,6 +31,7 @@
 #include "test/Test03ColoredTriangle.h"
 #include "test/Test04MvpMatrix.h"
 #include "test/Test05TextureImage.h"
+#include "test/Test06Load3dModel.h"
 
 void handle_cmd(android_app *app, int32_t cmd) {
     LOG_D("AndroidMain#handle_cmd, cmd:%d", cmd);
@@ -39,7 +42,8 @@ void handle_cmd(android_app *app, int32_t cmd) {
 //            app->test = new test02::Test02SingleColorTriangle(*app, "Test02SingleColorTriangle");
 //            app->test = new test03::Test03ColoredTriangle(*app, "Test03ColoredTriangle");
 //            app->test = new test04::Test04MvpMatrix(*app, "Test04MvpMatrix");
-            app->test = new test05::Test05TextureImage(*app, "Test05TextureImage");
+//            app->test = new test05::Test05TextureImage(*app, "Test05TextureImage");
+            app->test = new test06::Test06Load3dModel(*app, "Test06Load3dModel");
             app->test->init();
         }
             break;

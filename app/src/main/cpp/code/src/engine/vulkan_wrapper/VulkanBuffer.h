@@ -15,13 +15,12 @@ namespace engine {
 
     class VulkanBuffer {
     private:
-        VulkanBufferType mType;
-
         uint32_t mBinding = 0;
+        VulkanBufferType mType;
         uint32_t mIndex = 0;
 
     public:
-        explicit VulkanBuffer(VulkanBufferType type);
+        explicit VulkanBuffer(uint32_t binding, VulkanBufferType type, uint32_t index);
 
         virtual  ~VulkanBuffer();
 
