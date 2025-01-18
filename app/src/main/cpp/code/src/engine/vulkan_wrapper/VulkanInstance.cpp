@@ -78,7 +78,6 @@ namespace engine {
         }
         mEnabledLayerNames = layersSelector.select(availableExtensionNames);
 
-        LOG_D("Enabled layers:[%ld]", mEnabledLayerNames.size());
         for (const auto &layerName: mEnabledLayerNames) {
             LOG_D("  %s", layerName.c_str());
         }

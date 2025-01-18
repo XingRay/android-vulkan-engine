@@ -110,7 +110,7 @@ namespace engine {
 
     std::string VulkanPhysicalDevice::queryName() const {
         vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
-        return std::string(properties.deviceName);
+        return std::string(properties.deviceName.data());
     }
 
     vk::PhysicalDeviceType VulkanPhysicalDevice::queryType() const {

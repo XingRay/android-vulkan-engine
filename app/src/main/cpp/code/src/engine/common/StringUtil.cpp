@@ -4,6 +4,7 @@
 
 #include "StringUtil.h"
 
+#include <algorithm>
 #include <sstream>
 
 namespace common {

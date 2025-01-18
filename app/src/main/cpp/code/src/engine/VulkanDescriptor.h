@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <variant>
+
 #include "vulkan/vulkan.hpp"
 #include "engine/ImageSize.h"
 

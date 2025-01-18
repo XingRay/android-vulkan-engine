@@ -4,14 +4,13 @@
 
 #include "StringListSelector.h"
 
+#include <stdexcept>
 #include <utility>
 #include "engine/Log.h"
 
 namespace common {
-
     FixStringListSelector::FixStringListSelector(const std::vector<std::string> &selected)
-            : mSelected(selected) {
-
+        : mSelected(selected) {
     }
 
     FixStringListSelector::~FixStringListSelector() {
@@ -25,8 +24,7 @@ namespace common {
 
     RequiredAndOptionalStringListSelector::RequiredAndOptionalStringListSelector(const std::vector<std::string> &required,
                                                                                  const std::vector<std::string> &optional)
-            : mRequired(required), mOptional(optional) {
-
+        : mRequired(required), mOptional(optional) {
     }
 
     RequiredAndOptionalStringListSelector::~RequiredAndOptionalStringListSelector() = default;
@@ -62,8 +60,7 @@ namespace common {
 
 
     LambdaStringListSelector::LambdaStringListSelector(std::function<std::vector<std::string>(const std::vector<std::string> &)> selector)
-            : mSelector(std::move(selector)) {
-
+        : mSelector(std::move(selector)) {
     }
 
     LambdaStringListSelector::~LambdaStringListSelector() = default;
@@ -71,5 +68,4 @@ namespace common {
     std::vector<std::string> LambdaStringListSelector::select(const std::vector<std::string> &candidate) const {
         return mSelector(candidate);
     }
-
 } // common

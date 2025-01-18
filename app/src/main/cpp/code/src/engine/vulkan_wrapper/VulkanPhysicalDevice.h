@@ -5,7 +5,7 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
-#include <memory>
+#include <optional>
 
 #include "engine/VulkanPhysicalDeviceSurfaceSupport.h"
 #include "engine/vulkan_wrapper/VulkanSurface.h"
