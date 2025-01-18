@@ -1,12 +1,13 @@
 //
 // Created by leixing on 2024/12/22.
 //
+#ifdef ANDROID
 
 #include "AndroidVulkanSurface.h"
 #include "engine/Log.h"
 
 namespace engine {
-    AndroidVulkanSurface::AndroidVulkanSurface(const vk::Instance& instance, ANativeWindow *window) : mInstance(instance) {
+    AndroidVulkanSurface::AndroidVulkanSurface(const vk::Instance &instance, ANativeWindow *window) : mInstance(instance) {
         LOG_D("AndroidSurface::AndroidSurface");
         vk::AndroidSurfaceCreateInfoKHR createInfo = vk::AndroidSurfaceCreateInfoKHR{}
                 .setFlags(vk::AndroidSurfaceCreateFlagsKHR{})
@@ -37,3 +38,5 @@ namespace engine {
     }
 
 } // engine
+
+#endif

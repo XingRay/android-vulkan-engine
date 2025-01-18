@@ -1,6 +1,7 @@
 //
 // Created by leixing on 2024/12/22.
 //
+#ifdef ANDROID
 
 #pragma once
 
@@ -29,3 +30,5 @@ namespace engine {
     };
 
 } // engine
+
+#endif
