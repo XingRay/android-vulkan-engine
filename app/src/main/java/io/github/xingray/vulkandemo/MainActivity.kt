@@ -39,6 +39,7 @@ class MainActivity : GameActivity() {
     }
 
     private var mPermissionRequest = SinglePermissionRequest(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+//    private var mPermissionRequest = SinglePermissionRequest(android.Manifest.permission.CAMERA)
 
     private lateinit var manageAllFilesPermissionLauncher: ActivityResultLauncher<Intent>
 

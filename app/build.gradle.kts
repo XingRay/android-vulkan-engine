@@ -1,6 +1,3 @@
-import com.android.build.gradle.internal.tasks.factory.dependsOn
-import java.util.Locale
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -12,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "io.github.xingray.vulkandemo"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
