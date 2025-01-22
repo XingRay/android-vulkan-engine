@@ -35,14 +35,29 @@ namespace test07 {
     Test07NdkCamera::Test07NdkCamera(const android_app &app, const std::string &name)
             : TestBase(name), mApp(app) {
 
+        mNdkCamera = std::make_unique<ndkcamera::NdkCamera>([](ndkcamera::NdkCamera *camera, AHardwareBuffer *hardwareBuffer) {
+            LOG_D("hardwareBuffer:%p", hardwareBuffer);
+        });
+        mNdkCamera->startPreview();
+
+        AHardwareBuffer *hardwareBuffer = nullptr;
+        while (hardwareBuffer == nullptr) {
+            LOG_D("waiting for getLatestHardwareBuffer...");
+            hardwareBuffer = mNdkCamera->getLatestHardwareBuffer();
+        }
+
         std::vector<std::string> instanceExtensions = {
                 VK_KHR_SURFACE_EXTENSION_NAME,
-                "VK_KHR_android_surface",
+                VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
 
                 // old version
                 VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
                 // new version
                 VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+
+                VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME,
+                VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME,
+                VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
         };
 
         std::vector<std::string> layers = {
@@ -50,7 +65,17 @@ namespace test07 {
         };
 
         std::vector<std::string> deviceExtensions = {
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+                VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+                VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
+                VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME,
+                VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
+                VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME,
+                VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME,
+                VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
+                VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME
         };
 
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/07_ndk_camera.vert.spv");
@@ -83,16 +108,15 @@ namespace test07 {
                                 engine::ImageSize imageSize(width, height, channels);
                                 configure
                                         .set(0)
-                                        .addSampler(0, vk::ShaderStageFlagBits::eFragment, imageSize);
+//                                        .addSampler(0, vk::ShaderStageFlagBits::eFragment, imageSize);
+                                        .addAndroidHardwareBufferSampler(0, vk::ShaderStageFlagBits::eFragment, hardwareBuffer);
                             });
                 })
                 .build();
 
         mVulkanEngine = std::move(engine);
 
-        mNdkCamera = std::make_unique<ndkcamera::NdkCamera>([](ndkcamera::NdkCamera *camera, AHardwareBuffer *hardwareBuffer) {
-            LOG_D("hardwareBuffer:%p", hardwareBuffer);
-        });
+
     }
 
     void Test07NdkCamera::init() {
@@ -140,6 +164,13 @@ namespace test07 {
 
     // 绘制三角形帧
     void Test07NdkCamera::drawFrame() {
+//        LOG_D("Test07NdkCamera::drawFrame()");
+        AHardwareBuffer *buffer = mNdkCamera->getLatestHardwareBuffer();
+//        LOG_D("AHardwareBuffer:%p", buffer);
+        if (buffer != nullptr) {
+            mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
+        }
+
         mVulkanEngine->drawFrame();
     }
 

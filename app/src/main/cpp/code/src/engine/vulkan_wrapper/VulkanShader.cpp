@@ -8,10 +8,12 @@
 #include "engine/VulkanUtil.h"
 #include "engine/vulkan_wrapper/VulkanUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSamplerBuffer.h"
+#include "engine/vulkan_wrapper/android/VulkanHardwareBuffer.h"
 
 namespace engine {
 
-    VulkanShader::VulkanShader(const VulkanDevice &vulkanDevice,
+    VulkanShader::VulkanShader(const VulkanInstance &vulkanInstance,
+                               const VulkanDevice &vulkanDevice,
                                const VulkanCommandPool &commandPool,
                                uint32_t frameCount,
                                const std::vector<char> &vertexShaderCode,
@@ -110,16 +112,20 @@ namespace engine {
                 buffersOfSet.reserve(set.descriptors.size());
 
                 for (const VulkanDescriptor &descriptor: set.descriptors) {
-                    vk::DescriptorType type = descriptor.getDescriptorType();
+                    VulkanDescriptorType type = descriptor.getVulkanDescriptorType();
 
-                    if (type == vk::DescriptorType::eUniformBuffer) {
+                    if (type == VulkanDescriptorType::uniform) {
                         vk::DeviceSize uniformSize = descriptor.getUniformData().size;
                         buffersOfSet.push_back(std::make_unique<VulkanUniformBuffer>(vulkanDevice, uniformSize, descriptor.getBinding(), descriptor.getIndex()));
-                    } else if (type == vk::DescriptorType::eCombinedImageSampler) {
+                    } else if (type == VulkanDescriptorType::sampler) {
                         const ImageSize &imageSize = descriptor.getSamplerData().imageSize;
                         buffersOfSet.push_back(std::make_unique<VulkanSamplerBuffer>(vulkanDevice, commandPool,
                                                                                      imageSize.width, imageSize.height, imageSize.channels,
                                                                                      descriptor.getBinding(), descriptor.getIndex()));
+                    } else if (type == VulkanDescriptorType::androidHardwareBufferSampler) {
+                        AHardwareBuffer *hardwareBuffer = descriptor.getVulkanAndroidHardwareBufferSamplerData().hardwareBuffer;
+                        buffersOfSet.push_back(std::make_unique<VulkanHardwareBuffer>(vulkanInstance, vulkanDevice, hardwareBuffer,
+                                                                                      descriptor.getBinding(), descriptor.getIndex()));
                     } else {
                         throw std::runtime_error("unsupported type of descriptor");
                     }
@@ -137,10 +143,11 @@ namespace engine {
                 const VulkanDescriptorSet &set = descriptorSets[setIndex];
                 for (int descriptorIndex = 0; descriptorIndex < set.descriptors.size(); descriptorIndex++) {
                     const VulkanDescriptor &descriptor = set.descriptors[descriptorIndex];
-                    vk::DescriptorType type = descriptor.getDescriptorType();
+
+                    VulkanDescriptorType type = descriptor.getVulkanDescriptorType();
                     vk::WriteDescriptorSet writeDescriptorSet{};
 
-                    if (type == vk::DescriptorType::eUniformBuffer) {
+                    if (type == VulkanDescriptorType::uniform) {
                         VulkanUniformBuffer *pUniformBuffer = dynamic_cast<VulkanUniformBuffer *>(mBuffers[frameIndex][setIndex][descriptorIndex].get());
                         vk::DescriptorBufferInfo descriptorBufferInfo{};
                         descriptorBufferInfo
@@ -157,7 +164,7 @@ namespace engine {
                                 .setDescriptorType(vk::DescriptorType::eUniformBuffer)
                                 .setBufferInfo(descriptorBufferInfos);
 
-                    } else if (type == vk::DescriptorType::eCombinedImageSampler) {
+                    } else if (type == VulkanDescriptorType::sampler) {
                         VulkanSamplerBuffer *pSamplerBuffer = dynamic_cast<VulkanSamplerBuffer *>(mBuffers[frameIndex][setIndex][descriptorIndex].get());
                         vk::DescriptorImageInfo samplerDescriptorImageInfo;
                         samplerDescriptorImageInfo
@@ -171,6 +178,23 @@ namespace engine {
                                 .setDstSet(mDescriptorSets[frameIndex][setIndex])
                                 .setDstBinding(pSamplerBuffer->getBinding())
                                 .setDstArrayElement(pSamplerBuffer->getIndex())
+                                .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+                                .setImageInfo(samplerDescriptorImageInfos);
+
+                    } else if (type == VulkanDescriptorType::androidHardwareBufferSampler) {
+                        VulkanHardwareBuffer *pVulkanHardwareBuffer = dynamic_cast<VulkanHardwareBuffer *>(mBuffers[frameIndex][setIndex][descriptorIndex].get());
+                        vk::DescriptorImageInfo samplerDescriptorImageInfo;
+                        samplerDescriptorImageInfo
+                                .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+                                .setImageView(pVulkanHardwareBuffer->getTextureImageView())
+                                .setSampler(pVulkanHardwareBuffer->getTextureSampler());
+
+                        std::array<vk::DescriptorImageInfo, 1> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};
+
+                        writeDescriptorSet
+                                .setDstSet(mDescriptorSets[frameIndex][setIndex])
+                                .setDstBinding(pVulkanHardwareBuffer->getBinding())
+                                .setDstArrayElement(pVulkanHardwareBuffer->getIndex())
                                 .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
                                 .setImageInfo(samplerDescriptorImageInfos);
 

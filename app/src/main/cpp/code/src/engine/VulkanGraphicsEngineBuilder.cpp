@@ -120,7 +120,7 @@ namespace engine {
 
         std::unique_ptr<VulkanCommandPool> commandPool = std::make_unique<VulkanCommandPool>(*vulkanDevice, mFrameCount);
 
-        std::unique_ptr<VulkanShader> vulkanShader = std::make_unique<VulkanShader>(*vulkanDevice, *commandPool, mFrameCount,
+        std::unique_ptr<VulkanShader> vulkanShader = std::make_unique<VulkanShader>(*mInstance, *vulkanDevice, *commandPool, mFrameCount,
                                                                                     mVertexShaderCode,
                                                                                     mFragmentShaderCode,
                                                                                     mVertices,

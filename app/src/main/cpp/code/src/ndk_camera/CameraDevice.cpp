@@ -8,7 +8,7 @@
 namespace ndkcamera {
 
     CameraDevice::CameraDevice() : mCameraDevice(nullptr) {
-
+        mCaptureSessionOutputContainer = std::make_unique<CaptureSessionOutputContainer>();
     }
 
     CameraDevice::~CameraDevice() {
@@ -17,13 +17,43 @@ namespace ndkcamera {
         }
     }
 
+    void CameraDevice::setCameraDevice(ACameraDevice *cameraDevice) {
+        mCameraDevice = cameraDevice;
+    }
 
-    ACameraDevice_StateCallbacks *CameraDevice::getStateChangeCallbacks() {
+    std::unique_ptr<CameraCaptureSession> CameraDevice::createCaptureSession(const std::unique_ptr<CaptureSessionOutputContainer> &captureSessionOutputContainer) {
+        std::unique_ptr<CameraCaptureSession> cameraCaptureSession = std::make_unique<CameraCaptureSession>();
+        const ACaptureSessionOutputContainer *outputs = captureSessionOutputContainer->getOutputContainer();
+        ACameraCaptureSession_stateCallbacks *callbacks = cameraCaptureSession->createStateCallbacks();
+
+        ACameraCaptureSession *captureSession;
+        LOG_D("ACameraDevice_createCaptureSession()");
+        camera_status_t status = ACameraDevice_createCaptureSession(mCameraDevice, outputs, callbacks, &captureSession);
+        LOG_D("ACameraDevice_createCaptureSession(mCameraDevice:%p, outputs:%p, captureSession:%p)", mCameraDevice, outputs, captureSession);
+        if (status != ACAMERA_OK || captureSession == nullptr) {
+            LOG_E("Failed to create capture session: %d", status);
+            return nullptr; // 返回空指针表示失败
+        }
+        cameraCaptureSession->setCameraCaptureSession(captureSession);
+
+        return cameraCaptureSession;
+    }
+
+
+    ACameraDevice_StateCallbacks *CameraDevice::createStateCallbacks() {
         ACameraDevice_StateCallbacks *callbacks = new ACameraDevice_StateCallbacks{};
         callbacks->context = this;
         callbacks->onDisconnected = onDisconnected;
         callbacks->onError = onError;
         return callbacks;
+    }
+
+    std::unique_ptr<CaptureRequest> CameraDevice::createCaptureRequest() {
+        ACaptureRequest *captureRequest;
+        LOG_D("ACameraDevice_createCaptureRequest()");
+        ACameraDevice_createCaptureRequest(mCameraDevice, TEMPLATE_PREVIEW, &captureRequest);
+        LOG_D("ACameraDevice_createCaptureRequest(mCameraDevice:%p, captureRequest:%p)", mCameraDevice, captureRequest);
+        return std::make_unique<CaptureRequest>(captureRequest);
     }
 
     void CameraDevice::onDisconnected() {

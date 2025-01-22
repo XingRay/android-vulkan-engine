@@ -40,7 +40,7 @@ namespace test06 {
 
         std::vector<std::string> instanceExtensions = {
                 VK_KHR_SURFACE_EXTENSION_NAME,
-                "VK_KHR_android_surface",
+                VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
 
                 // old version
                 VK_EXT_DEBUG_REPORT_EXTENSION_NAME,

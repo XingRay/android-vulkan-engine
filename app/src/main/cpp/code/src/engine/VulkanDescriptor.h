@@ -9,7 +9,15 @@
 #include "vulkan/vulkan.hpp"
 #include "engine/ImageSize.h"
 
+#include <android/hardware_buffer.h>
+
 namespace engine {
+
+    enum class VulkanDescriptorType {
+        uniform,
+        sampler,
+        androidHardwareBufferSampler,
+    };
 
     class VulkanUniformData {
     public:
@@ -21,8 +29,14 @@ namespace engine {
         ImageSize imageSize;
     };
 
+    class VulkanAndroidHardwareBufferSamplerData {
+    public:
+        AHardwareBuffer *hardwareBuffer;
+    };
+
     class VulkanDescriptor {
     private:
+        VulkanDescriptorType mVulkanDescriptorType;
         uint32_t mBinding;
         vk::DescriptorType mDescriptorType;
         uint32_t mIndex;
@@ -30,7 +44,7 @@ namespace engine {
         vk::ShaderStageFlagBits mShaderStageFlagBits;
 
 
-        std::variant<VulkanUniformData, VulkanSamplerData> mData;
+        std::variant<VulkanUniformData, VulkanSamplerData, VulkanAndroidHardwareBufferSamplerData> mData;
     public:
 
         VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, VulkanUniformData data);
@@ -41,7 +55,14 @@ namespace engine {
 
         VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t index, uint32_t descriptorCount, VulkanSamplerData data);
 
+        VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, VulkanAndroidHardwareBufferSamplerData data);
+
+        VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t index, uint32_t descriptorCount, VulkanAndroidHardwareBufferSamplerData data);
+
         ~VulkanDescriptor();
+
+        [[nodiscard]]
+        VulkanDescriptorType getVulkanDescriptorType() const;
 
         [[nodiscard]]
         uint32_t getBinding() const;
@@ -58,6 +79,9 @@ namespace engine {
         const VulkanUniformData &getUniformData() const;
 
         const VulkanSamplerData &getSamplerData() const;
+
+        const VulkanAndroidHardwareBufferSamplerData &getVulkanAndroidHardwareBufferSamplerData() const;
+
     };
 
 //    class VulkanUniformDescriptor : public VulkanDescriptor {

@@ -11,6 +11,7 @@ namespace engine {
     enum VulkanBufferType {
         NORMAL,
         TEXTURE_SAMPLER,
+        ANDROID_HARDWARE_BUFFER,
     };
 
     class VulkanBuffer {

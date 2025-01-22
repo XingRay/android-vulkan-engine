@@ -4,35 +4,43 @@
 
 #pragma once
 
+#include <memory>
+
 #include "camera/NdkCameraDevice.h"
 
-#include "ndk_camera/CameraManager.h"
+#include "ndk_camera/CameraCaptureSession.h"
+#include "ndk_camera/CaptureRequest.h"
 
 namespace ndkcamera {
 
-    class CameraManager;
-
     class CameraDevice {
-        friend CameraManager;
-
     private:
         ACameraDevice *mCameraDevice;
+
+        std::unique_ptr<CaptureSessionOutputContainer> mCaptureSessionOutputContainer;
 
     public:
         CameraDevice();
 
         ~CameraDevice();
 
+        void setCameraDevice(ACameraDevice *cameraDevice);
+
+        std::unique_ptr<CameraCaptureSession> createCaptureSession(const std::unique_ptr<CaptureSessionOutputContainer>& captureSessionOutputContainer);
+
+        ACameraDevice_StateCallbacks *createStateCallbacks();
+
+        std::unique_ptr<CaptureRequest> createCaptureRequest();
+
     private:
-        ACameraDevice_StateCallbacks* getStateChangeCallbacks();
 
         void onDisconnected();
 
         void onError(int error);
 
-        static void onDisconnected(void* context, ACameraDevice* device);
+        static void onDisconnected(void *context, ACameraDevice *device);
 
-        static void onError(void* context, ACameraDevice* device, int error);
+        static void onError(void *context, ACameraDevice *device, int error);
     };
 
 } // ndkcamera

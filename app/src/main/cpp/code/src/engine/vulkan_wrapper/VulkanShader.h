@@ -6,6 +6,7 @@
 
 #include "vulkan/vulkan.hpp"
 
+#include "engine/vulkan_wrapper/VulkanInstance.h"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/ShaderFormat.h"
@@ -40,7 +41,8 @@ namespace engine {
         std::vector<std::vector<uint8_t>> mPushConstantDataList;
 
     public:
-        explicit VulkanShader(const VulkanDevice &vulkanDevice,
+        explicit VulkanShader(const VulkanInstance &vulkanInstance,
+                              const VulkanDevice &vulkanDevice,
                               const VulkanCommandPool &commandPool,
                               uint32_t frameCount,
                               const std::vector<char> &vertexShaderCode,
@@ -74,7 +76,7 @@ namespace engine {
         const std::vector<vk::PushConstantRange> &getPushConstantRanges() const;
 
         [[nodiscard]]
-        const std::vector<std::vector<uint8_t>>& getPushConstantDataList() const;
+        const std::vector<std::vector<uint8_t>> &getPushConstantDataList() const;
 
         void updateBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
 

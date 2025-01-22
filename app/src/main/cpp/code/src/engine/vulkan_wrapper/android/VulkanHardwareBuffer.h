@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "vulkan/vulkan.hpp"
+#include <vulkan/vulkan.hpp>
+
+#include <android/hardware_buffer.h>
 
 #include "engine/vulkan_wrapper/VulkanInstance.h"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
@@ -14,16 +16,29 @@ namespace engine {
 
     class VulkanHardwareBuffer : public VulkanBuffer {
     private:
+        const VulkanInstance &mVulkanInstance;
         const VulkanDevice &mVulkanDevice;
+
+        size_t mDataSize = 0;
 
         vk::Image mImage;
         vk::DeviceMemory mMemory;
+        vk::ImageView mImageView;
+
+        vk::SamplerYcbcrConversion mConversion;
+        vk::Sampler mSampler;
 
     public:
-        VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice, const AHardwareBuffer *hardwareBuffer, uint32_t width, uint32_t height, uint32_t binding,
-                             VulkanBufferType type, uint32_t index);
+        VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice, AHardwareBuffer *hardwareBuffer,
+                             uint32_t binding, uint32_t index);
 
-        ~VulkanHardwareBuffer();
+        ~VulkanHardwareBuffer() override;
+
+        const vk::ImageView &getTextureImageView() const;
+
+        const vk::Sampler &getTextureSampler() const;
+
+        void updateBuffer(void *data, uint32_t size) override;
     };
 
 } // engine

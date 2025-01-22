@@ -17,7 +17,8 @@ namespace engine {
     }
 
     VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t index, uint32_t descriptorCount, VulkanUniformData data)
-            : mBinding(binding), mDescriptorType(vk::DescriptorType::eUniformBuffer), mShaderStageFlagBits(shaderStageFlagBits), mIndex(index), mDescriptorCount(descriptorCount), mData(data) {
+            : mVulkanDescriptorType(VulkanDescriptorType::uniform), mBinding(binding), mDescriptorType(vk::DescriptorType::eUniformBuffer), mShaderStageFlagBits(shaderStageFlagBits), mIndex(index),
+              mDescriptorCount(descriptorCount), mData(data) {
 
     }
 
@@ -27,11 +28,25 @@ namespace engine {
     }
 
     VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t index, uint32_t descriptorCount, VulkanSamplerData data)
-            : mBinding(binding), mDescriptorType(vk::DescriptorType::eCombinedImageSampler), mShaderStageFlagBits(shaderStageFlagBits), mIndex(index), mDescriptorCount(descriptorCount), mData(data) {
+            : mVulkanDescriptorType(VulkanDescriptorType::sampler), mBinding(binding), mDescriptorType(vk::DescriptorType::eCombinedImageSampler), mShaderStageFlagBits(shaderStageFlagBits),
+              mIndex(index), mDescriptorCount(descriptorCount), mData(data) {
 
     }
 
+    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, VulkanAndroidHardwareBufferSamplerData data)
+            : VulkanDescriptor(binding, shaderStageFlagBits, 0, 1, data) {
+    }
+
+    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t index, uint32_t descriptorCount, VulkanAndroidHardwareBufferSamplerData data)
+            : mVulkanDescriptorType(VulkanDescriptorType::androidHardwareBufferSampler), mBinding(binding), mDescriptorType(vk::DescriptorType::eCombinedImageSampler),
+              mShaderStageFlagBits(shaderStageFlagBits), mIndex(index), mDescriptorCount(descriptorCount), mData(data) {
+    }
+
     VulkanDescriptor::~VulkanDescriptor() = default;
+
+    VulkanDescriptorType VulkanDescriptor::getVulkanDescriptorType() const {
+        return mVulkanDescriptorType;
+    }
 
     uint32_t VulkanDescriptor::getBinding() const {
         return mBinding;
@@ -61,30 +76,7 @@ namespace engine {
         return std::get<VulkanSamplerData>(mData);
     }
 
-//    /**
-//     *
-//     * VulkanNormalUniform
-//     *
-//     */
-//    VulkanUniformDescriptor::VulkanUniformDescriptor(uint32_t binding)
-//            : VulkanDescriptor{binding, vk::DescriptorType::eUniformBuffer} {
-//
-//    }
-//
-//    VulkanUniformDescriptor::~VulkanUniformDescriptor() {
-//
-//    }
-//
-//
-//    /**
-//     *
-//     * VulkanSamplerUniform
-//     *
-//     */
-//    VulkanSamplerDescriptor::VulkanSamplerDescriptor(uint32_t binding)
-//            : VulkanDescriptor{binding, vk::DescriptorType::eCombinedImageSampler} {
-//
-//    }
-//
-//    VulkanSamplerDescriptor::~VulkanSamplerDescriptor() = default;
+    const VulkanAndroidHardwareBufferSamplerData &VulkanDescriptor::getVulkanAndroidHardwareBufferSamplerData() const {
+        return std::get<VulkanAndroidHardwareBufferSamplerData>(mData);
+    }
 }

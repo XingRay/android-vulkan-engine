@@ -47,48 +47,12 @@ namespace engine {
         mSwapchain = std::make_unique<VulkanSwapchain>(*mDevice, *mSurface, currentExtent.width, currentExtent.height);
         mRenderPass = std::make_unique<VulkanRenderPass>(*mDevice, *mSwapchain);
 
-//        const std::vector<uint32_t> &uniformSizes = mShader->getUniforms()
-//        LOG_D("create VulkanUniformBuffer");
-//        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
-//            std::vector<std::unique_ptr<VulkanUniformBuffer>> uniformBuffers;
-//            uniformBuffers.resize(uniformSizes.size());
-//            for (unsigned int uniformSize: uniformSizes) {
-//                uniformBuffers.push_back(std::make_unique<VulkanUniformBuffer>(*mDevice, uniformSize));
-//            }
-//            mUniformBuffers.push_back(std::move(uniformBuffers));
-//        }
-
-//        const std::vector<ImageSize> &imageSizes = mShader->getSamplerImageSizes();
-//        LOG_D("create VulkanTextureSampler");
-//        for (int frameIndex = 0; frameIndex < mFrameCount; frameIndex++) {
-//            std::vector<std::unique_ptr<VulkanTextureSampler>> samplers;
-//            samplers.resize(imageSizes.size());
-//            for (int j = 0; j < imageSizes.size(); j++) {
-//                const ImageSize &imageSize = imageSizes[j];
-//                samplers[j] = std::make_unique<VulkanTextureSampler>(*mDevice, *mCommandPool, imageSize.width, imageSize.height, imageSize.channels);
-//            }
-//            mTextureSamplers.push_back(std::move(samplers));
-//        }
-
         LOG_D("create VulkanPipeline");
         mPipeline = std::make_unique<VulkanPipeline>(*mDevice, *mSwapchain, *mRenderPass, *mShader);
         LOG_D("create VulkanFrameBuffer");
         mFrameBuffer = std::make_unique<VulkanFrameBuffer>(*mDevice, *mSwapchain, *mRenderPass, *mCommandPool);
         LOG_D("create VulkanSyncObject");
         mSyncObject = std::make_unique<VulkanSyncObject>(*mDevice, mFrameCount);
-
-//        if (mShader->getVertexPushConstantRange().size > 0) {
-//            mVertexPushConstantData.resize(mShader->getVertexPushConstantRange().size);
-//        }
-//        if (mShader->getFragmentPushConstantRange().size > 0) {
-//            mFragmentPushConstantData.resize(mShader->getFragmentPushConstantRange().size);
-//        }
-//        uint32_t totalPushConstantsSize = mShader->getVertexPushConstantRange().size + mShader->getFragmentPushConstantRange().size;
-//        uint32_t pushConstantsSizeLimit = mDevice->getPhysicalDevice().getProperties().limits.maxPushConstantsSize;
-//        if (totalPushConstantsSize > pushConstantsSizeLimit) {
-//            LOG_E("totalPushConstantsSize > pushConstantsSizeLimit, totalPushConstantsSize:%d, pushConstantsSizeLimit:%d", totalPushConstantsSize, pushConstantsSizeLimit);
-//            throw std::runtime_error("totalPushConstantsSize > pushConstantsSizeLimit");
-//        }
     }
 
     VulkanGraphicsEngine::~VulkanGraphicsEngine() {
@@ -119,17 +83,20 @@ namespace engine {
         return mDevice->getDevice();
     }
 
+    uint32_t VulkanGraphicsEngine::getCurrentFrameIndex() {
+        return mCurrentFrameIndex;
+    }
 
     void VulkanGraphicsEngine::drawFrame() {
         const vk::Device device = mDevice->getDevice();
 
-        vk::Result result = mSyncObject->waitFence(mCurrentFrame);
+        vk::Result result = mSyncObject->waitFence(mCurrentFrameIndex);
         if (result != vk::Result::eSuccess) {
             LOG_E("waitForFences failed");
             throw std::runtime_error("waitForFences failed");
         }
 
-        auto [acquireResult, imageIndex] = device.acquireNextImageKHR(mSwapchain->getSwapChain(), std::numeric_limits<uint64_t>::max(), mSyncObject->getImageAvailableSemaphore(mCurrentFrame));
+        auto [acquireResult, imageIndex] = device.acquireNextImageKHR(mSwapchain->getSwapChain(), std::numeric_limits<uint64_t>::max(), mSyncObject->getImageAvailableSemaphore(mCurrentFrameIndex));
         if (acquireResult != vk::Result::eSuccess) {
             if (acquireResult == vk::Result::eErrorOutOfDateKHR) {
                 // 交换链已与表面不兼容，不能再用于渲染。通常在窗口大小调整后发生。
@@ -146,7 +113,7 @@ namespace engine {
         }
 
         // 检查当前帧是否已经在使用
-        vk::CommandBuffer currentFrameCommandBuffer = mCommandPool->getCommandBuffers()[mCurrentFrame];
+        vk::CommandBuffer currentFrameCommandBuffer = mCommandPool->getCommandBuffers()[mCurrentFrameIndex];
         currentFrameCommandBuffer.reset();
         mCommandPool->recordCommandInRenderPass(currentFrameCommandBuffer,
                                                 mFrameBuffer->getFrameBuffers()[imageIndex],
@@ -159,7 +126,7 @@ namespace engine {
                                                     commandBuffer.bindVertexBuffers(0, mVertexBuffers, mVertexBufferOffsets);
                                                     commandBuffer.bindIndexBuffer(mIndexBuffer->getIndexBuffer(), 0, vk::IndexType::eUint32);
                                                     commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipeline->getPipelineLayout(), 0,
-                                                                                     mShader->getDescriptorSets(mCurrentFrame), nullptr);
+                                                                                     mShader->getDescriptorSets(mCurrentFrameIndex), nullptr);
 
                                                     // push constants
                                                     const std::vector<vk::PushConstantRange> &pushConstantRanges = mShader->getPushConstantRanges();
@@ -180,14 +147,14 @@ namespace engine {
                                                     commandBuffer.drawIndexed(mIndexBuffer->getIndicesCount(), 1, 0, 0, 0);
                                                 });
 
-        result = mSyncObject->resetFence(mCurrentFrame);
+        result = mSyncObject->resetFence(mCurrentFrameIndex);
         if (result != vk::Result::eSuccess) {
             throw std::runtime_error("resetFences failed");
         }
 
-        std::array<vk::Semaphore, 1> waitSemaphores = {mSyncObject->getImageAvailableSemaphore(mCurrentFrame)};
+        std::array<vk::Semaphore, 1> waitSemaphores = {mSyncObject->getImageAvailableSemaphore(mCurrentFrameIndex)};
         vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
-        std::array<vk::Semaphore, 1> signalSemaphores = {mSyncObject->getRenderFinishedSemaphore(mCurrentFrame)};
+        std::array<vk::Semaphore, 1> signalSemaphores = {mSyncObject->getRenderFinishedSemaphore(mCurrentFrameIndex)};
         std::array<vk::CommandBuffer, 1> commandBuffers = {currentFrameCommandBuffer};
 
         vk::SubmitInfo submitInfo{};
@@ -198,7 +165,7 @@ namespace engine {
                 .setSignalSemaphores(signalSemaphores);
 
         std::array<vk::SubmitInfo, 1> submitInfos = {submitInfo};
-        mDevice->getGraphicsQueue().submit(submitInfos, mSyncObject->getFence(mCurrentFrame));
+        mDevice->getGraphicsQueue().submit(submitInfos, mSyncObject->getFence(mCurrentFrameIndex));
 
         std::array<vk::SwapchainKHR, 1> swapchains = {mSwapchain->getSwapChain()};
         vk::PresentInfoKHR presentInfo{};
@@ -228,7 +195,7 @@ namespace engine {
             }
         }
 
-        mCurrentFrame = (mCurrentFrame + 1) % mFrameCount;
+        mCurrentFrameIndex = (mCurrentFrameIndex + 1) % mFrameCount;
     }
 
     void VulkanGraphicsEngine::createDirectlyTransferVertexBuffer(size_t size) {

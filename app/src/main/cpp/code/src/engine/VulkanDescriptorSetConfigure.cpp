@@ -30,6 +30,12 @@ namespace engine {
         return *this;
     }
 
+    VulkanDescriptorSetConfigure &VulkanDescriptorSetConfigure::addAndroidHardwareBufferSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, AHardwareBuffer *hardwareBuffer) {
+        VulkanAndroidHardwareBufferSamplerData data{hardwareBuffer};
+        mUniformSet.descriptors.emplace_back(binding, shaderStageFlagBits, data);
+        return *this;
+    }
+
     VulkanShaderConfigure &VulkanDescriptorSetConfigure::build() {
         mBuilder.addUniformSet(mUniformSet);
         return mBuilder;

@@ -32,10 +32,10 @@
 namespace engine {
 
     class VulkanGraphicsEngine {
-    public:
+    private:
         bool mFrameBufferResized = false;
         uint32_t mFrameCount = 2;
-        uint32_t mCurrentFrame = 0;
+        uint32_t mCurrentFrameIndex = 0;
         const std::array<float, 4> mClearColor = {0.05f, 0.05f, 0.05f, 1.0f};//{0.2f, 0.4f, 0.6f, 1.0f};
         const std::array<float, 4> mDepthStencil = {1.0f, 0, 0, 0};
 
@@ -77,6 +77,9 @@ namespace engine {
 
         [[nodiscard]]
         vk::Device getVKDevice() const;
+
+        [[nodiscard]]
+        uint32_t getCurrentFrameIndex();
 
         void drawFrame();
 

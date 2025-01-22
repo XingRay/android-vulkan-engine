@@ -6,6 +6,7 @@
 
 #include "engine/VulkanShaderConfigure.h"
 #include "engine/VulkanDescriptorSet.h"
+#include <android/hardware_buffer.h>
 
 namespace engine {
 
@@ -26,6 +27,8 @@ namespace engine {
         VulkanDescriptorSetConfigure &addUniform(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t size);
 
         VulkanDescriptorSetConfigure &addSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, ImageSize imageSize);
+
+        VulkanDescriptorSetConfigure &addAndroidHardwareBufferSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, AHardwareBuffer* hardwareBuffer);
 
         VulkanShaderConfigure &build();
     };
