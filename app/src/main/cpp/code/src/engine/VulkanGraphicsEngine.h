@@ -5,6 +5,8 @@
 #pragma once
 
 #include <vector>
+#include <functional>
+#include <memory>
 
 #include "engine/vulkan_wrapper/VulkanInstance.h"
 #include "engine/vulkan_wrapper/VulkanSurface.h"
@@ -24,10 +26,6 @@
 
 #include "engine/common/StringListSelector.h"
 #include "engine/VulkanPhysicalDeviceProvider.h"
-
-#include <functional>
-#include <memory>
-#include <vector>
 
 namespace engine {
 
@@ -68,6 +66,11 @@ namespace engine {
                              std::unique_ptr<VulkanDevice> vulkanDevice,
                              std::unique_ptr<VulkanCommandPool> commandPool,
                              std::unique_ptr<VulkanShader> vulkanShader,
+                             std::unique_ptr<VulkanSwapchain> swapchain,
+                             std::unique_ptr<VulkanRenderPass> renderPass,
+                             std::unique_ptr<VulkanPipeline> pipeline,
+                             std::unique_ptr<VulkanFrameBuffer> frameBuffer,
+                             std::unique_ptr<VulkanSyncObject> syncObject,
                              uint32_t frameCount);
 
         ~VulkanGraphicsEngine();
@@ -80,8 +83,6 @@ namespace engine {
 
         [[nodiscard]]
         uint32_t getCurrentFrameIndex();
-
-        void drawFrame();
 
         void createDirectlyTransferVertexBuffer(size_t size);
 
@@ -120,6 +121,8 @@ namespace engine {
         void updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
 
         void updatePushConstant(uint32_t index, const void *data);
+
+        void drawFrame();
 
     private:
         void recreateSwapChain();

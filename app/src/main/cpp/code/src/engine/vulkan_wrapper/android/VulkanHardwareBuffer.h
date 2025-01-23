@@ -10,6 +10,7 @@
 
 #include "engine/vulkan_wrapper/VulkanInstance.h"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/vulkan_wrapper/VulkanBuffer.h"
 
 namespace engine {
@@ -18,25 +19,30 @@ namespace engine {
     private:
         const VulkanInstance &mVulkanInstance;
         const VulkanDevice &mVulkanDevice;
+        const VulkanCommandPool &mCommandPool;
+        const vk::DescriptorSet& mDescriptorSet;
 
-        size_t mDataSize = 0;
+        size_t mDataSize;
+        uint32_t mMipLevels;
+
+        vk::SamplerYcbcrConversion mConversion;
 
         vk::Image mImage;
         vk::DeviceMemory mMemory;
         vk::ImageView mImageView;
-
-        vk::SamplerYcbcrConversion mConversion;
         vk::Sampler mSampler;
 
     public:
-        VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice, AHardwareBuffer *hardwareBuffer,
-                             uint32_t binding, uint32_t index);
+        VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool,
+                             AHardwareBuffer *hardwareBuffer, uint32_t binding, uint32_t index, const vk::DescriptorSet& descriptorSet);
 
         ~VulkanHardwareBuffer() override;
 
-        const vk::ImageView &getTextureImageView() const;
+        [[nodiscard]]
+        const vk::ImageView &getImageView() const;
 
-        const vk::Sampler &getTextureSampler() const;
+        [[nodiscard]]
+        const vk::Sampler &getSampler() const;
 
         void updateBuffer(void *data, uint32_t size) override;
     };

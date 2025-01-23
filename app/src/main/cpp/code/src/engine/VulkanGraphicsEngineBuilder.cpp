@@ -118,6 +118,10 @@ namespace engine {
                                                                                     mInstance->getEnabledLayers(),
                                                                                     sampleCount);
 
+        vk::Extent2D currentExtent = vulkanDevice->getCapabilities().currentExtent;
+        LOG_D("currentExtent:[%d x %d]", currentExtent.width, currentExtent.height);
+        std::unique_ptr<VulkanSwapchain> swapchain = std::make_unique<VulkanSwapchain>(*vulkanDevice, *mSurface, currentExtent.width, currentExtent.height);
+
         std::unique_ptr<VulkanCommandPool> commandPool = std::make_unique<VulkanCommandPool>(*vulkanDevice, mFrameCount);
 
         std::unique_ptr<VulkanShader> vulkanShader = std::make_unique<VulkanShader>(*mInstance, *vulkanDevice, *commandPool, mFrameCount,
@@ -127,12 +131,26 @@ namespace engine {
                                                                                     mDescriptorSets,
                                                                                     mPushConstants);
 
+        std::unique_ptr<VulkanRenderPass> renderPass = std::make_unique<VulkanRenderPass>(*vulkanDevice, *swapchain);
+
+        LOG_D("create VulkanPipeline");
+        std::unique_ptr<VulkanPipeline> pipeline = std::make_unique<VulkanPipeline>(*vulkanDevice, *swapchain, *renderPass, *vulkanShader);
+        LOG_D("create VulkanFrameBuffer");
+        std::unique_ptr<VulkanFrameBuffer> frameBuffer = std::make_unique<VulkanFrameBuffer>(*vulkanDevice, *swapchain, *renderPass, *commandPool);
+        LOG_D("create VulkanSyncObject");
+        std::unique_ptr<VulkanSyncObject> syncObject = std::make_unique<VulkanSyncObject>(*vulkanDevice, mFrameCount);
+
         return std::make_unique<VulkanGraphicsEngine>(std::move(mInstance),
                                                       std::move(mSurface),
                                                       std::move(vulkanPhysicalDevice),
                                                       std::move(vulkanDevice),
                                                       std::move(commandPool),
                                                       std::move(vulkanShader),
+                                                      std::move(swapchain),
+                                                      std::move(renderPass),
+                                                      std::move(pipeline),
+                                                      std::move(frameBuffer),
+                                                      std::move(syncObject),
                                                       mFrameCount);
     }
 

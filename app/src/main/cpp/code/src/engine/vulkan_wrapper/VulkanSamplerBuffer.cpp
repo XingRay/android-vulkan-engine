@@ -20,20 +20,22 @@ namespace engine {
         mMipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
         vk::Format imageFormat = vk::Format::eR8G8B8A8Srgb;
 
-        std::tie(mTextureImage, mTextureImageMemory) = VulkanUtil::createImage(device,
-                                                                               vulkanDevice.getPhysicalDevice().getMemoryProperties(),
-                                                                               width, height,
-                                                                               mMipLevels,
-                                                                               vk::SampleCountFlagBits::e1,
-                                                                               imageFormat,
-                                                                               vk::ImageTiling::eOptimal,
-                                                                               vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
-                                                                               vk::MemoryPropertyFlagBits::eDeviceLocal);
+        std::tie(mImage, mImageMemory) = VulkanUtil::createImage(device,
+                                                                 vulkanDevice.getPhysicalDevice().getMemoryProperties(),
+                                                                 width, height,
+                                                                 mMipLevels,
+                                                                 vk::SampleCountFlagBits::e1,
+                                                                 imageFormat,
+                                                                 vk::ImageTiling::eOptimal,
+                                                                 vk::ImageUsageFlagBits::eTransferSrc | vk::ImageUsageFlagBits::eTransferDst | vk::ImageUsageFlagBits::eSampled,
+                                                                 vk::MemoryPropertyFlagBits::eDeviceLocal);
 
-        mTextureImageView = VulkanUtil::createImageView(device, mTextureImage, imageFormat, vk::ImageAspectFlagBits::eColor, mMipLevels);
+
+        mImageView = VulkanUtil::createImageView(device, mImage, imageFormat, vk::ImageAspectFlagBits::eColor, mMipLevels);
 
         commandPool.submitOneTimeCommand([&](const vk::CommandBuffer &commandBuffer) -> void {
-            VulkanUtil::recordTransitionImageLayoutCommand(commandBuffer, mTextureImage, imageFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, mMipLevels);
+            VulkanUtil::recordTransitionImageLayoutCommand(commandBuffer, mImage, imageFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal, mMipLevels,
+                                                           vk::QueueFamilyIgnored, vk::QueueFamilyIgnored);
         });
 
 
@@ -60,24 +62,24 @@ namespace engine {
 //            .setMinLod(static_cast<float >(mMipLevels / 2))
                 .setMaxLod(static_cast<float >(mMipLevels));
 
-        mTextureSampler = device.createSampler(samplerCreateInfo);
+        mSampler = device.createSampler(samplerCreateInfo);
     }
 
     VulkanSamplerBuffer::~VulkanSamplerBuffer() {
         vk::Device device = mDevice.getDevice();
 
-        device.destroy(mTextureSampler);
-        device.destroy(mTextureImageView);
-        device.destroy(mTextureImage);
-        device.unmapMemory(mTextureImageMemory);
+        device.destroy(mSampler);
+        device.destroy(mImageView);
+        device.destroy(mImage);
+        device.unmapMemory(mImageMemory);
     }
 
-    const vk::ImageView &VulkanSamplerBuffer::getTextureImageView() const {
-        return mTextureImageView;
+    const vk::ImageView &VulkanSamplerBuffer::getImageView() const {
+        return mImageView;
     }
 
-    const vk::Sampler &VulkanSamplerBuffer::getTextureSampler() const {
-        return mTextureSampler;
+    const vk::Sampler &VulkanSamplerBuffer::getSampler() const {
+        return mSampler;
     }
 
     void VulkanSamplerBuffer::updateBuffer(void *data, uint32_t size) {
@@ -87,12 +89,12 @@ namespace engine {
         memcpy(mappedMemory, data, mImageSize);
         mDevice.getDevice().unmapMemory(stagingBufferMemory);
 
-        copyBufferToImage(stagingBuffer, mTextureImage, mWidth, mHeight);
+        copyBufferToImage(stagingBuffer, mImage, mWidth, mHeight);
 
         mDevice.getDevice().destroy(stagingBuffer);
         mDevice.getDevice().freeMemory(stagingBufferMemory);
 
-        generateMipmaps(mTextureImage, vk::Format::eR8G8B8A8Srgb, mWidth, mHeight, mMipLevels);
+        generateMipmaps(mImage, vk::Format::eR8G8B8A8Srgb, mWidth, mHeight, mMipLevels);
     }
 
     void VulkanSamplerBuffer::generateMipmaps(vk::Image image, vk::Format imageFormat, uint32_t textureWidth, uint32_t textureHeight, uint32_t mipLevels) {

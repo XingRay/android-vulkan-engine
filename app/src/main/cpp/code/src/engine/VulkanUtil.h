@@ -51,7 +51,9 @@ namespace engine {
                                                        vk::Format format,
                                                        vk::ImageLayout oldImageLayout,
                                                        vk::ImageLayout newImageLayout,
-                                                       uint32_t mipLevels);
+                                                       uint32_t mipLevels,
+                                                       uint32_t srcQueueFamilyIndex,
+                                                       uint32_t dstQueueFamilyIndex);
 
         static bool hasStencilComponent(vk::Format format);
 

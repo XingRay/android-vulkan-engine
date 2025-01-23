@@ -9,7 +9,7 @@
 namespace engine {
     VulkanSwapchain::VulkanSwapchain(const VulkanDevice &vulkanDevice, const VulkanSurface &vulkanSurface, uint32_t width, uint32_t height)
             : mDevice(vulkanDevice) {
-        const vk::Device& device = vulkanDevice.getDevice();
+        const vk::Device &device = vulkanDevice.getDevice();
 
         vk::SurfaceCapabilitiesKHR capabilities = vulkanDevice.getCapabilities();
         std::vector<vk::SurfaceFormatKHR> formats = vulkanDevice.getFormats();
@@ -19,6 +19,7 @@ namespace engine {
         mSwapChainImageFormat = chooseSwapSurfaceFormat(formats);
         vk::PresentModeKHR presentMode = choosePresentMode(presentModes);
 
+        LOG_D("capabilities.minImageCount:%d, maxImageCount:%d", capabilities.minImageCount, capabilities.maxImageCount);
         uint32_t imageCount = capabilities.minImageCount + 1;
         // capabilities.maxImageCount == 0 表示不做限制
         if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount) {
@@ -42,17 +43,19 @@ namespace engine {
                 .setImageExtent(mDisplaySize)
                 .setImageArrayLayers(1)
                 .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment)
+//                .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment| vk::ImageUsageFlagBits::eTransferDst)
                 .setImageSharingMode(sharingMode)
                 .setQueueFamilyIndices(queueFamilyIndices)
                 .setPreTransform(capabilities.currentTransform)
                 .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque)
+//                .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eInherit)
                 .setPresentMode(presentMode)
                 .setClipped(vk::True)
                 .setOldSwapchain(nullptr);
 
         mSwapChain = device.createSwapchainKHR(swapchainCreateInfo);
         mDisplayImages = device.getSwapchainImagesKHR(mSwapChain);
-
+        LOG_D("mDisplayImages.szie: %ld", mDisplayImages.size());
         mDisplayImageViews.resize(mDisplayImages.size());
 
         for (int i = 0; i < mDisplayImages.size(); i++) {

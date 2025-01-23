@@ -46,7 +46,6 @@ namespace engine {
             }
         }
 
-
         // 统计各种类型的描述符(uniform, sampler, storage ...)出现的次数
         std::vector<vk::DescriptorPoolSize> descriptorPoolSizes;
         for (const VulkanDescriptorSet &descriptorSet: descriptorSets) {
@@ -97,8 +96,7 @@ namespace engine {
         // mDescriptorSets 的大小为 frameCount * descriptorSetLayouts.size()。
         mDescriptorSets.resize(frameCount);
         for (uint32_t i = 0; i < frameCount; i++) {
-            std::vector<vk::DescriptorSet> sets = mVulkanDevice.getDevice().allocateDescriptorSets(allocateInfo);
-            mDescriptorSets[i] = std::move(sets);
+            mDescriptorSets[i] = mVulkanDevice.getDevice().allocateDescriptorSets(allocateInfo);
         }
 
         // create buffers
@@ -107,7 +105,8 @@ namespace engine {
             std::vector<std::vector<std::unique_ptr<VulkanBuffer>>> buffersOfFrame;
             buffersOfFrame.reserve(descriptorSets.size());
 
-            for (const VulkanDescriptorSet &set: descriptorSets) {
+            for (int setIndex = 0; setIndex < descriptorSets.size(); setIndex++) {
+                const VulkanDescriptorSet &set = descriptorSets[setIndex];
                 std::vector<std::unique_ptr<VulkanBuffer>> buffersOfSet;
                 buffersOfSet.reserve(set.descriptors.size());
 
@@ -124,8 +123,8 @@ namespace engine {
                                                                                      descriptor.getBinding(), descriptor.getIndex()));
                     } else if (type == VulkanDescriptorType::androidHardwareBufferSampler) {
                         AHardwareBuffer *hardwareBuffer = descriptor.getVulkanAndroidHardwareBufferSamplerData().hardwareBuffer;
-                        buffersOfSet.push_back(std::make_unique<VulkanHardwareBuffer>(vulkanInstance, vulkanDevice, hardwareBuffer,
-                                                                                      descriptor.getBinding(), descriptor.getIndex()));
+                        buffersOfSet.push_back(std::make_unique<VulkanHardwareBuffer>(vulkanInstance, vulkanDevice, commandPool, hardwareBuffer,
+                                                                                      descriptor.getBinding(), descriptor.getIndex(), mDescriptorSets[frameIndex][setIndex]));
                     } else {
                         throw std::runtime_error("unsupported type of descriptor");
                     }
@@ -169,8 +168,8 @@ namespace engine {
                         vk::DescriptorImageInfo samplerDescriptorImageInfo;
                         samplerDescriptorImageInfo
                                 .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                                .setImageView(pSamplerBuffer->getTextureImageView())
-                                .setSampler(pSamplerBuffer->getTextureSampler());
+                                .setImageView(pSamplerBuffer->getImageView())
+                                .setSampler(pSamplerBuffer->getSampler());
 
                         std::array<vk::DescriptorImageInfo, 1> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};
 
@@ -186,8 +185,8 @@ namespace engine {
                         vk::DescriptorImageInfo samplerDescriptorImageInfo;
                         samplerDescriptorImageInfo
                                 .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                                .setImageView(pVulkanHardwareBuffer->getTextureImageView())
-                                .setSampler(pVulkanHardwareBuffer->getTextureSampler());
+                                .setImageView(pVulkanHardwareBuffer->getImageView())
+                                .setSampler(pVulkanHardwareBuffer->getSampler());
 
                         std::array<vk::DescriptorImageInfo, 1> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};
 

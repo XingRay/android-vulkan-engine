@@ -105,7 +105,7 @@ namespace ndkcamera {
         if (mCurrentBufferIndex == mImages.size()) {
             mCurrentBufferIndex = 0;
         }
-        mImages[mCurrentBufferIndex] = std::make_unique<Image>(image);
+        mImages[mCurrentBufferIndex] = std::move(std::make_unique<Image>(image));
         mBuffers[mCurrentBufferIndex] = buffer;
         return mBuffers[mCurrentBufferIndex];
     }

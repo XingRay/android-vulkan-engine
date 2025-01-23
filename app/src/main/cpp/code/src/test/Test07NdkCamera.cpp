@@ -5,7 +5,8 @@
 #include "Test07NdkCamera.h"
 #include "FileUtil.h"
 
-#include "stb_image.h"
+#include <chrono>
+#include <thread>
 
 namespace std {
 
@@ -29,9 +30,6 @@ namespace std {
 
 
 namespace test07 {
-
-    const char *TEXTURE_PATH = "/storage/emulated/0/test/model/viking_room/viking_room.png";
-
     Test07NdkCamera::Test07NdkCamera(const android_app &app, const std::string &name)
             : TestBase(name), mApp(app) {
 
@@ -81,10 +79,6 @@ namespace test07 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/07_ndk_camera.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/07_ndk_camera.frag.spv");
 
-        int width, height, channels;
-        stbi_uc *pixels = stbi_load(TEXTURE_PATH, &width, &height, &channels, STBI_rgb_alpha);
-        channels = 4;
-
         std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
                 .layers({}, layers)
                 .extensions({}, instanceExtensions)
@@ -105,10 +99,8 @@ namespace test07 {
                                         .addAttribute(ShaderFormat::Vec2);
                             })
                             .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
-                                engine::ImageSize imageSize(width, height, channels);
                                 configure
                                         .set(0)
-//                                        .addSampler(0, vk::ShaderStageFlagBits::eFragment, imageSize);
                                         .addAndroidHardwareBufferSampler(0, vk::ShaderStageFlagBits::eFragment, hardwareBuffer);
                             });
                 })
@@ -141,20 +133,6 @@ namespace test07 {
         mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
         LOG_D("mVulkanEngine->updateIndexBuffer");
         mVulkanEngine->updateIndexBuffer(indices);
-
-        int width, height, channels;
-        stbi_uc *pixels = stbi_load(TEXTURE_PATH, &width, &height, &channels, STBI_rgb_alpha);
-        if (!pixels) {
-            throw std::runtime_error("Failed to load texture image!");
-        }
-        LOG_D("image: [ %d, x %d], channels: %d", width, height, channels);
-
-        for (int i = 0; i < mFrameCount; i++) {
-            LOG_D("mVulkanEngine->updateTextureSampler");
-            mVulkanEngine->updateUniformBuffer(i, 0, 0, pixels, width * height * channels);
-        }
-
-        stbi_image_free(pixels);
     }
 
     // 检查是否准备好
@@ -164,14 +142,16 @@ namespace test07 {
 
     // 绘制三角形帧
     void Test07NdkCamera::drawFrame() {
+//        std::this_thread::sleep_for(std::chrono::milliseconds(15));
+
 //        LOG_D("Test07NdkCamera::drawFrame()");
         AHardwareBuffer *buffer = mNdkCamera->getLatestHardwareBuffer();
-//        LOG_D("AHardwareBuffer:%p", buffer);
+        LOG_D("AHardwareBuffer:%p", buffer);
         if (buffer != nullptr) {
+            LOG_D("updateUniformBuffer");
             mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
+            mVulkanEngine->drawFrame();
         }
-
-        mVulkanEngine->drawFrame();
     }
 
     // 清理操作

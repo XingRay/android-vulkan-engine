@@ -14,14 +14,11 @@ namespace engine {
         vk::Format colorFormat = vulkanSwapchain.getDisplayFormat();
         vk::Extent2D displaySize = vulkanSwapchain.getDisplaySize();
 
-
         std::tie(mColorImage, mColorDeviceMemory) = VulkanUtil::createImage(vulkanDevice.getDevice(), vulkanDevice.getPhysicalDevice().getMemoryProperties(), displaySize.width, displaySize.height, 1,
                                                                             vulkanDevice.getMsaaSamples(), colorFormat,
                                                                             vk::ImageTiling::eOptimal, vk::ImageUsageFlagBits::eTransientAttachment | vk::ImageUsageFlagBits::eColorAttachment,
                                                                             vk::MemoryPropertyFlagBits::eDeviceLocal);
         mColorImageView = VulkanUtil::createImageView(device, mColorImage, colorFormat, vk::ImageAspectFlagBits::eColor, 1);
-
-
 
         vk::Format depthFormat = VulkanUtil::findDepthFormat(vulkanDevice.getPhysicalDevice());
 
@@ -34,10 +31,9 @@ namespace engine {
         mDepthImageView = VulkanUtil::createImageView(device, mDepthImage, depthFormat, vk::ImageAspectFlagBits::eDepth, 1);
 
         commandPool.submitOneTimeCommand([&](const vk::CommandBuffer &commandBuffer) -> void {
-            VulkanUtil::recordTransitionImageLayoutCommand(commandBuffer, mDepthImage, depthFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, 1);
+            VulkanUtil::recordTransitionImageLayoutCommand(commandBuffer, mDepthImage, depthFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eDepthStencilAttachmentOptimal, 1,
+                                                           vk::QueueFamilyIgnored, vk::QueueFamilyIgnored);
         });
-
-
 
         mFrameBuffers.resize(vulkanSwapchain.getImageCount());
         std::vector<vk::ImageView> imageViews = vulkanSwapchain.getDisplayImageViews();

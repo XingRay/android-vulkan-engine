@@ -24,11 +24,10 @@ namespace engine {
         vk::DeviceSize mImageSize;
         uint32_t mMipLevels;
 
-        vk::Image mTextureImage;
-        vk::DeviceMemory mTextureImageMemory;
-
-        vk::ImageView mTextureImageView;
-        vk::Sampler mTextureSampler;
+        vk::Image mImage;
+        vk::DeviceMemory mImageMemory;
+        vk::ImageView mImageView;
+        vk::Sampler mSampler;
 
     public:
 
@@ -39,10 +38,10 @@ namespace engine {
         ~VulkanSamplerBuffer() override;
 
         [[nodiscard]]
-        const vk::ImageView &getTextureImageView() const;
+        const vk::ImageView &getImageView() const;
 
         [[nodiscard]]
-        const vk::Sampler &getTextureSampler() const;
+        const vk::Sampler &getSampler() const;
 
         void updateBuffer(void *data, uint32_t size) override;
 

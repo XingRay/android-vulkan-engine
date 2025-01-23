@@ -14,10 +14,12 @@ namespace engine {
     private:
         const VulkanDevice &mDevice;
 
+        //vk::Semaphore 主要用于 GPU 之间的同步
         std::vector<vk::Semaphore> mImageAvailableSemaphores;
-
         std::vector<vk::Semaphore> mRenderFinishedSemaphores;
 
+        // vk::Fence 主要用于 CPU 和 GPU 之间的同步，例如：
+        // 等待 GPU 完成某个操作, 确保 CPU 不会过早地访问 GPU 资源。
         std::vector<vk::Fence> mFences;
 
     public:

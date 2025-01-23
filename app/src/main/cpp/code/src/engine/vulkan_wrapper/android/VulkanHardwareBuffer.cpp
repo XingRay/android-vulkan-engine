@@ -9,10 +9,9 @@
 
 namespace engine {
 
-    VulkanHardwareBuffer::VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice, AHardwareBuffer *hardwareBuffer,
-                                               uint32_t binding,
-                                               uint32_t index)
-            : mVulkanInstance(vulkanInstance), mVulkanDevice(vulkanDevice), VulkanBuffer(binding, VulkanBufferType::ANDROID_HARDWARE_BUFFER, index) {
+    VulkanHardwareBuffer::VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool,
+                                               AHardwareBuffer *hardwareBuffer, uint32_t binding, uint32_t index, const vk::DescriptorSet& descriptorSet)
+            : mVulkanInstance(vulkanInstance), mVulkanDevice(vulkanDevice),mCommandPool(commandPool),mDescriptorSet(descriptorSet), VulkanBuffer(binding, VulkanBufferType::ANDROID_HARDWARE_BUFFER, index) {
 
         const vk::Device &device = mVulkanDevice.getDevice();
         const vk::Instance &instance = mVulkanInstance.getInstance();
@@ -107,11 +106,11 @@ namespace engine {
         device.freeMemory(mMemory);
     }
 
-    const vk::ImageView &VulkanHardwareBuffer::getTextureImageView() const {
+    const vk::ImageView &VulkanHardwareBuffer::getImageView() const {
         return mImageView;
     }
 
-    const vk::Sampler &VulkanHardwareBuffer::getTextureSampler() const {
+    const vk::Sampler &VulkanHardwareBuffer::getSampler() const {
         return mSampler;
     }
 

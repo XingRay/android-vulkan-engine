@@ -38,15 +38,6 @@ namespace engine {
         void submitCommand(const vk::CommandBuffer &commandBuffer) const;
 
         static void recordCommand(const vk::CommandBuffer &commandBuffer, vk::CommandBufferUsageFlagBits usage, const std::function<void(const vk::CommandBuffer &)> &command);
-
-        void recordCommandInRenderPass(const vk::CommandBuffer &commandBuffer,
-                                       const vk::Framebuffer &frameBuffer,
-                                       const vk::RenderPass &renderPass,
-                                       const vk::Pipeline &pipeline,
-                                       const vk::Extent2D &displaySize,
-                                       const std::array<float, 4>& clearColor,
-                                       const std::array<float, 4>& depthStencil,
-                                       const std::function<void(const vk::CommandBuffer &)> &command);
     };
 
 } // engine

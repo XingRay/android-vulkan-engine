@@ -210,7 +210,9 @@ namespace engine {
                                                         vk::Format format,
                                                         vk::ImageLayout oldImageLayout,
                                                         vk::ImageLayout newImageLayout,
-                                                        uint32_t mipLevels) {
+                                                        uint32_t mipLevels,
+                                                        uint32_t srcQueueFamilyIndex,
+                                                        uint32_t dstQueueFamilyIndex) {
 
         vk::ImageSubresourceRange imageSubresourceRange;
         imageSubresourceRange
@@ -232,10 +234,11 @@ namespace engine {
 
 
         vk::ImageMemoryBarrier imageMemoryBarrier;
-        imageMemoryBarrier.setOldLayout(oldImageLayout)
+        imageMemoryBarrier
+                .setOldLayout(oldImageLayout)
                 .setNewLayout(newImageLayout)
-                .setSrcQueueFamilyIndex(vk::QueueFamilyIgnored)
-                .setDstQueueFamilyIndex(vk::QueueFamilyIgnored)
+                .setSrcQueueFamilyIndex(srcQueueFamilyIndex)
+                .setDstQueueFamilyIndex(dstQueueFamilyIndex)
                 .setImage(image)
                 .setSubresourceRange(imageSubresourceRange)
                 .setSrcAccessMask(vk::AccessFlags{})
@@ -244,29 +247,42 @@ namespace engine {
         vk::PipelineStageFlags sourceStage;
         vk::PipelineStageFlags destinationStage;
 
-        if (oldImageLayout == vk::ImageLayout::eUndefined && newImageLayout == vk::ImageLayout::eTransferDstOptimal) {
-            imageMemoryBarrier
-                    .setSrcAccessMask(vk::AccessFlags{})
-                    .setDstAccessMask(vk::AccessFlagBits::eTransferWrite);
+        if (oldImageLayout == vk::ImageLayout::eUndefined) {
+            if (newImageLayout == vk::ImageLayout::eTransferDstOptimal) {
+                imageMemoryBarrier
+                        .setSrcAccessMask(vk::AccessFlags{})
+                        .setDstAccessMask(vk::AccessFlagBits::eTransferWrite);
 
-            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-            destinationStage = vk::PipelineStageFlagBits::eTransfer;
-        } else if (oldImageLayout == vk::ImageLayout::eTransferDstOptimal && newImageLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
-            imageMemoryBarrier
-                    .setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-                    .setDstAccessMask(vk::AccessFlagBits::eShaderRead);
+                sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+                destinationStage = vk::PipelineStageFlagBits::eTransfer;
+            } else if (newImageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
+                imageMemoryBarrier
+                        .setSrcAccessMask(vk::AccessFlags{})
+                        .setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
 
-            sourceStage = vk::PipelineStageFlagBits::eTransfer;
-            destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
-        } else if (oldImageLayout == vk::ImageLayout::eUndefined && newImageLayout == vk::ImageLayout::eDepthStencilAttachmentOptimal) {
-            imageMemoryBarrier
-                    .setSrcAccessMask(vk::AccessFlags{})
-                    .setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
+                sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+                destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
+            } else if (newImageLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
+                imageMemoryBarrier
+                        .setSrcAccessMask(vk::AccessFlags{})
+                        .setDstAccessMask(vk::AccessFlagBits::eDepthStencilAttachmentRead | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
 
-            sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
-            destinationStage = vk::PipelineStageFlagBits::eEarlyFragmentTests;
-        } else {
-            throw std::runtime_error("unsupported layout transition!");
+                sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
+                destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+            } else {
+                throw std::runtime_error("unsupported layout transition!");
+            }
+        } else if (oldImageLayout == vk::ImageLayout::eTransferDstOptimal) {
+            if (newImageLayout == vk::ImageLayout::eShaderReadOnlyOptimal) {
+                imageMemoryBarrier
+                        .setSrcAccessMask(vk::AccessFlags{})
+                        .setDstAccessMask(vk::AccessFlagBits::eShaderRead);
+
+                sourceStage = vk::PipelineStageFlagBits::eTransfer;
+                destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
+            } else {
+                throw std::runtime_error("unsupported layout transition!");
+            }
         }
 
         commandBuffer.pipelineBarrier(sourceStage,

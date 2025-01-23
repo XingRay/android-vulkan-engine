@@ -192,10 +192,7 @@ namespace test06 {
         model = glm::rotate(model, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         mMvpMatrix.model = model;
 
-        for (uint32_t index = 0; index < mFrameCount; index++) {
-            mVulkanEngine->updateUniformBuffer(index, 0, 0, &(mMvpMatrix), sizeof(MvpMatrix));
-        }
-
+        mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, &(mMvpMatrix), sizeof(MvpMatrix));
         mVulkanEngine->drawFrame();
     }
 
