@@ -35,9 +35,11 @@ namespace ndkcamera {
 
         std::function<void(NdkCamera *camera, AHardwareBuffer *hardwareBuffer)> mPreviewCallback;
     public:
-        explicit NdkCamera(std::function<void(NdkCamera *camera, AHardwareBuffer *hardwareBuffer)> previewCallback);
+        explicit NdkCamera();
 
         ~NdkCamera();
+
+        void setPreviewCallback(std::function<void(NdkCamera *camera, AHardwareBuffer *hardwareBuffer)> previewCallback);
 
         void startPreview();
 

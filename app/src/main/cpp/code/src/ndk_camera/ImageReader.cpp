@@ -35,6 +35,7 @@ namespace ndkcamera {
         mImages.resize(maxImages);
         mBuffers.resize(maxImages);
         mCurrentBufferIndex = 0;
+
 //        AImageReader_ImageListener listener = {this, onImageAvailable};
 //        AImageReader_setImageListener(mImageReader, &listener);
     }

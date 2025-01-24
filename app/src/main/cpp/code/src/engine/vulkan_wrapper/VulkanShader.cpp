@@ -207,7 +207,6 @@ namespace engine {
         }
         vulkanDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
 
-
         // push constant
         vk::PhysicalDeviceProperties deviceProperties = vulkanDevice.getPhysicalDevice().getProperties();
         uint32_t maxPushConstantsSize = deviceProperties.limits.maxPushConstantsSize;

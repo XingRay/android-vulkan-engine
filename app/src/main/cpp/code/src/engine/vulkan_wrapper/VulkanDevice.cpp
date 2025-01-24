@@ -51,15 +51,29 @@ namespace engine {
             deviceFeatures.setSampleRateShading(vk::True);
         }
 
-        std::vector<const char *> extensionNames = common::StringUtil::toStringPtrArray(deviceExtensions);
+        std::vector<const char *> enabledDeviceExtensionNames = common::StringUtil::toStringPtrArray(deviceExtensions);
+        LOG_D("enabled device extension names:[%ld]", enabledDeviceExtensionNames.size());
+        for (const char *name: enabledDeviceExtensionNames) {
+            LOG_D("    %s", name);
+        }
+
         std::vector<const char *> layerNames = common::StringUtil::toStringPtrArray(layers);
+
+        vk::PhysicalDeviceFeatures2 dev_features;
+        vk::PhysicalDeviceSamplerYcbcrConversionFeatures ycbcr_features;
+        dev_features.pNext = &ycbcr_features;
+
+        ycbcr_features.samplerYcbcrConversion = true;
+        dev_features.features.samplerAnisotropy = true;
 
         vk::DeviceCreateInfo deviceCreateInfo;
         deviceCreateInfo
+                .setFlags(vk::DeviceCreateFlags{})
                 .setQueueCreateInfos(queueCreateInfos)
-                .setPEnabledFeatures(&deviceFeatures)
-                .setPEnabledExtensionNames(extensionNames)
-                .setPEnabledLayerNames(layerNames);
+//                .setPEnabledFeatures(&deviceFeatures)
+                .setPEnabledExtensionNames(enabledDeviceExtensionNames)
+                .setPEnabledLayerNames(layerNames)
+                .setPNext(&dev_features);
 
         mDevice = mPhysicalDevice.createDevice(deviceCreateInfo);
 

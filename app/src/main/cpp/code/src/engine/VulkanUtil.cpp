@@ -80,13 +80,25 @@ namespace engine {
     }
 
     uint32_t VulkanUtil::findMemoryType(const vk::PhysicalDeviceMemoryProperties &memoryProperties, uint32_t typeFilter, vk::MemoryPropertyFlags properties) {
-        for (int i = 0; i < memoryProperties.memoryTypeCount; i++) {
-            if (typeFilter & (1 << i) && ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)) {
-                return i;
+        for (int index = 0; index < memoryProperties.memoryTypeCount; index++) {
+            const vk::MemoryType &type = memoryProperties.memoryTypes[index];
+            if (typeFilter & (1 << index) && ((type.propertyFlags & properties) == properties)) {
+                return index;
             }
         }
 
         throw std::runtime_error("failed to find suitable memory type !");
+    }
+
+    uint32_t VulkanUtil::findMemoryTypeExternal(const vk::PhysicalDeviceMemoryProperties &memoryProperties, uint32_t typeFilter) {
+        for (uint32_t index = 0; index < memoryProperties.memoryTypeCount; index++) {
+            if ((typeFilter & (1 << index)) != 0) {
+                return index; // 返回符合条件的内存类型索引
+            }
+        }
+
+        // 如果没有找到符合条件的内存类型，抛出异常
+        throw std::runtime_error("failed to find suitable memory type for external memory!");
     }
 
     void VulkanUtil::recordCopyBufferCommand(const vk::CommandBuffer &commandBuffer,

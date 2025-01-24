@@ -38,9 +38,12 @@ namespace engine {
 
         if (formatInfo.format == vk::Format::eUndefined) {
             externalFormat.externalFormat = formatInfo.externalFormat;
+            conversionCreateInfo.ycbcrModel = formatInfo.suggestedYcbcrModel;
+        } else {
+            conversionCreateInfo.ycbcrModel = vk::SamplerYcbcrModelConversion::eYcbcr601;
         }
+
         conversionCreateInfo.format = formatInfo.format;
-        conversionCreateInfo.ycbcrModel = formatInfo.suggestedYcbcrModel;
         conversionCreateInfo.ycbcrRange = formatInfo.suggestedYcbcrRange;
         conversionCreateInfo.components = formatInfo.samplerYcbcrConversionComponents;
         conversionCreateInfo.xChromaOffset = formatInfo.suggestedXChromaOffset;
@@ -51,7 +54,6 @@ namespace engine {
         // mConversion = device.createSamplerYcbcrConversion(conv_info); // link error
         CALL_VK(vkCreateSamplerYcbcrConversion(device, reinterpret_cast<VkSamplerYcbcrConversionCreateInfo *>(&conversionCreateInfo), nullptr,
                                                reinterpret_cast<VkSamplerYcbcrConversion *>(&mConversion)));
-
 
         vk::SamplerCreateInfo samplerCreateInfo;
         vk::SamplerYcbcrConversionInfo conversionInfo;
@@ -82,10 +84,8 @@ namespace engine {
 
     VulkanHardwareBuffer::~VulkanHardwareBuffer() {
         vk::Device device = mVulkanDevice.getDevice();
-        const vk::Instance &instance = mVulkanInstance.getInstance();
 
         device.destroySampler(mSampler);
-
         // device.destroySamplerYcbcrConversion(mConversion); // link error
         vkDestroySamplerYcbcrConversion(device, mConversion, nullptr);
 
@@ -106,8 +106,8 @@ namespace engine {
         AHardwareBuffer *hardwareBuffer = static_cast<AHardwareBuffer *>(data);
 
         const vk::Device &device = mVulkanDevice.getDevice();
-        const vk::Instance &instance = mVulkanInstance.getInstance();
 
+        device.waitIdle();
         // clean old resource
         if (mImageView != nullptr) {
             device.destroyImageView(mImageView);
@@ -146,22 +146,20 @@ namespace engine {
         }
 
         // 创建 Vulkan 图像
-        vk::ImageCreateInfo imageCreateInfo(
-                {},                                      // 标志
-                vk::ImageType::e2D,                     // 图像类型
-                formatInfo.format,                     // 格式
-                vk::Extent3D(hardwareBufferDescription.width, hardwareBufferDescription.height, 1),         // 尺寸
-                1,                                      // Mip 级别
-                hardwareBufferDescription.layers,                     // 数组层数
-                vk::SampleCountFlagBits::e1,            // 采样数
-                vk::ImageTiling::eOptimal,              // 图像布局
-                vk::ImageUsageFlagBits::eSampled,       // 用途
-                vk::SharingMode::eExclusive,            // 共享模式
-                0,                                      // 队列族数量
-                nullptr,                                // 队列族索引
-                vk::ImageLayout::eUndefined,             // 初始布局
-                &externalFormat                       // pNext
-        );
+        vk::ImageCreateInfo imageCreateInfo{};
+        imageCreateInfo.setPNext(&externalFormat)
+                .setFormat(formatInfo.format)
+                .setFlags(vk::ImageCreateFlags{0})
+                .setImageType(vk::ImageType::e2D)
+                .setExtent(vk::Extent3D(hardwareBufferDescription.width, hardwareBufferDescription.height, 1))
+                .setMipLevels(1)
+                .setArrayLayers(hardwareBufferDescription.layers)
+                .setSamples(vk::SampleCountFlagBits::e1)
+                .setTiling(vk::ImageTiling::eOptimal)
+                .setUsage(vk::ImageUsageFlagBits::eSampled)
+                .setSharingMode(vk::SharingMode::eExclusive)
+                .setQueueFamilyIndices({})
+                .setInitialLayout(vk::ImageLayout::eUndefined);
 
         mImage = device.createImage(imageCreateInfo);
 
@@ -169,7 +167,7 @@ namespace engine {
         hardwareBufferInfo.setBuffer(hardwareBuffer);
 
         /**
-         * Dedicated: 专用的/专属于
+         * Dedicated: "专用的" / "专属于"
          * 某块内存专门服务于某个特定的 Vulkan 资源（如 Image 或 Buffer）
          * 当前分配的内存将专门用于某个特定的 Image 或 Buffer。
          * 驱动可能会根据此信息优化内存布局或访问路径。
@@ -182,7 +180,7 @@ namespace engine {
 
         // 获取图像的内存需求
         vk::PhysicalDeviceMemoryProperties memProperties = mVulkanDevice.getPhysicalDevice().getMemoryProperties();
-        uint32_t memoryType = VulkanUtil::findMemoryType(memProperties, hardwareBufferProperties.memoryTypeBits, vk::MemoryPropertyFlagBits{});
+        uint32_t memoryType = VulkanUtil::findMemoryTypeExternal(memProperties, hardwareBufferProperties.memoryTypeBits);
 
         // 分配内存并绑定到图像
         vk::MemoryAllocateInfo memoryAllocateInfo{};
@@ -217,29 +215,53 @@ namespace engine {
             return;
         }
 
-
         vk::SamplerYcbcrConversionInfo samplerYcbcrConversionInfo;
         samplerYcbcrConversionInfo.setConversion(mConversion);
 
-        vk::ImageViewCreateInfo imageViewCreateInfo;
+        vk::ImageSubresourceRange imageSubresourceRange{};
+        imageSubresourceRange
+                .setAspectMask(vk::ImageAspectFlagBits::eColor)
+                .setBaseMipLevel(0)
+                .setLevelCount(1)
+                .setBaseArrayLayer(0)
+                .setLayerCount(1);
 
-        imageViewCreateInfo.pNext = &samplerYcbcrConversionInfo;
-        imageViewCreateInfo.format = formatInfo.format;
-        imageViewCreateInfo.image = mImage;
-        imageViewCreateInfo.viewType = vk::ImageViewType::e2D;
-        imageViewCreateInfo.components = {
-                vk::ComponentSwizzle::eR,
-                vk::ComponentSwizzle::eG,
-                vk::ComponentSwizzle::eB,
-                vk::ComponentSwizzle::eA,
-        };
-        imageViewCreateInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
-        imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-        imageViewCreateInfo.subresourceRange.levelCount = 1;
-        imageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-        imageViewCreateInfo.subresourceRange.layerCount = 1;
+        vk::ComponentMapping componentMapping{};
+        componentMapping
+                .setA(vk::ComponentSwizzle::eIdentity)
+                .setR(vk::ComponentSwizzle::eIdentity)
+                .setG(vk::ComponentSwizzle::eIdentity)
+                .setB(vk::ComponentSwizzle::eIdentity);
+
+        vk::ImageViewCreateInfo imageViewCreateInfo;
+        imageViewCreateInfo.setPNext(&samplerYcbcrConversionInfo)
+                .setFormat(formatInfo.format)
+                .setImage(mImage)
+                .setViewType(vk::ImageViewType::e2D)
+                .setComponents(componentMapping)
+                .setSubresourceRange(imageSubresourceRange);
 
         mImageView = device.createImageView(imageViewCreateInfo);
+
+
+        vk::DescriptorImageInfo descriptorImageInfo;
+        descriptorImageInfo
+                .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+                .setImageView(mImageView)
+                .setSampler(mSampler);
+
+        std::array<vk::DescriptorImageInfo, 1> descriptorImageInfos = {descriptorImageInfo};
+
+        vk::WriteDescriptorSet writeDescriptorSet{};
+        writeDescriptorSet
+                .setDstSet(mDescriptorSet)
+                .setDstBinding(getBinding())
+                .setDstArrayElement(getIndex())
+                .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+                .setImageInfo(descriptorImageInfos);
+
+        std::array<vk::WriteDescriptorSet, 1> writeDescriptorSets = {writeDescriptorSet};
+        device.updateDescriptorSets(writeDescriptorSets, nullptr);
     }
 
 } // engine

@@ -59,18 +59,17 @@ namespace engine {
         }
 
         mEnabledInstanceExtensionNames = extensionsSelector.select(availableExtensionNames);
-        LOG_D("Enabled extensions:[%ld]", mEnabledInstanceExtensionNames.size());
+        LOG_D("enabled instance extensions:[%ld]", mEnabledInstanceExtensionNames.size());
         for (const auto &extensionName: mEnabledInstanceExtensionNames) {
             LOG_D("  %s", extensionName.c_str());
         }
-
 
         uint32_t layerCount = 0;
         CALL_VK(vkEnumerateInstanceLayerProperties(&layerCount, nullptr));
         std::vector<VkLayerProperties> availableLayers(layerCount);
         CALL_VK(vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data()));
-        LOG_D("Available layers:[%d]", layerCount);
 
+        LOG_D("available layers:[%d]", layerCount);
         std::vector<const char *> availableLayerNames;
         for (const auto &layerProperties: availableLayers) {
             LOG_D("  %s", layerProperties.layerName);
@@ -78,6 +77,7 @@ namespace engine {
         }
         mEnabledLayerNames = layersSelector.select(availableExtensionNames);
 
+        LOG_D("enabled layer names:[%ld]", mEnabledLayerNames.size());
         for (const auto &layerName: mEnabledLayerNames) {
             LOG_D("  %s", layerName.c_str());
         }

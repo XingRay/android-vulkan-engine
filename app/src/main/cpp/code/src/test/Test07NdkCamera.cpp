@@ -33,9 +33,7 @@ namespace test07 {
     Test07NdkCamera::Test07NdkCamera(const android_app &app, const std::string &name)
             : TestBase(name), mApp(app) {
 
-        mNdkCamera = std::make_unique<ndkcamera::NdkCamera>([](ndkcamera::NdkCamera *camera, AHardwareBuffer *hardwareBuffer) {
-            LOG_D("hardwareBuffer:%p", hardwareBuffer);
-        });
+        mNdkCamera = std::make_unique<ndkcamera::NdkCamera>();
         mNdkCamera->startPreview();
 
         AHardwareBuffer *hardwareBuffer = nullptr;
@@ -85,7 +83,7 @@ namespace test07 {
                 .asGraphics()
                 .deviceExtensions(std::move(deviceExtensions))
                 .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
-                .enableMsaa()
+                .enableMsaa(1)
                 .physicalDeviceAsDefault()
                 .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
                     shaderConfigure
@@ -115,10 +113,10 @@ namespace test07 {
 
         // x轴朝右, y轴朝下, z轴朝前, 右手系 (x,y)->z
         std::vector<Vertex> vertices = {
-                {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}}, // 左上角
-                {{1.0f,  -1.0f, 0.0f}, {1.0f, 0.0f}}, // 右上角
-                {{-1.0f, 1.0f,  0.0f}, {0.0f, 1.0f}}, // 左下角
-                {{1.0f,  1.0f,  0.0f}, {1.0f, 1.0f}}, // 右下角
+                {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}, // 左上角
+                {{1.0f,  -1.0f, 0.0f}, {0.0f, 0.0f}}, // 右上角
+                {{-1.0f, 1.0f,  0.0f}, {1.0f, 1.0f}}, // 左下角
+                {{1.0f,  1.0f,  0.0f}, {1.0f, 0.0f}}, // 右下角
         };
 
         std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};

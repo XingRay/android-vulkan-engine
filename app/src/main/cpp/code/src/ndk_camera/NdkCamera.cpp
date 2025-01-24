@@ -9,9 +9,12 @@
 
 namespace ndkcamera {
 
-    NdkCamera::NdkCamera(std::function<void(NdkCamera *camera, AHardwareBuffer *hardwareBuffer)> previewCallback) : mPreviewCallback(previewCallback) {
-
-        mImageReader = std::make_unique<ImageReader>(1024, 1024, AIMAGE_FORMAT_PRIVATE, AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE, 2);
+    // sync camera / async camera
+    // sync: getLatestHardwareBuffer / cleanLatestHardwareBuffer
+    // async: setPreviewCallback
+    NdkCamera::NdkCamera() {
+        // todo: image size selector
+        mImageReader = std::make_unique<ImageReader>(1080, 1920, AIMAGE_FORMAT_PRIVATE, AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE, 4);
 
         mCameraManager = std::make_unique<CameraManager>();
         std::vector<CameraInfo> cameraInfoList = mCameraManager->queryCameraInfoList();
@@ -40,6 +43,9 @@ namespace ndkcamera {
         });
     }
 
+    void NdkCamera::setPreviewCallback(std::function<void(NdkCamera *camera, AHardwareBuffer *hardwareBuffer)> previewCallback) {
+        mPreviewCallback = previewCallback;
+    }
 
     NdkCamera::~NdkCamera() = default;
 

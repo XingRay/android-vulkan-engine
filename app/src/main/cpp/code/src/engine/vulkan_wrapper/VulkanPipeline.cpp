@@ -105,7 +105,8 @@ namespace engine {
 
         // Multisampling
         vk::PipelineMultisampleStateCreateInfo multiSampleStateCreateInfo;
-        multiSampleStateCreateInfo.setSampleShadingEnable(vk::True)
+        multiSampleStateCreateInfo
+                .setSampleShadingEnable(vk::True)
                 .setRasterizationSamples(vulkanDevice.getMsaaSamples())
                 .setMinSampleShading(0.2f)
                 .setPSampleMask(nullptr)

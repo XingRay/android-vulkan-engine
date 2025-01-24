@@ -22,6 +22,8 @@ namespace engine {
 
         static uint32_t findMemoryType(const vk::PhysicalDeviceMemoryProperties &memoryProperties, uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 
+        static uint32_t findMemoryTypeExternal(const vk::PhysicalDeviceMemoryProperties &memoryProperties, uint32_t typeFilter);
+
         static void recordCopyBufferCommand(const vk::CommandBuffer &commandBuffer, const vk::Buffer &srcBuffer, const vk::Buffer &dstBuffer, vk::DeviceSize size);
 
         static std::pair<vk::Image, vk::DeviceMemory> createImage(const vk::Device &device,
