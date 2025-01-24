@@ -64,6 +64,11 @@ namespace engine {
                         .setDescriptorType(descriptor.getDescriptorType())
                         .setDescriptorCount(descriptor.getDescriptorCount())
                         .setStageFlags(descriptor.getStageFlags())
+                                // 不可变采样器 的数组。
+                                // 仅在 descriptorType 为 vk::DescriptorType::eCombinedImageSampler 或 vk::DescriptorType::eSampler 时有效
+                                //在描述符集布局创建时固定，不能在运行时修改。适用于静态纹理采样器（例如，采样器的配置在运行时不会改变）。
+                                //不设置 setPImmutableSamplers：表示使用 可变采样器，采样器可以在运行时通过更新描述符集来修改。
+                                // todo: sampler_binding[0].pImmutableSamplers = &m_camera_image->get_sampler();
                         .setPImmutableSamplers(nullptr);
 
                 descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
@@ -169,6 +174,9 @@ namespace engine {
                         samplerDescriptorImageInfo
                                 .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
                                 .setImageView(pSamplerBuffer->getImageView())
+                                        //可变采样器：
+                                        //在描述符集更新时指定，可以在运行时动态修改。
+                                        //适用于动态纹理采样器（例如，需要动态切换纹理过滤模式或寻址模式）。
                                 .setSampler(pSamplerBuffer->getSampler());
 
                         std::array<vk::DescriptorImageInfo, 1> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};

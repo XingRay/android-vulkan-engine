@@ -32,24 +32,29 @@ namespace engine {
 
         CALL_VK(vkGetAndroidHardwareBufferPropertiesANDROID(device, hardwareBuffer, reinterpret_cast<VkAndroidHardwareBufferPropertiesANDROID *>(&propertiesInfo)));
 
-        vk::SamplerYcbcrConversionCreateInfo conversionCreateInfo;
         vk::ExternalFormatANDROID externalFormat;
-        conversionCreateInfo.pNext = &externalFormat;
-
         if (formatInfo.format == vk::Format::eUndefined) {
             externalFormat.externalFormat = formatInfo.externalFormat;
-            conversionCreateInfo.ycbcrModel = formatInfo.suggestedYcbcrModel;
-        } else {
-            conversionCreateInfo.ycbcrModel = vk::SamplerYcbcrModelConversion::eYcbcr601;
         }
 
-        conversionCreateInfo.format = formatInfo.format;
-        conversionCreateInfo.ycbcrRange = formatInfo.suggestedYcbcrRange;
-        conversionCreateInfo.components = formatInfo.samplerYcbcrConversionComponents;
-        conversionCreateInfo.xChromaOffset = formatInfo.suggestedXChromaOffset;
-        conversionCreateInfo.yChromaOffset = formatInfo.suggestedYChromaOffset;
-        conversionCreateInfo.chromaFilter = vk::Filter::eNearest;
-        conversionCreateInfo.forceExplicitReconstruction = false;
+        vk::SamplerYcbcrModelConversion ycbcrModel;
+        if (formatInfo.format == vk::Format::eUndefined) {
+            ycbcrModel = formatInfo.suggestedYcbcrModel;
+        } else {
+            ycbcrModel = vk::SamplerYcbcrModelConversion::eYcbcr601;
+        }
+
+        vk::SamplerYcbcrConversionCreateInfo conversionCreateInfo;
+        conversionCreateInfo
+                .setPNext(&externalFormat)
+                .setYcbcrModel(ycbcrModel)
+                .setFormat(formatInfo.format)
+                .setYcbcrRange(formatInfo.suggestedYcbcrRange)
+                .setComponents(formatInfo.samplerYcbcrConversionComponents)
+                .setXChromaOffset(formatInfo.suggestedXChromaOffset)
+                .setYChromaOffset(formatInfo.suggestedYChromaOffset)
+                .setChromaFilter(vk::Filter::eNearest)
+                .setForceExplicitReconstruction(false);
 
         // mConversion = device.createSamplerYcbcrConversion(conv_info); // link error
         CALL_VK(vkCreateSamplerYcbcrConversion(device, reinterpret_cast<VkSamplerYcbcrConversionCreateInfo *>(&conversionCreateInfo), nullptr,
@@ -57,25 +62,25 @@ namespace engine {
 
         vk::SamplerCreateInfo samplerCreateInfo;
         vk::SamplerYcbcrConversionInfo conversionInfo;
-        samplerCreateInfo.pNext = &conversionInfo;
-
         conversionInfo.conversion = mConversion;
 
-        samplerCreateInfo.magFilter = vk::Filter::eNearest;
-        samplerCreateInfo.minFilter = vk::Filter::eNearest;
-        samplerCreateInfo.mipmapMode = vk::SamplerMipmapMode::eNearest;
-        samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-        samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-        samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
-        samplerCreateInfo.mipLodBias = 0.0f;
-        samplerCreateInfo.anisotropyEnable = false;
-        samplerCreateInfo.maxAnisotropy = 1.0f;
-        samplerCreateInfo.compareEnable = false;
-        samplerCreateInfo.compareOp = vk::CompareOp::eNever;
-        samplerCreateInfo.minLod = 0.0f;
-        samplerCreateInfo.maxLod = 0.0f;
-        samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueWhite;
-        samplerCreateInfo.unnormalizedCoordinates = false;
+        samplerCreateInfo
+                .setPNext(&conversionInfo)
+                .setMagFilter(vk::Filter::eNearest)
+                .setMinFilter(vk::Filter::eNearest)
+                .setMipmapMode(vk::SamplerMipmapMode::eNearest)
+                .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
+                .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
+                .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)
+                .setMipLodBias(0.0f)
+                .setAnisotropyEnable(false)
+                .setMaxAnisotropy(1.0f)
+                .setCompareEnable(false)
+                .setCompareOp(vk::CompareOp::eNever)
+                .setMinLod(0.0f)
+                .setMaxLod(0.0f)
+                .setBorderColor(vk::BorderColor::eFloatOpaqueWhite)
+                .setUnnormalizedCoordinates(false);
 
         mSampler = device.createSampler(samplerCreateInfo);
 
