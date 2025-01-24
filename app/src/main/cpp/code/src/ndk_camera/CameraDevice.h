@@ -26,7 +26,10 @@ namespace ndkcamera {
 
         void setCameraDevice(ACameraDevice *cameraDevice);
 
-        std::unique_ptr<CameraCaptureSession> createCaptureSession(const std::unique_ptr<CaptureSessionOutputContainer>& captureSessionOutputContainer);
+        std::unique_ptr<CameraCaptureSession> createCaptureSession(const std::unique_ptr<CaptureSessionOutputContainer> &captureSessionOutputContainer);
+
+        std::unique_ptr<CameraCaptureSession> createCaptureSession(const std::unique_ptr<CaptureSessionOutputContainer> &captureSessionOutputContainer,
+                                                                   const std::unique_ptr<CaptureRequest> &captureRequest);
 
         ACameraDevice_StateCallbacks *createStateCallbacks();
 

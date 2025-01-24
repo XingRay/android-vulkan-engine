@@ -35,7 +35,8 @@ namespace ndkcamera {
 
         uint32_t mCurrentBufferIndex;
         std::vector<AHardwareBuffer *> mBuffers;
-        std::vector<std::unique_ptr<Image>> mImages;
+//        std::vector<std::unique_ptr<Image>> mImages;
+        std::vector<AImage*> mImages;
 
     public:
         ImageReader(int32_t width, int32_t height, int32_t format, uint64_t usage, int32_t maxImages);
@@ -49,6 +50,8 @@ namespace ndkcamera {
         void setImageListener(std::function<void(const AImageReader *reader)> &&imageListener);
 
         AHardwareBuffer *getLatestHardwareBuffer();
+
+        void cleanLatestHardwareBuffer();
 
     private:
         static void onImageAvailable(void *context, AImageReader *reader);

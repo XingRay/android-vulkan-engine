@@ -22,15 +22,16 @@ namespace ndkcamera {
         }
 
         mCameraDevice = std::move(mCameraManager->openCamera(cameraInfoList[0].id));
+
         mCaptureSessionOutputContainer = std::make_unique<CaptureSessionOutputContainer>();
         mCaptureSessionOutput = mImageReader->createCaptureSessionOutput();
         mCaptureSessionOutputContainer->add(mCaptureSessionOutput);
 
-        mCaptureSession = std::move(mCameraDevice->createCaptureSession(mCaptureSessionOutputContainer));
-
         mCaptureRequest = mCameraDevice->createCaptureRequest();
         mCameraOutputTarget = mImageReader->createOutputTarget();
         mCaptureRequest->addTarget(mCameraOutputTarget);
+
+        mCaptureSession = std::move(mCameraDevice->createCaptureSession(mCaptureSessionOutputContainer, mCaptureRequest));
 
         mImageReader->setImageListener([&](const AImageReader *imageReader) {
             LOG_D("imageReader:%p", imageReader);
@@ -45,7 +46,6 @@ namespace ndkcamera {
     void NdkCamera::startPreview() {
         // 启动相机预览
         mCaptureSession->setRepeatingRequest(mCaptureRequest);
-
     }
 
     void NdkCamera::stopPreview() {
@@ -55,6 +55,10 @@ namespace ndkcamera {
 
     AHardwareBuffer *NdkCamera::getLatestHardwareBuffer() {
         return mImageReader->getLatestHardwareBuffer();
+    }
+
+    void NdkCamera::cleanLatestHardwareBuffer() {
+        mImageReader->cleanLatestHardwareBuffer();
     }
 
     void NdkCamera::onImageAvailable(void *context, AImageReader *reader) {

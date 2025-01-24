@@ -142,16 +142,37 @@ namespace test07 {
 
     // 绘制三角形帧
     void Test07NdkCamera::drawFrame() {
-//        std::this_thread::sleep_for(std::chrono::milliseconds(15));
+        // 静态变量用于帧率统计
+        static auto startTime = std::chrono::steady_clock::now(); // 统计开始时间
+        static int frameCount = 0;                               // 帧计数器
+
 
 //        LOG_D("Test07NdkCamera::drawFrame()");
         AHardwareBuffer *buffer = mNdkCamera->getLatestHardwareBuffer();
-        LOG_D("AHardwareBuffer:%p", buffer);
+//        LOG_D("AHardwareBuffer:%p", buffer);
         if (buffer != nullptr) {
-            LOG_D("updateUniformBuffer");
             mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
             mVulkanEngine->drawFrame();
+
+            // 增加帧计数器
+            frameCount++;
+
+            // 计算时间差
+            auto currentTime = std::chrono::steady_clock::now();
+            auto elapsedTime = std::chrono::duration_cast<std::chrono::seconds>(currentTime - startTime).count();
+
+            // 每 5 秒输出一次帧率
+            if (elapsedTime >= 5) {
+                float fps = static_cast<float>(frameCount) / elapsedTime; // 计算帧率
+                LOG_D("FPS: %.2f", fps);                                 // 输出帧率
+
+                // 重置统计
+                startTime = currentTime;
+                frameCount = 0;
+            }
         }
+
+        mNdkCamera->cleanLatestHardwareBuffer();
     }
 
     // 清理操作

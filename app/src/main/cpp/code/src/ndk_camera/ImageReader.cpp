@@ -40,6 +40,11 @@ namespace ndkcamera {
     }
 
     ImageReader::~ImageReader() {
+        for (AImage *image: mImages) {
+            if (image != nullptr) {
+                AImage_delete(image);
+            }
+        }
         AImageReader_delete(mImageReader);
     }
 
@@ -88,26 +93,34 @@ namespace ndkcamera {
         AImage *image = nullptr;
         media_status_t status = AImageReader_acquireLatestImage(mImageReader, &image);
         if (status != AMEDIA_OK || image == nullptr) {
-//            LOG_D("Failed to acquire image from camera");
-//            return mBuffers[mCurrentBufferIndex];
-            return nullptr;
+            return nullptr; // 获取图像失败，返回空指针
         }
 
         AHardwareBuffer *buffer = nullptr;
         status = AImage_getHardwareBuffer(image, &buffer);
         if (status != AMEDIA_OK || buffer == nullptr) {
-//            LOG_D("Failed to acquire hardware buffer");
-//            return mBuffers[mCurrentBufferIndex];
+            AImage_delete(image);                       // 获取硬件缓冲区失败，释放图像
             return nullptr;
         }
 
-        mCurrentBufferIndex++;
-        if (mCurrentBufferIndex == mImages.size()) {
-            mCurrentBufferIndex = 0;
+        // 更新当前缓冲区
+        mCurrentBufferIndex = (mCurrentBufferIndex + 1) % mBuffers.size();
+        if (mImages[mCurrentBufferIndex]) {
+            AImage_delete(mImages[mCurrentBufferIndex]); // 释放旧的图像
         }
-        mImages[mCurrentBufferIndex] = std::move(std::make_unique<Image>(image));
-        mBuffers[mCurrentBufferIndex] = buffer;
-        return mBuffers[mCurrentBufferIndex];
+        mImages[mCurrentBufferIndex] = image;           // 保存新的图像
+        mBuffers[mCurrentBufferIndex] = buffer;         // 保存新的硬件缓冲区
+
+        return buffer;
+    }
+
+    void ImageReader::cleanLatestHardwareBuffer() {
+        AImage *image = mImages[mCurrentBufferIndex];
+        if (image != nullptr) {
+            AImage_delete(image);
+            mImages[mCurrentBufferIndex] = nullptr;
+            mBuffers[mCurrentBufferIndex] = nullptr;
+        }
     }
 
 } // ndkcamera

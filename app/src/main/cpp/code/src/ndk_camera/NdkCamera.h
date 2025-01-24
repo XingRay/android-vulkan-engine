@@ -45,6 +45,8 @@ namespace ndkcamera {
 
         AHardwareBuffer *getLatestHardwareBuffer();
 
+        void cleanLatestHardwareBuffer();
+
     private:
         static void onImageAvailable(void *context, AImageReader *reader);
     };
