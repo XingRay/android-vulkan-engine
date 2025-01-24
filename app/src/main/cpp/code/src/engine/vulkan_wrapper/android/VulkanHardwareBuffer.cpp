@@ -7,84 +7,75 @@
 #include "engine/VkCheck.h"
 #include "engine/VulkanUtil.h"
 
+#include "engine/vulkan_wrapper/android/AndroidVulkanWrapper.h"
+
 namespace engine {
 
     VulkanHardwareBuffer::VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool,
-                                               AHardwareBuffer *hardwareBuffer, uint32_t binding, uint32_t index, const vk::DescriptorSet& descriptorSet)
-            : mVulkanInstance(vulkanInstance), mVulkanDevice(vulkanDevice),mCommandPool(commandPool),mDescriptorSet(descriptorSet), VulkanBuffer(binding, VulkanBufferType::ANDROID_HARDWARE_BUFFER, index) {
+                                               AHardwareBuffer *hardwareBuffer, uint32_t binding, uint32_t index, const vk::DescriptorSet &descriptorSet)
+            : mVulkanInstance(vulkanInstance), mVulkanDevice(vulkanDevice), mCommandPool(commandPool), mDescriptorSet(descriptorSet),
+              VulkanBuffer(binding, VulkanBufferType::ANDROID_HARDWARE_BUFFER, index) {
 
         const vk::Device &device = mVulkanDevice.getDevice();
         const vk::Instance &instance = mVulkanInstance.getInstance();
+        initAndroidVulkanWrapper(instance);
 
-        AHardwareBuffer_Desc buffer_desc;
-        AHardwareBuffer_describe(hardwareBuffer, &buffer_desc);
+        AHardwareBuffer_Desc hardwareBufferDescription;
+        AHardwareBuffer_describe(hardwareBuffer, &hardwareBufferDescription);
 
-        mDataSize = buffer_desc.width * buffer_desc.height * buffer_desc.layers;
+        mDataSize = hardwareBufferDescription.width * hardwareBufferDescription.height * hardwareBufferDescription.layers;
 
         // 获取 HardwareBuffer 属性
-        vk::AndroidHardwareBufferFormatPropertiesANDROID format_info;
-        vk::AndroidHardwareBufferPropertiesANDROID properties_info;
+        vk::AndroidHardwareBufferPropertiesANDROID propertiesInfo;
+        vk::AndroidHardwareBufferFormatPropertiesANDROID formatInfo;
+        propertiesInfo.pNext = &formatInfo;
 
-        properties_info.pNext = &format_info;
+        CALL_VK(vkGetAndroidHardwareBufferPropertiesANDROID(device, hardwareBuffer, reinterpret_cast<VkAndroidHardwareBufferPropertiesANDROID *>(&propertiesInfo)));
 
-        static auto vkGetAndroidHardwareBufferPropertiesANDROID = (PFN_vkGetAndroidHardwareBufferPropertiesANDROID) vkGetInstanceProcAddr(
-                instance, "vkGetAndroidHardwareBufferPropertiesANDROID");
-        CALL_VK(vkGetAndroidHardwareBufferPropertiesANDROID(device, hardwareBuffer, reinterpret_cast<VkAndroidHardwareBufferPropertiesANDROID *>(&properties_info)));
+        vk::SamplerYcbcrConversionCreateInfo conversionCreateInfo;
+        vk::ExternalFormatANDROID externalFormat;
+        conversionCreateInfo.pNext = &externalFormat;
 
-        vk::ExternalMemoryImageCreateInfo ext_mem_info;
-        ext_mem_info.handleTypes = vk::ExternalMemoryHandleTypeFlagBitsKHR::eAndroidHardwareBufferANDROID;
-
-        vk::ExternalFormatANDROID external_format;
-        vk::SamplerYcbcrConversionCreateInfo conv_info;
-
-        if (format_info.format == vk::Format::eUndefined) {
-            external_format.externalFormat = format_info.externalFormat;
-            conv_info.pNext = &external_format;
-            conv_info.format = vk::Format::eUndefined;
-            conv_info.ycbcrModel = format_info.suggestedYcbcrModel;
-        } else {
-            conv_info.pNext = &external_format;
-            conv_info.format = format_info.format;
-            conv_info.ycbcrModel = vk::SamplerYcbcrModelConversion::eYcbcr601;
+        if (formatInfo.format == vk::Format::eUndefined) {
+            externalFormat.externalFormat = formatInfo.externalFormat;
         }
-
-        conv_info.ycbcrRange = format_info.suggestedYcbcrRange;
-        conv_info.components = format_info.samplerYcbcrConversionComponents;
-        conv_info.xChromaOffset = format_info.suggestedXChromaOffset;
-        conv_info.yChromaOffset = format_info.suggestedYChromaOffset;
-        conv_info.chromaFilter = vk::Filter::eNearest;
-        conv_info.forceExplicitReconstruction = false;
+        conversionCreateInfo.format = formatInfo.format;
+        conversionCreateInfo.ycbcrModel = formatInfo.suggestedYcbcrModel;
+        conversionCreateInfo.ycbcrRange = formatInfo.suggestedYcbcrRange;
+        conversionCreateInfo.components = formatInfo.samplerYcbcrConversionComponents;
+        conversionCreateInfo.xChromaOffset = formatInfo.suggestedXChromaOffset;
+        conversionCreateInfo.yChromaOffset = formatInfo.suggestedYChromaOffset;
+        conversionCreateInfo.chromaFilter = vk::Filter::eNearest;
+        conversionCreateInfo.forceExplicitReconstruction = false;
 
         // mConversion = device.createSamplerYcbcrConversion(conv_info); // link error
-        static auto vkCreateSamplerYcbcrConversion = (PFN_vkCreateSamplerYcbcrConversion) vkGetInstanceProcAddr(
-                instance, "vkCreateSamplerYcbcrConversion");
-        CALL_VK(vkCreateSamplerYcbcrConversion(device, reinterpret_cast<VkSamplerYcbcrConversionCreateInfo *>(&conv_info), nullptr, reinterpret_cast<VkSamplerYcbcrConversion *>(&mConversion)));
+        CALL_VK(vkCreateSamplerYcbcrConversion(device, reinterpret_cast<VkSamplerYcbcrConversionCreateInfo *>(&conversionCreateInfo), nullptr,
+                                               reinterpret_cast<VkSamplerYcbcrConversion *>(&mConversion)));
 
 
-        vk::SamplerYcbcrConversionInfo conv_sampler_info;
+        vk::SamplerCreateInfo samplerCreateInfo;
+        vk::SamplerYcbcrConversionInfo conversionInfo;
+        samplerCreateInfo.pNext = &conversionInfo;
 
-        conv_sampler_info.conversion = mConversion;
+        conversionInfo.conversion = mConversion;
 
-        vk::SamplerCreateInfo sampler_info;
+        samplerCreateInfo.magFilter = vk::Filter::eNearest;
+        samplerCreateInfo.minFilter = vk::Filter::eNearest;
+        samplerCreateInfo.mipmapMode = vk::SamplerMipmapMode::eNearest;
+        samplerCreateInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+        samplerCreateInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+        samplerCreateInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+        samplerCreateInfo.mipLodBias = 0.0f;
+        samplerCreateInfo.anisotropyEnable = false;
+        samplerCreateInfo.maxAnisotropy = 1.0f;
+        samplerCreateInfo.compareEnable = false;
+        samplerCreateInfo.compareOp = vk::CompareOp::eNever;
+        samplerCreateInfo.minLod = 0.0f;
+        samplerCreateInfo.maxLod = 0.0f;
+        samplerCreateInfo.borderColor = vk::BorderColor::eFloatOpaqueWhite;
+        samplerCreateInfo.unnormalizedCoordinates = false;
 
-        sampler_info.pNext = &conv_sampler_info;
-        sampler_info.magFilter = vk::Filter::eNearest;
-        sampler_info.minFilter = vk::Filter::eNearest;
-        sampler_info.mipmapMode = vk::SamplerMipmapMode::eNearest;
-        sampler_info.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-        sampler_info.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-        sampler_info.addressModeW = vk::SamplerAddressMode::eClampToEdge;
-        sampler_info.mipLodBias = 0.0f;
-        sampler_info.anisotropyEnable = false;
-        sampler_info.maxAnisotropy = 1.0f;
-        sampler_info.compareEnable = false;
-        sampler_info.compareOp = vk::CompareOp::eNever;
-        sampler_info.minLod = 0.0f;
-        sampler_info.maxLod = 0.0f;
-        sampler_info.borderColor = vk::BorderColor::eFloatOpaqueWhite;
-        sampler_info.unnormalizedCoordinates = false;
-
-        mSampler = device.createSampler(sampler_info);
+        mSampler = device.createSampler(samplerCreateInfo);
 
         updateBuffer(hardwareBuffer, 0);
     }
@@ -96,10 +87,7 @@ namespace engine {
         device.destroySampler(mSampler);
 
         // device.destroySamplerYcbcrConversion(mConversion); // link error
-        static auto vkDestroySamplerYcbcrConversion = (PFN_vkDestroySamplerYcbcrConversion) vkGetInstanceProcAddr(
-                instance, "vkDestroySamplerYcbcrConversion");
         vkDestroySamplerYcbcrConversion(device, mConversion, nullptr);
-
 
         device.destroyImageView(mImageView);
         device.destroyImage(mImage);
@@ -137,34 +125,31 @@ namespace engine {
             LOG_E("hardwareBufferDescription:[%dx%d, layers:%d] => %d", hardwareBufferDescription.width, hardwareBufferDescription.height, hardwareBufferDescription.layers,
                   hardwareBufferDescription.width * hardwareBufferDescription.height * hardwareBufferDescription.layers);
             LOG_E("mDataSize:%ld", mDataSize);
-//            throw std::runtime_error{"Data size differs. Cannot update image."};
-            return;
+            throw std::runtime_error{"Data size differs. Cannot update image."};
         }
 
         // 获取 HardwareBuffer 属性
         vk::AndroidHardwareBufferPropertiesANDROID hardwareBufferProperties;
-        vk::AndroidHardwareBufferFormatPropertiesANDROID format_info;
-        hardwareBufferProperties.pNext = &format_info;
+        vk::AndroidHardwareBufferFormatPropertiesANDROID formatInfo;
+        hardwareBufferProperties.pNext = &formatInfo;
 
-        static auto vkGetAndroidHardwareBufferPropertiesANDROID = (PFN_vkGetAndroidHardwareBufferPropertiesANDROID) vkGetInstanceProcAddr(
-                instance, "vkGetAndroidHardwareBufferPropertiesANDROID");
         CALL_VK(vkGetAndroidHardwareBufferPropertiesANDROID(device, hardwareBuffer, reinterpret_cast<VkAndroidHardwareBufferPropertiesANDROID *>(&hardwareBufferProperties)));
 
-        vk::ExternalMemoryImageCreateInfo ext_mem_info{};
-        ext_mem_info.setHandleTypes(vk::ExternalMemoryHandleTypeFlagBitsKHR::eAndroidHardwareBufferANDROID);
+        vk::ExternalFormatANDROID externalFormat{};
+        vk::ExternalMemoryImageCreateInfo externalMemoryImageCreateInfo{};
+        externalFormat.setPNext(&externalMemoryImageCreateInfo);
 
-        vk::ExternalFormatANDROID external_format{};
-        external_format.setPNext(&ext_mem_info);
+        externalMemoryImageCreateInfo.setHandleTypes(vk::ExternalMemoryHandleTypeFlagBitsKHR::eAndroidHardwareBufferANDROID);
 
-        if (format_info.format == vk::Format::eUndefined) {
-            external_format.externalFormat = format_info.externalFormat;
+        if (formatInfo.format == vk::Format::eUndefined) {
+            externalFormat.externalFormat = formatInfo.externalFormat;
         }
 
         // 创建 Vulkan 图像
         vk::ImageCreateInfo imageCreateInfo(
                 {},                                      // 标志
                 vk::ImageType::e2D,                     // 图像类型
-                format_info.format,                     // 格式
+                formatInfo.format,                     // 格式
                 vk::Extent3D(hardwareBufferDescription.width, hardwareBufferDescription.height, 1),         // 尺寸
                 1,                                      // Mip 级别
                 hardwareBufferDescription.layers,                     // 数组层数
@@ -175,24 +160,29 @@ namespace engine {
                 0,                                      // 队列族数量
                 nullptr,                                // 队列族索引
                 vk::ImageLayout::eUndefined,             // 初始布局
-                &external_format                       // pNext
+                &externalFormat                       // pNext
         );
 
         mImage = device.createImage(imageCreateInfo);
 
-        vk::ImportAndroidHardwareBufferInfoANDROID import_info;
-        import_info.setBuffer(hardwareBuffer);
+        vk::ImportAndroidHardwareBufferInfoANDROID hardwareBufferInfo;
+        hardwareBufferInfo.setBuffer(hardwareBuffer);
 
+        /**
+         * Dedicated: 专用的/专属于
+         * 某块内存专门服务于某个特定的 Vulkan 资源（如 Image 或 Buffer）
+         * 当前分配的内存将专门用于某个特定的 Image 或 Buffer。
+         * 驱动可能会根据此信息优化内存布局或访问路径。
+         */
         vk::MemoryDedicatedAllocateInfo memoryDedicatedAllocateInfo{};
         memoryDedicatedAllocateInfo
-                .setImage(mImage)
-                .setBuffer(nullptr)
-                .setPNext(&import_info);
+                .setImage(mImage)       // 关联的 Image（二选一）
+                .setBuffer(nullptr)     // 关联的 Buffer（二选一）
+                .setPNext(&hardwareBufferInfo);
 
         // 获取图像的内存需求
         vk::PhysicalDeviceMemoryProperties memProperties = mVulkanDevice.getPhysicalDevice().getMemoryProperties();
-        vk::MemoryRequirements memRequirements = device.getImageMemoryRequirements(mImage);
-        uint32_t memoryType = VulkanUtil::findMemoryType(memProperties, hardwareBufferProperties.memoryTypeBits, vk::MemoryPropertyFlagBits{0});
+        uint32_t memoryType = VulkanUtil::findMemoryType(memProperties, hardwareBufferProperties.memoryTypeBits, vk::MemoryPropertyFlagBits{});
 
         // 分配内存并绑定到图像
         vk::MemoryAllocateInfo memoryAllocateInfo{};
@@ -202,7 +192,7 @@ namespace engine {
                 .setPNext(&memoryDedicatedAllocateInfo);
 
         mMemory = device.allocateMemory(memoryAllocateInfo);
-//        device.bindImageMemory(mImage, mMemory, 0);
+
         vk::BindImageMemoryInfo bindImageMemoryInfo;
         bindImageMemoryInfo
                 .setImage(mImage)
@@ -210,20 +200,16 @@ namespace engine {
                 .setMemoryOffset(0);
 
         //device.bindImageMemory2KHR(bindImageMemoryInfo); // link error
-        static auto vkBindImageMemory2KHR = (PFN_vkBindImageMemory2KHR) vkGetInstanceProcAddr(
-                instance, "vkBindImageMemory2KHR");
         vkBindImageMemory2KHR(device, 1, reinterpret_cast<VkBindImageMemoryInfo *>(&bindImageMemoryInfo));
 
         vk::ImageMemoryRequirementsInfo2 imageMemoryRequirementsInfo{};
         imageMemoryRequirementsInfo.setImage(mImage);
 
-        vk::MemoryDedicatedRequirements memoryDedicatedRequirements;
         vk::MemoryRequirements2 memoryRequirements;
+        vk::MemoryDedicatedRequirements memoryDedicatedRequirements;
         memoryRequirements.pNext = &memoryDedicatedRequirements;
 
 //        device.getImageMemoryRequirements2KHR(&imageMemoryRequirementsInfo, &memoryRequirements); //link error
-        static auto vkGetImageMemoryRequirements2KHR = (PFN_vkGetImageMemoryRequirements2KHR) vkGetInstanceProcAddr(
-                instance, "vkGetImageMemoryRequirements2KHR");
         vkGetImageMemoryRequirements2KHR(device, reinterpret_cast<const VkImageMemoryRequirementsInfo2 *>(&imageMemoryRequirementsInfo),
                                          reinterpret_cast<VkMemoryRequirements2 *>(&memoryRequirements));
 
@@ -238,14 +224,14 @@ namespace engine {
         vk::ImageViewCreateInfo imageViewCreateInfo;
 
         imageViewCreateInfo.pNext = &samplerYcbcrConversionInfo;
-        imageViewCreateInfo.format = format_info.format;
+        imageViewCreateInfo.format = formatInfo.format;
         imageViewCreateInfo.image = mImage;
         imageViewCreateInfo.viewType = vk::ImageViewType::e2D;
         imageViewCreateInfo.components = {
-                vk::ComponentSwizzle::eIdentity,
-                vk::ComponentSwizzle::eIdentity,
-                vk::ComponentSwizzle::eIdentity,
-                vk::ComponentSwizzle::eIdentity,
+                vk::ComponentSwizzle::eR,
+                vk::ComponentSwizzle::eG,
+                vk::ComponentSwizzle::eB,
+                vk::ComponentSwizzle::eA,
         };
         imageViewCreateInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
         imageViewCreateInfo.subresourceRange.baseMipLevel = 0;
@@ -255,6 +241,5 @@ namespace engine {
 
         mImageView = device.createImageView(imageViewCreateInfo);
     }
-
 
 } // engine
