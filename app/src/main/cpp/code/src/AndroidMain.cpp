@@ -33,6 +33,7 @@
 #include "test/Test05TextureImage.h"
 #include "test/Test06Load3dModel.h"
 #include "test/Test07NdkCamera.h"
+#include "test/Test08Ncv.h"
 
 void handle_cmd(android_app *app, int32_t cmd) {
 //    LOG_D("AndroidMain#handle_cmd, cmd:%d", cmd);
@@ -45,7 +46,8 @@ void handle_cmd(android_app *app, int32_t cmd) {
 //            app->test = new test04::Test04MvpMatrix(*app, "Test04MvpMatrix");
 //            app->test = new test05::Test05TextureImage(*app, "Test05TextureImage");
 //            app->test = new test06::Test06Load3dModel(*app, "Test06Load3dModel");
-            app->test = new test07::Test07NdkCamera(*app, "Test07NdkCamera");
+//            app->test = new test07::Test07NdkCamera(*app, "Test07NdkCamera");
+            app->test = new test08::Test08Ncv(*app, "Test08Ncv");
             app->test->init();
         }
             break;

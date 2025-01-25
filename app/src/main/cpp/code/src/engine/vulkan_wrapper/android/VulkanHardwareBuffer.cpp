@@ -152,7 +152,8 @@ namespace engine {
 
         // 创建 Vulkan 图像
         vk::ImageCreateInfo imageCreateInfo{};
-        imageCreateInfo.setPNext(&externalFormat)
+        imageCreateInfo
+                .setPNext(&externalFormat)
                 .setFormat(formatInfo.format)
                 .setFlags(vk::ImageCreateFlags{0})
                 .setImageType(vk::ImageType::e2D)
@@ -239,7 +240,8 @@ namespace engine {
                 .setB(vk::ComponentSwizzle::eIdentity);
 
         vk::ImageViewCreateInfo imageViewCreateInfo;
-        imageViewCreateInfo.setPNext(&samplerYcbcrConversionInfo)
+        imageViewCreateInfo
+                .setPNext(&samplerYcbcrConversionInfo)
                 .setFormat(formatInfo.format)
                 .setImage(mImage)
                 .setViewType(vk::ImageViewType::e2D)

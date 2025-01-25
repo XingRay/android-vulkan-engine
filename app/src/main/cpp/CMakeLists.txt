@@ -50,6 +50,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         "${LIB_MPTASK_DIR}/include"
         "code/include"
         "code/src"
+        "code/src/ncv"
         "code/third_party/game_activity"
 
         # vulkan
