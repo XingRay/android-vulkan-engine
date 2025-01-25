@@ -32,7 +32,8 @@ layout(location = 0) out vec3 o_color;
 layout(location = 1) out vec2 o_tex_coords;
 
 void main(){
-    gl_Position = ubo.proj * ubo.view * ubo.model * i_position;
+//    gl_Position = ubo.proj * ubo.view * ubo.model * i_position;
+    gl_Position = i_position;
     o_color = i_color.rgb;
     o_tex_coords = i_tex_coords;
 }

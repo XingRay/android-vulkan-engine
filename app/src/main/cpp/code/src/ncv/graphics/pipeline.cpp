@@ -170,7 +170,7 @@ namespace graphics
         rasterizer_info.polygonMode = PolygonMode::eFill;
         rasterizer_info.lineWidth = 1.f;
         rasterizer_info.cullMode = CullModeFlagBits::eBack;
-        rasterizer_info.frontFace = FrontFace::eClockwise;
+        rasterizer_info.frontFace = FrontFace::eCounterClockwise;
         rasterizer_info.depthBiasEnable = false;
         rasterizer_info.depthBiasConstantFactor = .0f;
         rasterizer_info.depthBiasClamp = .0f;
