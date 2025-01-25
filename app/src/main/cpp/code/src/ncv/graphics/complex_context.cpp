@@ -22,7 +22,6 @@
 #include <graphics/resources/buffer.hpp>
 
 #include <graphics/data/index.hpp>
-#include <graphics/data/model_view_projection.hpp>
 #include <graphics/data/vertex.hpp>
 #include <graphics/data/texture.hpp>
 
@@ -39,10 +38,6 @@ namespace graphics {
     complex_context::complex_context(const std::string &a_app_name, const android_app &app)
             : vulkan_context{}, m_app(app) {
         using ::vk_util::message_callback;
-
-        m_ref_time = std::chrono::high_resolution_clock::now();
-
-        // Create an instance and query for physical devices
 
         if (m_enable_validation)
             m_requested_gl_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -100,9 +95,7 @@ namespace graphics {
                 m_device->destroySampler(sampler);
             m_samplers.clear();
             m_device->destroyDescriptorPool(m_desc_pool.release());
-            m_uniform_data.clear();
             m_graphics_pipeline.reset();
-            m_texture_data.reset();
             m_camera_image.reset();
             m_vertex_data.reset();
             m_index_data.reset();
@@ -314,16 +307,7 @@ namespace graphics {
                                                SharingMode::eExclusive, data::index_set);
         m_vertex_data = make_shared<vertex_data>(m_gpu, m_device, BufferUsageFlagBits::eVertexBuffer,
                                                  SharingMode::eExclusive, data::vertex_set);
-
-        if (a_buffer)
-            m_camera_image = make_shared<camera_data>(m_gpu, m_device, a_buffer);
-
-        m_stbi_data = make_shared<data::texture>(m_app.activity->assetManager, "texture.jpg");
-        auto stbi_extent = m_stbi_data->get_extent();
-        m_stbi_extent = Extent3D{stbi_extent.width, stbi_extent.height, stbi_extent.depth};
-
-        m_texture_data = make_shared<texture_data>(m_gpu, m_device, ImageUsageFlagBits::eSampled,
-            SharingMode::eExclusive, m_stbi_extent, Format::eR8G8B8A8Srgb, m_stbi_data->get_data());
+        m_camera_image = make_shared<camera_data>(m_gpu, m_device, a_buffer);
     }
 
     void complex_context::create_graphics_pipeline() {
@@ -341,7 +325,7 @@ namespace graphics {
 
         auto glpipe_shader_info = pipeline::shaders_info{
                 "simple.vert",
-                m_camera_image != nullptr ? "camera-mapping.frag" : "image-mapping.frag"
+                "camera-mapping.frag"
         };
 
         m_graphics_pipeline.reset(new pipeline(glpipe_params, glpipe_shader_info));
@@ -487,7 +471,6 @@ namespace graphics {
                 m_device->destroySampler(sampler);
             m_samplers.clear();
             m_device->destroyDescriptorPool(m_desc_pool.release());
-            m_uniform_data.clear();
         }
 
         // Create or reset descriptor pool
@@ -537,57 +520,33 @@ namespace graphics {
         sampler_info.minLod = 0.0f;
         sampler_info.maxLod = 0.0f;
 
-        data::model_view_projection mvp =
-                static_cast<float>(m_surface_extent.height) / static_cast<float>(m_surface_extent.width);
-
         for (uint32_t i = 0; i < m_cmd_buffers.size(); ++i) {
             m_samplers.push_back(m_device->createSampler(sampler_info));
-            m_mvp_data.push_back(static_cast<float>(m_surface_extent.height) /
-                                 static_cast<float>(m_surface_extent.width));
-            m_uniform_data.push_back(make_shared<uniform_data>(m_gpu, m_device,
-                                                               BufferUsageFlagBits::eUniformBuffer, SharingMode::eExclusive, vector{m_mvp_data.back()}));
-            m_desc_configs[i].buffer_infos[0].buffer = m_uniform_data.back()->get();
-            m_desc_configs[i].buffer_infos[0].offset = 0;
-            m_desc_configs[i].buffer_infos[0].range = VK_WHOLE_SIZE;
 
-            if (m_camera_image != nullptr) {
-                m_desc_configs[i].image_infos[0].imageLayout = ImageLayout::eShaderReadOnlyOptimal;
-                m_desc_configs[i].image_infos[0].imageView = m_camera_image->get_img_view();
-                m_desc_configs[i].image_infos[0].sampler = m_camera_image->get_sampler();
-            } else {
-                m_desc_configs[i].image_infos[0].imageLayout = ImageLayout::eShaderReadOnlyOptimal;
-                m_desc_configs[i].image_infos[0].imageView = m_texture_data->get_img_view();
-                m_desc_configs[i].image_infos[0].sampler = m_samplers.back();
-            }
+            m_desc_configs[i].image_infos[0].imageLayout = ImageLayout::eShaderReadOnlyOptimal;
+            m_desc_configs[i].image_infos[0].imageView = m_camera_image->get_img_view();
+            m_desc_configs[i].image_infos[0].sampler = m_camera_image->get_sampler();
 
             m_desc_configs[i].writes[0].dstSet = m_desc_sets[i];
             m_desc_configs[i].writes[0].dstBinding = 0;
             m_desc_configs[i].writes[0].dstArrayElement = 0;
-            m_desc_configs[i].writes[0].descriptorType = DescriptorType::eUniformBuffer;
+            m_desc_configs[i].writes[0].descriptorType = DescriptorType::eCombinedImageSampler;
             m_desc_configs[i].writes[0].descriptorCount = 1;
-            m_desc_configs[i].writes[0].pBufferInfo = &m_desc_configs[i].buffer_infos[0];
-
-            m_desc_configs[i].writes[1].dstSet = m_desc_sets[i];
-            m_desc_configs[i].writes[1].dstBinding = 1;
-            m_desc_configs[i].writes[1].dstArrayElement = 0;
-            m_desc_configs[i].writes[1].descriptorType = DescriptorType::eCombinedImageSampler;
-            m_desc_configs[i].writes[1].descriptorCount = 1;
-            m_desc_configs[i].writes[1].pImageInfo = &m_desc_configs[i].image_infos[0];
-
+            m_desc_configs[i].writes[0].pImageInfo = &m_desc_configs[i].image_infos[0];
         }
     }
 
     void complex_context::reset_camera() {
-        auto surf_caps = m_gpu.getSurfaceCapabilitiesKHR(m_surface.get());
-        float y = 1.0f;
-
-        if (surf_caps.currentTransform == SurfaceTransformFlagBitsKHR::eRotate270)
-            y = -1.0f;
-
-        for (uint32_t i = 0; i < m_uniform_data.size(); ++i) {
-            m_mvp_data[i].set_camera_y(y);
-            m_uniform_data[i]->update(vector{m_mvp_data[i]});
-        }
+//        auto surf_caps = m_gpu.getSurfaceCapabilitiesKHR(m_surface.get());
+//        float y = 1.0f;
+//
+//        if (surf_caps.currentTransform == SurfaceTransformFlagBitsKHR::eRotate270)
+//            y = -1.0f;
+//
+//        for (uint32_t i = 0; i < m_uniform_data.size(); ++i) {
+//            m_mvp_data[i].set_camera_y(y);
+//            m_uniform_data[i]->update(vector{m_mvp_data[i]});
+//        }
     }
 
     void complex_context::release_rendering_resources() {
@@ -687,71 +646,15 @@ namespace graphics {
         cam_frag_barrier.srcAccessMask = AccessFlags{0};
         cam_frag_barrier.dstAccessMask = AccessFlagBits::eShaderRead;
 
-        ImageMemoryBarrier tex_copy_barrier;
-
-        tex_copy_barrier.oldLayout = ImageLayout::eUndefined;
-        tex_copy_barrier.newLayout = ImageLayout::eTransferDstOptimal;
-        tex_copy_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        tex_copy_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        tex_copy_barrier.image = m_texture_data->get();
-        tex_copy_barrier.subresourceRange.aspectMask = ImageAspectFlagBits::eColor;
-        tex_copy_barrier.subresourceRange.baseMipLevel = 0;
-        tex_copy_barrier.subresourceRange.levelCount = 1;
-        tex_copy_barrier.subresourceRange.baseArrayLayer = 0;
-        tex_copy_barrier.subresourceRange.layerCount = 1;
-        tex_copy_barrier.srcAccessMask = AccessFlags{0};
-        tex_copy_barrier.dstAccessMask = AccessFlagBits::eTransferWrite;
-
-        ImageMemoryBarrier tex_frag_barrier;
-
-        tex_frag_barrier.oldLayout = ImageLayout::eTransferDstOptimal;
-        tex_frag_barrier.newLayout = ImageLayout::eShaderReadOnlyOptimal;
-        tex_frag_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        tex_frag_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        tex_frag_barrier.image = m_texture_data->get();
-        tex_frag_barrier.subresourceRange.aspectMask = ImageAspectFlagBits::eColor;
-        tex_frag_barrier.subresourceRange.baseMipLevel = 0;
-        tex_frag_barrier.subresourceRange.levelCount = 1;
-        tex_frag_barrier.subresourceRange.baseArrayLayer = 0;
-        tex_frag_barrier.subresourceRange.layerCount = 1;
-        tex_frag_barrier.srcAccessMask = AccessFlagBits::eTransferWrite;
-        tex_frag_barrier.dstAccessMask = AccessFlagBits::eShaderRead;
-
-        BufferImageCopy texture_copy;
-
-        texture_copy.bufferOffset = 0;
-        texture_copy.bufferRowLength = 0;
-        texture_copy.bufferImageHeight = 0;
-        texture_copy.imageSubresource.aspectMask = ImageAspectFlagBits::eColor;
-        texture_copy.imageSubresource.mipLevel = 0;
-        texture_copy.imageSubresource.baseArrayLayer = 0;
-        texture_copy.imageSubresource.layerCount = 1;
-        texture_copy.imageOffset = Offset3D{0, 0, 0};
-        texture_copy.imageExtent = m_stbi_extent;
-
-        m_mvp_data[img_idx.value].rotate_view(m_ref_time);
-        m_uniform_data[img_idx.value]->update(vector{m_mvp_data[img_idx.value]});
-
         auto wait_result = m_device->waitForFences(m_cmd_fences[img_idx.value], VK_TRUE, UINT64_MAX);
 
         m_device->updateDescriptorSets(m_desc_configs[img_idx.value].writes, nullptr);
 
         m_cmd_buffers[img_idx.value].begin(begin_info);
 
-        if (a_buffer) {
-            m_cmd_buffers[img_idx.value].pipelineBarrier(PipelineStageFlagBits::eTopOfPipe,
-                                                         PipelineStageFlagBits::eFragmentShader, static_cast<DependencyFlags>(0), 0, nullptr,
-                                                         0, nullptr, 1, &cam_frag_barrier);
-        } else {
-            m_cmd_buffers[img_idx.value].pipelineBarrier(PipelineStageFlagBits::eTopOfPipe,
-                PipelineStageFlagBits::eTransfer, static_cast<DependencyFlags>(0), 0, nullptr, 0,
-                nullptr, 1, &tex_copy_barrier);
-            m_cmd_buffers[img_idx.value].copyBufferToImage(m_texture_data->get_staging(), m_texture_data->get(),
-                ImageLayout::eTransferDstOptimal, 1, &texture_copy);
-            m_cmd_buffers[img_idx.value].pipelineBarrier(PipelineStageFlagBits::eTransfer,
-                PipelineStageFlagBits::eFragmentShader, static_cast<DependencyFlags>(0), 0, nullptr,
-                0, nullptr, 1, &tex_frag_barrier);
-        }
+        m_cmd_buffers[img_idx.value].pipelineBarrier(PipelineStageFlagBits::eTopOfPipe,
+                                                     PipelineStageFlagBits::eFragmentShader, static_cast<DependencyFlags>(0), 0, nullptr,
+                                                     0, nullptr, 1, &cam_frag_barrier);
 
         m_cmd_buffers[img_idx.value].copyBuffer(m_vertex_data->get_staging(), m_vertex_data->get(),
                                                 copy_vertex_regions);

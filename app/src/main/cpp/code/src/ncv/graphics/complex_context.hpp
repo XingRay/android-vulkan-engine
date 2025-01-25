@@ -35,16 +35,13 @@ namespace graphics {
     public:
 
         typedef resources::buffer<resources::device_upload, data::index_format> index_data;
-        typedef resources::buffer<resources::host, data::model_view_projection> uniform_data;
         typedef resources::buffer<resources::device_upload, data::vertex_format> vertex_data;
         typedef resources::image<resources::external> camera_data;
         typedef resources::image<resources::device> depth_data;
-        typedef resources::image<resources::device_upload, data::stbi_uc> texture_data;
 
         struct descriptor_configuration {
-            std::array<vk::DescriptorBufferInfo, 1> buffer_infos;
             std::array<vk::DescriptorImageInfo, 1> image_infos;
-            std::array<vk::WriteDescriptorSet, 2> writes;
+            std::array<vk::WriteDescriptorSet, 1> writes;
         };
 
         explicit complex_context(const std::string &a_app_name, const android_app &app);
@@ -152,20 +149,11 @@ namespace graphics {
         std::shared_ptr<camera_data> m_camera_image = nullptr;
         std::shared_ptr<depth_data> m_depth_buffer = nullptr;
 
-        std::shared_ptr<data::texture> m_stbi_data = nullptr;
-        vk::Extent3D m_stbi_extent;
-        std::shared_ptr<texture_data> m_texture_data = nullptr;
-
         vk::UniqueDescriptorPool m_desc_pool;
         std::vector<vk::DescriptorSet> m_desc_sets;
         std::vector<descriptor_configuration> m_desc_configs;
 
-        std::vector<data::model_view_projection> m_mvp_data;
-        std::vector<std::shared_ptr<uniform_data>> m_uniform_data;
-
         vk::DebugUtilsMessengerEXT m_debug_msg;
-
-        std::chrono::time_point<std::chrono::steady_clock> m_ref_time;
 
         const android_app &m_app;
     };

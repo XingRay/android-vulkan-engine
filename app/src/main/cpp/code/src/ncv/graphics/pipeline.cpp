@@ -22,21 +22,18 @@
 using namespace ::std;
 using namespace ::vk;
 
-namespace graphics
-{
+namespace graphics {
     pipeline::pipeline(const parameters &a_params, const shaders_info &a_shaders_info)
-        : m_params{a_params}, m_shaders_info{a_shaders_info}
-    {
-        AAsset* file = AAssetManager_open(m_params.ass_mgr,
-            ("shaders/" + m_shaders_info.vert_filename + ".spv").c_str(), AASSET_MODE_BUFFER);
+            : m_params{a_params}, m_shaders_info{a_shaders_info} {
+        AAsset *file = AAssetManager_open(m_params.ass_mgr,
+                                          ("shaders/" + m_shaders_info.vert_filename + ".spv").c_str(), AASSET_MODE_BUFFER);
 
-        if(!file)
+        if (!file)
             throw runtime_error{"Unknown error. Couldn't open shader file."};
 
         vector<char> file_contents(AAsset_getLength(file));
 
-        if(AAsset_read(file, file_contents.data(), file_contents.size()) != file_contents.size())
-        {
+        if (AAsset_read(file, file_contents.data(), file_contents.size()) != file_contents.size()) {
             AAsset_close(file);
             throw runtime_error{"Unknown error. Couldn't load shader file contents."};
         }
@@ -44,28 +41,27 @@ namespace graphics
         ShaderModuleCreateInfo shader_info;
 
         shader_info.codeSize = file_contents.size();
-        shader_info.pCode = reinterpret_cast<const uint32_t*>(file_contents.data());
+        shader_info.pCode = reinterpret_cast<const uint32_t *>(file_contents.data());
 
         m_vertex_shader = m_params.device.createShaderModule(shader_info);
 
         AAsset_close(file);
 
         file = AAssetManager_open(m_params.ass_mgr,
-            ("shaders/" + m_shaders_info.frag_filename + ".spv").c_str(), AASSET_MODE_BUFFER);
+                                  ("shaders/" + m_shaders_info.frag_filename + ".spv").c_str(), AASSET_MODE_BUFFER);
 
-        if(!file)
+        if (!file)
             throw runtime_error{"Unknown error. Couldn't open shader file."};
 
         file_contents.resize(AAsset_getLength(file));
 
-        if(AAsset_read(file, file_contents.data(), file_contents.size()) != file_contents.size())
-        {
+        if (AAsset_read(file, file_contents.data(), file_contents.size()) != file_contents.size()) {
             AAsset_close(file);
             throw runtime_error{"Unknown error. Couldn't load shader file contents."};
         }
 
         shader_info.codeSize = file_contents.size();
-        shader_info.pCode = reinterpret_cast<const uint32_t*>(file_contents.data());
+        shader_info.pCode = reinterpret_cast<const uint32_t *>(file_contents.data());
 
         m_fragment_shader = m_params.device.createShaderModule(shader_info);
 
@@ -109,22 +105,14 @@ namespace graphics
         vertex_geom_desc.format = Format::eR32G32B32A32Sfloat;
         vertex_geom_desc.offset = offsetof(data::vertex_format, position);
 
-        VertexInputAttributeDescription vertex_color_desc;
-
-        vertex_color_desc.location = 1;
-        vertex_color_desc.binding = vertex_bind_desc.binding;
-        vertex_color_desc.format = Format::eR32G32B32A32Sfloat;
-        vertex_color_desc.offset = offsetof(data::vertex_format, color);
-
         VertexInputAttributeDescription vertex_tex_coords;
 
-        vertex_tex_coords.location = 2;
+        vertex_tex_coords.location = 1;
         vertex_tex_coords.binding = vertex_bind_desc.binding;
         vertex_tex_coords.format = Format::eR32G32Sfloat;
         vertex_tex_coords.offset = offsetof(data::vertex_format, tex_coords);
 
         attr_descs.push_back(vertex_geom_desc);
-        attr_descs.push_back(vertex_color_desc);
         attr_descs.push_back(vertex_tex_coords);
 
         PipelineVertexInputStateCreateInfo vertex_input_info;
@@ -232,36 +220,12 @@ namespace graphics
 
         // Setup pipeline layout
 
-        DescriptorSetLayoutBinding ubo_layout_binding;
-
-        ubo_layout_binding.binding = 0;
-        ubo_layout_binding.descriptorType = DescriptorType::eUniformBuffer;
-        ubo_layout_binding.descriptorCount = 1;
-        ubo_layout_binding.stageFlags = ShaderStageFlagBits::eVertex;
-        ubo_layout_binding.pImmutableSamplers = nullptr;
-
-        array<DescriptorSetLayoutBinding, 1> sampler_binding;
-
-        if(a_params.immut_sampler)
-        {
-            sampler_binding[0].binding = 1;
-            sampler_binding[0].descriptorCount = 1;
-            sampler_binding[0].descriptorType = DescriptorType::eCombinedImageSampler;
-            sampler_binding[0].stageFlags = ShaderStageFlagBits::eFragment;
-            sampler_binding[0].pImmutableSamplers = &a_params.immut_sampler;
-        }
-        else
-        {
-            sampler_binding[0].binding = 1;
-            sampler_binding[0].descriptorCount = 1;
-            sampler_binding[0].descriptorType = DescriptorType::eCombinedImageSampler;
-            sampler_binding[0].stageFlags = ShaderStageFlagBits::eFragment;
-            sampler_binding[0].pImmutableSamplers = nullptr;
-        }
-
-        array<DescriptorSetLayoutBinding, 2> desc_bindings = {
-                ubo_layout_binding, sampler_binding[0]
-        };
+        array<DescriptorSetLayoutBinding, 1> desc_bindings;
+        desc_bindings[0].binding = 0;
+        desc_bindings[0].descriptorCount = 1;
+        desc_bindings[0].descriptorType = DescriptorType::eCombinedImageSampler;
+        desc_bindings[0].stageFlags = ShaderStageFlagBits::eFragment;
+        desc_bindings[0].pImmutableSamplers = &a_params.immut_sampler;
 
         DescriptorSetLayoutCreateInfo desc_set_layout_info;
 
@@ -305,38 +269,32 @@ namespace graphics
 
         auto call_result = m_params.device.createGraphicsPipeline(nullptr, graphics_pipeline_info);
 
-        if(call_result.result != Result::eSuccess)
-        {
+        if (call_result.result != Result::eSuccess) {
             destroy_resources();
             throw runtime_error{"Result is: " + to_string(call_result.result) +
-                " Couldn't create graphics pipeline."};
+                                " Couldn't create graphics pipeline."};
         }
 
         m_graphics_pipeline = call_result.value;
     }
 
-    pipeline::~pipeline()
-    {
+    pipeline::~pipeline() {
         destroy_resources();
     }
 
-    Pipeline& pipeline::get()
-    {
+    Pipeline &pipeline::get() {
         return m_graphics_pipeline;
     }
 
-    DescriptorSetLayout& pipeline::get_desc_set()
-    {
+    DescriptorSetLayout &pipeline::get_desc_set() {
         return m_desc_set_layout;
     }
 
-    PipelineLayout& pipeline::get_layout()
-    {
+    PipelineLayout &pipeline::get_layout() {
         return m_pipeline_layout;
     }
 
-    void pipeline::destroy_resources() noexcept
-    {
+    void pipeline::destroy_resources() noexcept {
         m_params.device.destroyDescriptorSetLayout(m_desc_set_layout);
         m_params.device.destroyPipelineLayout(m_pipeline_layout);
         m_params.device.destroyPipeline(m_graphics_pipeline);

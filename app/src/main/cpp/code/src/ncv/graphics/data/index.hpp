@@ -21,21 +21,12 @@
 #include <graphics/data/types.hpp>
 #include <vector>
 
-namespace graphics { namespace data {
-    static const std::vector<index_format> index_set = std::vector<index_format>
-    {
-            0, 2, 1, 1, 2, 3
-
-//            1,0,  2,
-//             3,2, 0,
-
-
-//        7, 5, 4, 7, 6, 5,
-//        8, 9, 10, 10, 11, 8,
-//        12, 13, 14, 14, 15, 12,
-//        16, 17, 18, 18, 19, 16,
-//        20, 21, 22, 22, 23, 20
-    };
-}}
+namespace graphics {
+    namespace data {
+        static const std::vector<index_format> index_set = std::vector<index_format>{
+                0, 2, 1, 1, 2, 3
+        };
+    }
+}
 
 #endif //NCV_INDEX_HPP
