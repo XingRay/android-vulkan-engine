@@ -15,7 +15,7 @@
 #include "engine/VulkanVertex.h"
 #include "engine/vulkan_wrapper/VulkanBuffer.h"
 #include "engine/VulkanPushConstant.h"
-
+#include "engine/vulkan_wrapper/VulkanSampler.h"
 
 namespace engine {
     class VulkanCommandPool;
@@ -33,7 +33,14 @@ namespace engine {
         // uniform buffer/ texture sampler / storage buffer
         std::vector<vk::DescriptorSetLayout> mDescriptorSetLayouts;
         std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
+
+        // uniform set -> binding -> ImmutableSamplers
+        std::vector<std::vector<std::vector<std::unique_ptr<VulkanSampler>>>> mImmutableSamplers;
+        std::vector<std::vector<std::vector<vk::Sampler>>> mSamplers;
+
         vk::DescriptorPool mDescriptorPool;
+
+        // frame -> uniform set -> binding
         std::vector<std::vector<std::vector<std::unique_ptr<VulkanBuffer>>>> mBuffers;
 
         // push constant

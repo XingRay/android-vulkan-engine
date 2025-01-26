@@ -9,6 +9,7 @@
 #include "engine/vulkan_wrapper/VulkanUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSamplerBuffer.h"
 #include "engine/vulkan_wrapper/android/VulkanHardwareBuffer.h"
+#include "engine/vulkan_wrapper/android/VulkanAndroidHardwareSampler.h"
 
 namespace engine {
 
@@ -46,6 +47,47 @@ namespace engine {
             }
         }
 
+        mImmutableSamplers.reserve(descriptorSets.size());
+        mSamplers.reserve(descriptorSets.size());
+        for (int setIndex = 0; setIndex < descriptorSets.size(); setIndex++) {
+            const VulkanDescriptorSet &set = descriptorSets[setIndex];
+
+            std::vector<std::vector<std::unique_ptr<VulkanSampler>>> samplersOfSet;
+            samplersOfSet.reserve(set.descriptors.size());
+
+            std::vector<std::vector<vk::Sampler>> vkSamplersOfSet;
+            vkSamplersOfSet.reserve(set.descriptors.size());
+
+            for (const VulkanDescriptor &descriptor: set.descriptors) {
+                VulkanDescriptorType type = descriptor.getVulkanDescriptorType();
+
+                if (type == VulkanDescriptorType::uniform) {
+                    samplersOfSet.push_back({});
+                } else if (type == VulkanDescriptorType::sampler) {
+                    samplersOfSet.push_back({});
+                } else if (type == VulkanDescriptorType::androidHardwareBufferSampler) {
+                    AHardwareBuffer *hardwareBuffer = descriptor.getVulkanAndroidHardwareBufferSamplerData().hardwareBuffer;
+
+                    std::vector<std::unique_ptr<VulkanSampler>> samplers;
+                    samplers.push_back(std::move(std::make_unique<VulkanAndroidHardwareSampler>(vulkanDevice, hardwareBuffer)));
+
+                    std::vector<vk::Sampler> vkSamplers;
+                    vkSamplers.reserve(samplers.size());
+                    for (const std::unique_ptr<VulkanSampler> &vulkanSampler: samplers) {
+                        vkSamplers.push_back(vulkanSampler->getSampler());
+                    }
+                    vkSamplersOfSet.push_back(std::move(vkSamplers));
+                    samplersOfSet.push_back(std::move(samplers));
+                } else {
+                    throw std::runtime_error("unsupported type of descriptor");
+                }
+            }
+
+            mImmutableSamplers.push_back(std::move(samplersOfSet));
+            mSamplers.push_back(std::move(vkSamplersOfSet));
+        }
+
+
         // 统计各种类型的描述符(uniform, sampler, storage ...)出现的次数
         std::vector<vk::DescriptorPoolSize> descriptorPoolSizes;
         for (const VulkanDescriptorSet &descriptorSet: descriptorSets) {
@@ -69,7 +111,7 @@ namespace engine {
                                 //在描述符集布局创建时固定，不能在运行时修改。适用于静态纹理采样器（例如，采样器的配置在运行时不会改变）。
                                 //不设置 setPImmutableSamplers：表示使用 可变采样器，采样器可以在运行时通过更新描述符集来修改。
                                 // todo: sampler_binding[0].pImmutableSamplers = &m_camera_image->get_sampler();
-                        .setPImmutableSamplers(nullptr);
+                        .setPImmutableSamplers(mSamplers[0][0].data());
 
                 descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
             }
@@ -129,6 +171,7 @@ namespace engine {
                     } else if (type == VulkanDescriptorType::androidHardwareBufferSampler) {
                         AHardwareBuffer *hardwareBuffer = descriptor.getVulkanAndroidHardwareBufferSamplerData().hardwareBuffer;
                         buffersOfSet.push_back(std::make_unique<VulkanHardwareBuffer>(vulkanInstance, vulkanDevice, commandPool, hardwareBuffer,
+                                                                                      mImmutableSamplers[0][0][0]->getSampler(),mImmutableSamplers[0][0][0]->getConversion(),
                                                                                       descriptor.getBinding(), descriptor.getIndex(), mDescriptorSets[frameIndex][setIndex]));
                     } else {
                         throw std::runtime_error("unsupported type of descriptor");

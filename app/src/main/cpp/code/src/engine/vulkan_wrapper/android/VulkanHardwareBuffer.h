@@ -19,22 +19,29 @@ namespace engine {
     private:
         const VulkanInstance &mVulkanInstance;
         const VulkanDevice &mVulkanDevice;
+
+        vk::Sampler mSampler;
+        vk::SamplerYcbcrConversion mConversion;
+
         const VulkanCommandPool &mCommandPool;
-        const vk::DescriptorSet& mDescriptorSet;
+        const vk::DescriptorSet &mDescriptorSet;
 
         size_t mDataSize;
         uint32_t mMipLevels;
 
-        vk::SamplerYcbcrConversion mConversion;
 
         vk::Image mImage;
         vk::DeviceMemory mMemory;
         vk::ImageView mImageView;
-        vk::Sampler mSampler;
 
     public:
-        VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool,
-                             AHardwareBuffer *hardwareBuffer, uint32_t binding, uint32_t index, const vk::DescriptorSet& descriptorSet);
+        VulkanHardwareBuffer(const VulkanInstance &vulkanInstance,
+                             const VulkanDevice &vulkanDevice,
+                             const VulkanCommandPool &commandPool,
+                             AHardwareBuffer *hardwareBuffer,
+                             const vk::Sampler &sampler,
+                             const vk::SamplerYcbcrConversion &conversion,
+                             uint32_t binding, uint32_t index, const vk::DescriptorSet &descriptorSet);
 
         ~VulkanHardwareBuffer() override;
 

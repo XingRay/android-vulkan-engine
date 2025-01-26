@@ -11,12 +11,15 @@
 
 namespace engine {
 
-    VulkanHardwareBuffer::VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool,
-                                               AHardwareBuffer *hardwareBuffer, uint32_t binding, uint32_t index, const vk::DescriptorSet &descriptorSet)
-            : mVulkanInstance(vulkanInstance), mVulkanDevice(vulkanDevice), mCommandPool(commandPool), mDescriptorSet(descriptorSet),
+    VulkanHardwareBuffer::VulkanHardwareBuffer(const VulkanInstance &vulkanInstance, const VulkanDevice &vulkanDevice,
+                                               const VulkanCommandPool &commandPool, AHardwareBuffer *hardwareBuffer,
+                                               const vk::Sampler &sampler,
+                                               const vk::SamplerYcbcrConversion &conversion,
+                                               uint32_t binding, uint32_t index, const vk::DescriptorSet &descriptorSet)
+            : mVulkanInstance(vulkanInstance), mVulkanDevice(vulkanDevice), mCommandPool(commandPool), mSampler(sampler), mConversion(conversion),
+              mDescriptorSet(descriptorSet),
               VulkanBuffer(binding, VulkanBufferType::ANDROID_HARDWARE_BUFFER, index) {
 
-        const vk::Device &device = mVulkanDevice.getDevice();
         const vk::Instance &instance = mVulkanInstance.getInstance();
         initAndroidVulkanWrapper(instance);
 
@@ -25,74 +28,11 @@ namespace engine {
 
         mDataSize = hardwareBufferDescription.width * hardwareBufferDescription.height * hardwareBufferDescription.layers;
 
-        // 获取 HardwareBuffer 属性
-        vk::AndroidHardwareBufferPropertiesANDROID propertiesInfo;
-        vk::AndroidHardwareBufferFormatPropertiesANDROID formatInfo;
-        propertiesInfo.pNext = &formatInfo;
-
-        CALL_VK(vkGetAndroidHardwareBufferPropertiesANDROID(device, hardwareBuffer, reinterpret_cast<VkAndroidHardwareBufferPropertiesANDROID *>(&propertiesInfo)));
-
-        vk::ExternalFormatANDROID externalFormat;
-        if (formatInfo.format == vk::Format::eUndefined) {
-            externalFormat.externalFormat = formatInfo.externalFormat;
-        }
-
-        vk::SamplerYcbcrModelConversion ycbcrModel;
-        if (formatInfo.format == vk::Format::eUndefined) {
-            ycbcrModel = formatInfo.suggestedYcbcrModel;
-        } else {
-            ycbcrModel = vk::SamplerYcbcrModelConversion::eYcbcr601;
-        }
-
-        vk::SamplerYcbcrConversionCreateInfo conversionCreateInfo;
-        conversionCreateInfo
-                .setPNext(&externalFormat)
-                .setYcbcrModel(ycbcrModel)
-                .setFormat(formatInfo.format)
-                .setYcbcrRange(formatInfo.suggestedYcbcrRange)
-                .setComponents(formatInfo.samplerYcbcrConversionComponents)
-                .setXChromaOffset(formatInfo.suggestedXChromaOffset)
-                .setYChromaOffset(formatInfo.suggestedYChromaOffset)
-                .setChromaFilter(vk::Filter::eNearest)
-                .setForceExplicitReconstruction(false);
-
-        // mConversion = device.createSamplerYcbcrConversion(conv_info); // link error
-        CALL_VK(vkCreateSamplerYcbcrConversion(device, reinterpret_cast<VkSamplerYcbcrConversionCreateInfo *>(&conversionCreateInfo), nullptr,
-                                               reinterpret_cast<VkSamplerYcbcrConversion *>(&mConversion)));
-
-        vk::SamplerCreateInfo samplerCreateInfo;
-        vk::SamplerYcbcrConversionInfo conversionInfo;
-        conversionInfo.conversion = mConversion;
-
-        samplerCreateInfo
-                .setPNext(&conversionInfo)
-                .setMagFilter(vk::Filter::eNearest)
-                .setMinFilter(vk::Filter::eNearest)
-                .setMipmapMode(vk::SamplerMipmapMode::eNearest)
-                .setAddressModeU(vk::SamplerAddressMode::eClampToEdge)
-                .setAddressModeV(vk::SamplerAddressMode::eClampToEdge)
-                .setAddressModeW(vk::SamplerAddressMode::eClampToEdge)
-                .setMipLodBias(0.0f)
-                .setAnisotropyEnable(false)
-                .setMaxAnisotropy(1.0f)
-                .setCompareEnable(false)
-                .setCompareOp(vk::CompareOp::eNever)
-                .setMinLod(0.0f)
-                .setMaxLod(0.0f)
-                .setBorderColor(vk::BorderColor::eFloatOpaqueWhite)
-                .setUnnormalizedCoordinates(false);
-
-        mSampler = device.createSampler(samplerCreateInfo);
-
         updateBuffer(hardwareBuffer, 0);
     }
 
     VulkanHardwareBuffer::~VulkanHardwareBuffer() {
         vk::Device device = mVulkanDevice.getDevice();
-
-        device.destroySampler(mSampler);
-        // device.destroySamplerYcbcrConversion(mConversion); // link error
-        vkDestroySamplerYcbcrConversion(device, mConversion, nullptr);
 
         device.destroyImageView(mImageView);
         device.destroyImage(mImage);
