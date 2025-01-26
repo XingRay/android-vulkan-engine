@@ -9,7 +9,8 @@
 namespace engine {
     AndroidVulkanSurface::AndroidVulkanSurface(const vk::Instance &instance, ANativeWindow *window) : mInstance(instance) {
         LOG_D("AndroidSurface::AndroidSurface");
-        vk::AndroidSurfaceCreateInfoKHR createInfo = vk::AndroidSurfaceCreateInfoKHR{}
+        vk::AndroidSurfaceCreateInfoKHR createInfo{};
+        createInfo
                 .setFlags(vk::AndroidSurfaceCreateFlagsKHR{})
                 .setWindow(window);
 

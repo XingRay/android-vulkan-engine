@@ -33,7 +33,7 @@ namespace graphics{ namespace resources{
             external
         };
 
-        base(const vk::PhysicalDevice& a_gpu, const vk::UniqueDevice& a_device);
+        base(const vk::PhysicalDevice& a_gpu, vk::Device a_device);
 
         size_t data_size() { return m_data_size; }
 

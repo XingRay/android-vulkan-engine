@@ -26,6 +26,11 @@
 #include <map>
 #include <any>
 
+#include "engine/vulkan_wrapper/VulkanInstance.h"
+#include "engine/vulkan_wrapper/android/AndroidVulkanSurface.h"
+#include "engine/vulkan_wrapper/VulkanDevice.h"
+
+
 class android_app;
 
 namespace graphics {
@@ -33,94 +38,30 @@ namespace graphics {
 
     class complex_context : public vulkan_context {
     public:
-
-        typedef resources::buffer<resources::device_upload, data::index_format> index_data;
-        typedef resources::buffer<resources::device_upload, data::vertex_format> vertex_data;
-        typedef resources::image<resources::external> camera_data;
-        typedef resources::image<resources::device> depth_data;
-
         struct descriptor_configuration {
             std::array<vk::DescriptorImageInfo, 1> image_infos;
             std::array<vk::WriteDescriptorSet, 1> writes;
         };
 
-        explicit complex_context(const std::string &a_app_name, const android_app &app);
-
-        ~complex_context();
-
-        void initialize_graphics(AHardwareBuffer *a_buffer);
-
-        void render_frame(const std::any &a_params, AHardwareBuffer *a_buffer = nullptr);
-
-    protected:
-
-        void reset_surface(ANativeWindow *a_window);
-
-        void select_device_and_qfamily();
-
-        void create_logical_device();
-
-        void create_render_pass();
-
-        void create_graphics_pipeline();
-
-        void create_data_buffers(AHardwareBuffer *a_buffer);
-
-        void reset_swapchain();
-
-        void reset_framebuffer_and_zbuffer();
-
-        void reset_sync_and_cmd_resources();
-
-        void reset_ubos_samplers_and_descriptors();
-
-        void reset_camera();
-
-        void release_rendering_resources();
-
+        typedef resources::buffer<resources::device_upload, data::index_format> index_data;
+        typedef resources::buffer<resources::device_upload, data::vertex_format> vertex_data;
+        typedef resources::image<resources::external> camera_data;
+        typedef resources::image<resources::device> depth_data;
     private:
-
-        std::vector<const char *> m_requested_gl_extensions = {
-                VK_KHR_SURFACE_EXTENSION_NAME,
-                VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
-                VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME,
-                VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME,
-                VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
-        };
-
-        std::vector<const char *> m_requested_gl_layers = {
-                "VK_LAYER_KHRONOS_validation"
-        };
-
-        std::vector<const char *> m_requested_dev_extensions = {
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-                VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
-                VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-                VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
-                VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME,
-                VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
-                VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME,
-                VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME,
-                VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
-                VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME
-        };
 
         bool is_initialized = false;
 
-#ifdef NCV_VULKAN_VALIDATION_ENABLED
-        const bool m_enable_validation = true;
-#else
-        const bool m_enable_validation = false;
-#endif
+        std::unique_ptr<engine::VulkanInstance> mInstance;
+        std::unique_ptr<engine::VulkanSurface> mSurface;
+        std::unique_ptr<engine::VulkanDevice> mDevice;
 
         std::vector<vk::PhysicalDevice> m_devices;
 
         vk::PhysicalDevice m_gpu;
 
-        vk::UniqueInstance m_instance;
-        vk::UniqueSurfaceKHR m_surface;
-        vk::UniqueDevice m_device;
+
+
+
         vk::UniqueSwapchainKHR m_swap_chain;
         vk::UniqueCommandPool m_cmd_pool;
 
@@ -156,6 +97,41 @@ namespace graphics {
         vk::DebugUtilsMessengerEXT m_debug_msg;
 
         const android_app &m_app;
+
+    public:
+        explicit complex_context(const std::string &a_app_name, const android_app &app);
+
+        ~complex_context();
+
+        void initialize_graphics(AHardwareBuffer *a_buffer);
+
+        void render_frame(const std::any &a_params, AHardwareBuffer *a_buffer = nullptr);
+
+    protected:
+
+        void reset_surface(ANativeWindow *a_window);
+
+        void select_device_and_qfamily();
+
+        void create_logical_device();
+
+        void create_render_pass();
+
+        void create_graphics_pipeline();
+
+        void create_data_buffers(AHardwareBuffer *a_buffer);
+
+        void reset_swapchain();
+
+        void reset_framebuffer_and_zbuffer();
+
+        void reset_sync_and_cmd_resources();
+
+        void reset_ubos_samplers_and_descriptors();
+
+        void reset_camera();
+
+        void release_rendering_resources();
     };
 }
 

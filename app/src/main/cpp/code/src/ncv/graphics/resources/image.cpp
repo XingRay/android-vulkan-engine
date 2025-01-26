@@ -36,7 +36,7 @@ namespace graphics{ namespace resources{
         m_memory = nullptr;
     }
 
-    image<external, void>::image(const PhysicalDevice &a_gpu, const UniqueDevice &a_device,
+    image<external, void>::image(const PhysicalDevice &a_gpu, vk::Device a_device,
         AHardwareBuffer *a_buffer) : image_base{a_gpu, a_device}
     {
         AHardwareBuffer_Desc buffer_desc;
@@ -253,7 +253,7 @@ namespace graphics{ namespace resources{
         m_img_view = m_device.createImageView(img_view_info);
     }
     
-    image<device>::image(const PhysicalDevice &a_gpu, const UniqueDevice &a_device,
+    image<device>::image(const PhysicalDevice &a_gpu, vk::Device a_device,
         ImageUsageFlags a_usage, SharingMode a_sharing, const Extent2D &a_extent)
         : image_base{a_gpu, a_device}
     {

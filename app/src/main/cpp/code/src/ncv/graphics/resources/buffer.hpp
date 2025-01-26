@@ -27,7 +27,7 @@ namespace graphics{ namespace resources
     {
     public:
 
-        buffer_base(const vk::PhysicalDevice& a_gpu, const vk::UniqueDevice& a_device)
+        buffer_base(const vk::PhysicalDevice& a_gpu, vk::Device a_device)
             : base{a_gpu, a_device}
         {}
 
@@ -54,7 +54,7 @@ namespace graphics{ namespace resources
     class buffer<host, DataFormat> : public buffer_base
     {
     public:
-        buffer(const vk::PhysicalDevice& a_gpu, const vk::UniqueDevice& a_device,
+        buffer(const vk::PhysicalDevice& a_gpu, vk::Device a_device,
             vk::BufferUsageFlags a_usage, vk::SharingMode a_sharing, const std::vector<DataFormat>& a_data);
         void update(const std::vector<DataFormat>& a_data);
     };
@@ -63,7 +63,7 @@ namespace graphics{ namespace resources
     class buffer<device> : public buffer_base
     {
     public:
-        buffer(const vk::PhysicalDevice& a_gpu, const vk::UniqueDevice& a_device,
+        buffer(const vk::PhysicalDevice& a_gpu, vk::Device a_device,
             vk::BufferUsageFlags a_usage, vk::SharingMode a_sharing, uint32_t a_size);
     };
 
@@ -71,7 +71,7 @@ namespace graphics{ namespace resources
     class buffer<device_upload, DataFormat> : public buffer_base
     {
     public:
-        buffer(const vk::PhysicalDevice& a_gpu, const vk::UniqueDevice& a_device,
+        buffer(const vk::PhysicalDevice& a_gpu, vk::Device a_device,
             vk::BufferUsageFlags a_usage, vk::SharingMode a_sharing, const std::vector<DataFormat>& a_data);
         ~buffer() { destroy_resources(); }
         void update_staging(const std::vector<DataFormat>& a_data);
@@ -87,7 +87,7 @@ namespace graphics{ namespace resources
     };
 
     template<typename DataFormat>
-    buffer<host, DataFormat>::buffer(const vk::PhysicalDevice &a_gpu, const vk::UniqueDevice &a_device,
+    buffer<host, DataFormat>::buffer(const vk::PhysicalDevice &a_gpu, vk::Device a_device,
         vk::BufferUsageFlags a_usage, vk::SharingMode a_sharing, const std::vector<DataFormat> &a_data)
         : buffer_base{a_gpu, a_device}
     {
@@ -173,7 +173,7 @@ namespace graphics{ namespace resources
     }
 
     template<typename DataFormat>
-    buffer<device_upload, DataFormat>::buffer(const vk::PhysicalDevice &a_gpu, const vk::UniqueDevice &a_device,
+    buffer<device_upload, DataFormat>::buffer(const vk::PhysicalDevice &a_gpu, vk::Device a_device,
         vk::BufferUsageFlags a_usage, vk::SharingMode a_sharing, const std::vector<DataFormat> &a_data)
         : buffer_base{a_gpu, a_device}
     {

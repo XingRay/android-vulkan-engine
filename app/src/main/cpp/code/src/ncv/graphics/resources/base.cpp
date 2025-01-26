@@ -21,8 +21,8 @@ using namespace ::vk;
 
 namespace graphics{ namespace resources{
 
-    base::base(const PhysicalDevice& a_gpu, const UniqueDevice& a_device)
-        : m_device{a_device.get()}
+    base::base(const PhysicalDevice& a_gpu, vk::Device a_device)
+        : m_device(a_device)
     {
         m_mem_props = a_gpu.getMemoryProperties();
     }

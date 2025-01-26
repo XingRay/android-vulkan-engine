@@ -28,6 +28,12 @@
 #include "game_activity/native_app_glue/android_native_app_glue.h"
 
 #include "engine/vulkan_wrapper/android/AndroidVulkanWrapper.h"
+#include "engine/VulkanPhysicalDeviceCandidate.h"
+#include "engine/VulkanPhysicalDeviceProvider.h"
+
+#include "engine/common/StringListSelector.h"
+#include "engine/common/StringUtil.h"
+
 
 using namespace ::std;
 using namespace ::vk;
@@ -35,92 +41,83 @@ using namespace ::utilities;
 using namespace ::metadata;
 
 namespace graphics {
+
+    std::vector<std::string> instanceExtensions = {
+            VK_KHR_SURFACE_EXTENSION_NAME,
+            VK_KHR_ANDROID_SURFACE_EXTENSION_NAME,
+
+            // old version
+            VK_EXT_DEBUG_REPORT_EXTENSION_NAME,
+            // new version
+            VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
+
+            VK_KHR_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME,
+            VK_KHR_EXTERNAL_SEMAPHORE_CAPABILITIES_EXTENSION_NAME,
+            VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
+    };
+
+    std::vector<std::string> layers = {
+            "VK_LAYER_KHRONOS_validation"
+    };
+
+    std::vector<std::string> deviceExtensions = {
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+            VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+            VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+            VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
+            VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME,
+            VK_KHR_EXTERNAL_MEMORY_EXTENSION_NAME,
+            VK_KHR_EXTERNAL_SEMAPHORE_EXTENSION_NAME,
+            VK_KHR_EXTERNAL_SEMAPHORE_FD_EXTENSION_NAME,
+            VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
+            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME
+    };
+
     complex_context::complex_context(const std::string &a_app_name, const android_app &app)
             : vulkan_context{}, m_app(app) {
         using ::vk_util::message_callback;
 
-        if (m_enable_validation)
-            m_requested_gl_extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 
-        ApplicationInfo app_info;
+        mInstance = std::make_unique<engine::VulkanInstance>(
+                a_app_name, 1, "AndroidVulkanEngine", 1,
+                common::RequiredAndOptionalStringListSelector({}, instanceExtensions),
+                common::RequiredAndOptionalStringListSelector({}, layers)
+        );
 
-        app_info.pApplicationName = a_app_name.c_str();
-        app_info.applicationVersion = PROJECT_VERSION.packed_version();
-        app_info.pEngineName = "AndroidVulkanEngine";
-        app_info.engineVersion = PROJECT_VERSION.packed_version();
-        app_info.apiVersion = VK_API_VERSION_1_2;
+        engine::initAndroidVulkanWrapper(mInstance->getInstance());
 
-        InstanceCreateInfo instance_info;
-
-        instance_info.flags = static_cast<InstanceCreateFlags>(0);
-        instance_info.pApplicationInfo = &app_info;
-        if (m_enable_validation) {
-            instance_info.enabledLayerCount = m_requested_gl_layers.size();
-            instance_info.ppEnabledLayerNames = m_requested_gl_layers.data();
-        } else {
-            instance_info.enabledLayerCount = 0;
-            instance_info.ppEnabledLayerNames = nullptr;
-        }
-        instance_info.enabledExtensionCount = m_requested_gl_extensions.size();
-        instance_info.ppEnabledExtensionNames = m_requested_gl_extensions.data();
-
-        m_instance = createInstanceUnique(instance_info);
-
-        engine::initAndroidVulkanWrapper(m_instance.get());
-
-        if (m_enable_validation) {
-            DebugUtilsMessengerCreateInfoEXT msg_info;
-
-            msg_info.messageSeverity = DebugUtilsMessageSeverityFlagBitsEXT::eError |
-                                       DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
-                                       DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-                                       DebugUtilsMessageSeverityFlagBitsEXT::eVerbose;
-
-            msg_info.messageType = DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
-                                   DebugUtilsMessageTypeFlagBitsEXT::ePerformance |
-                                   DebugUtilsMessageTypeFlagBitsEXT::eValidation;
-
-            msg_info.pfnUserCallback = reinterpret_cast<PFN_vkDebugUtilsMessengerCallbackEXT>(message_callback);
-//            m_debug_msg = m_instance->createDebugUtilsMessengerEXT(msg_info);
-        }
-
-        m_devices = m_instance->enumeratePhysicalDevices();
+        m_devices = mInstance->getInstance().enumeratePhysicalDevices();
     }
 
     complex_context::~complex_context() {
-        m_device->waitIdle();
+        mDevice->getDevice().waitIdle();
 
         if (is_initialized) {
             for (auto &sampler: m_samplers)
-                m_device->destroySampler(sampler);
+                mDevice->getDevice().destroySampler(sampler);
             m_samplers.clear();
-            m_device->destroyDescriptorPool(m_desc_pool.release());
+            mDevice->getDevice().destroyDescriptorPool(m_desc_pool.release());
             m_graphics_pipeline.reset();
             m_camera_image.reset();
             m_vertex_data.reset();
             m_index_data.reset();
             release_rendering_resources();
-            m_device->destroyRenderPass(m_render_pass);
+            mDevice->getDevice().destroyRenderPass(m_render_pass);
             for (auto &semaphore: m_proc_semaphores)
-                m_device->destroySemaphore(semaphore);
+                mDevice->getDevice().destroySemaphore(semaphore);
             m_proc_semaphores.clear();
             for (auto &semaphore: m_pres_semaphores)
-                m_device->destroySemaphore(semaphore);
+                mDevice->getDevice().destroySemaphore(semaphore);
             m_pres_semaphores.clear();
             for (auto &fence: m_cmd_fences)
-                m_device->destroyFence(fence);
+                mDevice->getDevice().destroyFence(fence);
             m_cmd_fences.clear();
-            m_device->freeCommandBuffers(m_cmd_pool.get(),
-                                         m_cmd_buffers);
+            mDevice->getDevice().freeCommandBuffers(m_cmd_pool.get(),
+                                                    m_cmd_buffers);
             m_cmd_buffers.clear();
-            m_device->destroyCommandPool(m_cmd_pool.release());
+            mDevice->getDevice().destroyCommandPool(m_cmd_pool.release());
         }
-
-//        if(m_enable_validation && !!m_debug_msg)
-//            m_instance->destroyDebugUtilsMessengerEXT(m_debug_msg);
-
-        m_device.release().destroy();
-        m_instance.release().destroy();
     }
 
     void complex_context::reset_surface(ANativeWindow *a_window) {
@@ -131,7 +128,7 @@ namespace graphics {
         surf_info.flags = static_cast<AndroidSurfaceCreateFlagsKHR>(0);
         surf_info.window = a_window;
 
-        m_surface.reset(m_instance->createAndroidSurfaceKHR(surf_info));
+        mSurface.reset(new engine::AndroidVulkanSurface(mInstance->getInstance(), a_window));
     }
 
     void complex_context::select_device_and_qfamily() {
@@ -148,7 +145,7 @@ namespace graphics {
 
             for (size_t j = 0; j < queue_props.size(); ++j) {
                 auto &props = queue_props[j];
-                bool presentation_flag = m_devices[i].getSurfaceSupportKHR(j, m_surface.get());
+                bool presentation_flag = m_devices[i].getSurfaceSupportKHR(j, mSurface->getSurface());
                 if ((props.queueFlags & QueueFlagBits::eGraphics) && presentation_flag &&
                     selected_queue_family_index < 0)
                     selected_queue_family_index = j;
@@ -169,39 +166,56 @@ namespace graphics {
 
     void complex_context::create_logical_device() {
         // Create logical device
+//
+//        std::vector<const char *> enabledDeviceExtensionNames = common::StringUtil::toStringPtrArray(deviceExtensions);
+//
+//        vector<DeviceQueueCreateInfo> queue_infos = {DeviceQueueCreateInfo()};
+//        vector<float> queue_priorities = {1.0f};
+//
+//        queue_infos[0].queueFamilyIndex = m_qfam_index;
+//        queue_infos[0].queueCount = 1;
+//        queue_infos[0].pQueuePriorities = queue_priorities.data();
+//        queue_infos[0].flags = static_cast<DeviceQueueCreateFlags>(0);
+//
+//        PhysicalDeviceFeatures2 dev_features;
+//        PhysicalDeviceSamplerYcbcrConversionFeatures ycbcr_features;
+//
+//        ycbcr_features.samplerYcbcrConversion = true;
+//
+//        dev_features.pNext = &ycbcr_features;
+//        dev_features.features.samplerAnisotropy = true;
+//
+//        DeviceCreateInfo dev_info;
+//
+//        dev_info.pNext = &dev_features;
+//        dev_info.flags = static_cast<DeviceCreateFlags>(0);
+//        dev_info.queueCreateInfoCount = 1;
+//        dev_info.pQueueCreateInfos = queue_infos.data();
+//        dev_info.enabledLayerCount = 0;
+//        dev_info.ppEnabledLayerNames = nullptr;
+//        dev_info.enabledExtensionCount = enabledDeviceExtensionNames.size();
+//        dev_info.ppEnabledExtensionNames = enabledDeviceExtensionNames.data();
 
-        vector<DeviceQueueCreateInfo> queue_infos = {DeviceQueueCreateInfo()};
-        vector<float> queue_priorities = {1.0f};
 
-        queue_infos[0].queueFamilyIndex = m_qfam_index;
-        queue_infos[0].queueCount = 1;
-        queue_infos[0].pQueuePriorities = queue_priorities.data();
-        queue_infos[0].flags = static_cast<DeviceQueueCreateFlags>(0);
+        std::unique_ptr<engine::VulkanPhysicalDeviceProvider> vulkanPhysicalDeviceProvider = std::make_unique<engine::DefaultVulkanPhysicalDeviceProvider>(
+                *mInstance,
+                *mSurface,
+                deviceExtensions
+        );
+        std::unique_ptr<engine::VulkanPhysicalDeviceCandidate> candidate = std::move(vulkanPhysicalDeviceProvider->provide());
+        std::unique_ptr<engine::VulkanPhysicalDevice> &vulkanPhysicalDevice = candidate->getPhysicalDevice();
 
-        PhysicalDeviceFeatures2 dev_features;
-        PhysicalDeviceSamplerYcbcrConversionFeatures ycbcr_features;
-
-        ycbcr_features.samplerYcbcrConversion = true;
-
-        dev_features.pNext = &ycbcr_features;
-        dev_features.features.samplerAnisotropy = true;
-
-        DeviceCreateInfo dev_info;
-
-        dev_info.pNext = &dev_features;
-        dev_info.flags = static_cast<DeviceCreateFlags>(0);
-        dev_info.queueCreateInfoCount = 1;
-        dev_info.pQueueCreateInfos = queue_infos.data();
-        dev_info.enabledLayerCount = 0;
-        dev_info.ppEnabledLayerNames = nullptr;
-        dev_info.enabledExtensionCount = m_requested_dev_extensions.size();
-        dev_info.ppEnabledExtensionNames = m_requested_dev_extensions.data();
-
-        m_device = m_gpu.createDeviceUnique(dev_info);
+        mDevice = std::make_unique<engine::VulkanDevice>(
+                *vulkanPhysicalDevice,
+                candidate->getSurfaceSupport().value(),
+                deviceExtensions,
+                mInstance->getEnabledLayers(),
+                2
+        );
 
         // Acquire Presentation Queue
 
-        m_pres_queue = m_device->getQueue(m_qfam_index, 0);
+        m_pres_queue = mDevice->getDevice().getQueue(m_qfam_index, 0);
     }
 
     void complex_context::create_render_pass() {
@@ -299,25 +313,25 @@ namespace graphics {
         render_pass_info.dependencyCount = subpass_deps.size();
         render_pass_info.pDependencies = subpass_deps.data();
 
-        m_render_pass = m_device->createRenderPass(render_pass_info);
+        m_render_pass = mDevice->getDevice().createRenderPass(render_pass_info);
     }
 
     void complex_context::create_data_buffers(AHardwareBuffer *a_buffer) {
-        m_index_data = make_shared<index_data>(m_gpu, m_device, BufferUsageFlagBits::eIndexBuffer,
+        m_index_data = make_shared<index_data>(m_gpu, mDevice->getDevice(), BufferUsageFlagBits::eIndexBuffer,
                                                SharingMode::eExclusive, data::index_set);
-        m_vertex_data = make_shared<vertex_data>(m_gpu, m_device, BufferUsageFlagBits::eVertexBuffer,
+        m_vertex_data = make_shared<vertex_data>(m_gpu, mDevice->getDevice(), BufferUsageFlagBits::eVertexBuffer,
                                                  SharingMode::eExclusive, data::vertex_set);
-        m_camera_image = make_shared<camera_data>(m_gpu, m_device, a_buffer);
+        m_camera_image = make_shared<camera_data>(m_gpu, mDevice->getDevice(), a_buffer);
     }
 
     void complex_context::create_graphics_pipeline() {
-        auto surf_caps = m_gpu.getSurfaceCapabilitiesKHR(m_surface.get());
+        auto surf_caps = m_gpu.getSurfaceCapabilitiesKHR(mSurface->getSurface());
 
         // Create graphics pipeline
 
         auto glpipe_params = pipeline::parameters{
                 m_app.activity->assetManager,
-                m_device.get(),
+                mDevice->getDevice(),
                 surf_caps.currentExtent,
                 m_render_pass,
                 m_camera_image != nullptr ? m_camera_image->get_sampler() : nullptr
@@ -334,16 +348,16 @@ namespace graphics {
     void complex_context::reset_swapchain() {
         // Get surface capabilities and create a swapchain or reset existing one
 
-        auto surf_caps = m_gpu.getSurfaceCapabilitiesKHR(m_surface.get());
-        auto surf_fmts = m_gpu.getSurfaceFormatsKHR(m_surface.get());
-        auto pres_modes = m_gpu.getSurfacePresentModesKHR(m_surface.get());
+        auto surf_caps = m_gpu.getSurfaceCapabilitiesKHR(mSurface->getSurface());
+        auto surf_fmts = m_gpu.getSurfaceFormatsKHR(mSurface->getSurface());
+        auto pres_modes = m_gpu.getSurfacePresentModesKHR(mSurface->getSurface());
 
         SwapchainCreateInfoKHR swap_chain_info;
 
         m_surface_extent = surf_caps.currentExtent;
 
         swap_chain_info.flags = static_cast<SwapchainCreateFlagsKHR>(0);
-        swap_chain_info.surface = m_surface.get();
+        swap_chain_info.surface = mSurface->getSurface();
         swap_chain_info.minImageCount = 3;
         swap_chain_info.imageFormat = Format::eR8G8B8A8Unorm;
         swap_chain_info.imageColorSpace = ColorSpaceKHR::eSrgbNonlinear;
@@ -359,13 +373,13 @@ namespace graphics {
         swap_chain_info.clipped = true;
         swap_chain_info.oldSwapchain = nullptr;
 
-        m_swap_chain.reset(m_device->createSwapchainKHR(swap_chain_info));
+        m_swap_chain.reset(mDevice->getDevice().createSwapchainKHR(swap_chain_info));
     }
 
     void complex_context::reset_framebuffer_and_zbuffer() {
         auto img_format = Format::eR8G8B8A8Unorm;
 
-        m_images = m_device->getSwapchainImagesKHR(m_swap_chain.get());
+        m_images = mDevice->getDevice().getSwapchainImagesKHR(m_swap_chain.get());
 
         // Create swapchain image views
 
@@ -385,10 +399,10 @@ namespace graphics {
             img_view_info.subresourceRange.baseArrayLayer = 0;
             img_view_info.subresourceRange.layerCount = 1;
 
-            m_swapchain_img_views.push_back(m_device->createImageView(img_view_info));
+            m_swapchain_img_views.push_back(mDevice->getDevice().createImageView(img_view_info));
         }
 
-        m_depth_buffer = make_shared<depth_data>(m_gpu, m_device, ImageUsageFlagBits::eDepthStencilAttachment,
+        m_depth_buffer = make_shared<depth_data>(m_gpu, mDevice->getDevice(), ImageUsageFlagBits::eDepthStencilAttachment,
                                                  SharingMode::eExclusive, m_surface_extent);
 
         // Create framebuffers
@@ -407,7 +421,7 @@ namespace graphics {
             framebuffer_info.height = m_surface_extent.height;
             framebuffer_info.layers = 1;
 
-            m_framebuffers.push_back(m_device->createFramebuffer(framebuffer_info));
+            m_framebuffers.push_back(mDevice->getDevice().createFramebuffer(framebuffer_info));
         }
     }
 
@@ -416,18 +430,18 @@ namespace graphics {
 
         if (is_initialized) {
             for (auto &semaphore: m_proc_semaphores)
-                m_device->destroySemaphore(semaphore);
+                mDevice->getDevice().destroySemaphore(semaphore);
             m_proc_semaphores.clear();
             m_proc_si = 0;
             for (auto &semaphore: m_pres_semaphores)
-                m_device->destroySemaphore(semaphore);
+                mDevice->getDevice().destroySemaphore(semaphore);
             m_pres_semaphores.clear();
             for (auto &fence: m_cmd_fences)
-                m_device->destroyFence(fence);
+                mDevice->getDevice().destroyFence(fence);
             m_cmd_fences.clear();
-            m_device->freeCommandBuffers(m_cmd_pool.get(), m_cmd_buffers);
+            mDevice->getDevice().freeCommandBuffers(m_cmd_pool.get(), m_cmd_buffers);
             m_cmd_buffers.clear();
-            m_device->destroyCommandPool(m_cmd_pool.release());
+            mDevice->getDevice().destroyCommandPool(m_cmd_pool.release());
         }
 
         // Create command pool
@@ -437,7 +451,7 @@ namespace graphics {
         pool_info.flags = CommandPoolCreateFlagBits::eResetCommandBuffer | CommandPoolCreateFlagBits::eTransient;
         pool_info.queueFamilyIndex = m_qfam_index;
 
-        m_cmd_pool.reset(m_device->createCommandPool(pool_info));
+        m_cmd_pool.reset(mDevice->getDevice().createCommandPool(pool_info));
 
         // Allocate command buffers one for each chain image
 
@@ -447,7 +461,7 @@ namespace graphics {
         cmd_buf_info.level = CommandBufferLevel::ePrimary;
         cmd_buf_info.commandBufferCount = m_images.size();
 
-        m_cmd_buffers = m_device->allocateCommandBuffers(cmd_buf_info);
+        m_cmd_buffers = mDevice->getDevice().allocateCommandBuffers(cmd_buf_info);
 
         // Create command buffer fences and rendering semaphores
 
@@ -457,9 +471,9 @@ namespace graphics {
         cmd_fence_info.flags = FenceCreateFlagBits::eSignaled;
 
         for (uint32_t i = 0; i < m_cmd_buffers.size(); ++i) {
-            m_cmd_fences.push_back(m_device->createFence(cmd_fence_info));
-            m_proc_semaphores.push_back(m_device->createSemaphore(semaphore_info));
-            m_pres_semaphores.push_back(m_device->createSemaphore(semaphore_info));
+            m_cmd_fences.push_back(mDevice->getDevice().createFence(cmd_fence_info));
+            m_proc_semaphores.push_back(mDevice->getDevice().createSemaphore(semaphore_info));
+            m_pres_semaphores.push_back(mDevice->getDevice().createSemaphore(semaphore_info));
         }
     }
 
@@ -468,9 +482,9 @@ namespace graphics {
 
         if (is_initialized) {
             for (auto &sampler: m_samplers)
-                m_device->destroySampler(sampler);
+                mDevice->getDevice().destroySampler(sampler);
             m_samplers.clear();
-            m_device->destroyDescriptorPool(m_desc_pool.release());
+            mDevice->getDevice().destroyDescriptorPool(m_desc_pool.release());
         }
 
         // Create or reset descriptor pool
@@ -490,7 +504,7 @@ namespace graphics {
         pool_info.pPoolSizes = pool_sizes.data();
         pool_info.maxSets = m_cmd_buffers.size();
 
-        m_desc_pool.reset(m_device->createDescriptorPool(pool_info));
+        m_desc_pool.reset(mDevice->getDevice().createDescriptorPool(pool_info));
 
         vector<DescriptorSetLayout> desc_layouts(m_cmd_buffers.size(), m_graphics_pipeline->get_desc_set());
 
@@ -500,7 +514,7 @@ namespace graphics {
         desc_set_alloc_info.descriptorSetCount = m_cmd_buffers.size();
         desc_set_alloc_info.pSetLayouts = desc_layouts.data();
 
-        m_desc_sets = m_device->allocateDescriptorSets(desc_set_alloc_info);
+        m_desc_sets = mDevice->getDevice().allocateDescriptorSets(desc_set_alloc_info);
 
         SamplerCreateInfo sampler_info;
 
@@ -521,7 +535,7 @@ namespace graphics {
         sampler_info.maxLod = 0.0f;
 
         for (uint32_t i = 0; i < m_cmd_buffers.size(); ++i) {
-            m_samplers.push_back(m_device->createSampler(sampler_info));
+            m_samplers.push_back(mDevice->getDevice().createSampler(sampler_info));
 
             m_desc_configs[i].image_infos[0].imageLayout = ImageLayout::eShaderReadOnlyOptimal;
             m_desc_configs[i].image_infos[0].imageView = m_camera_image->get_img_view();
@@ -550,21 +564,20 @@ namespace graphics {
     }
 
     void complex_context::release_rendering_resources() {
-        m_device->waitIdle();
+        mDevice->getDevice().waitIdle();
 
         for (auto &framebuffer: m_framebuffers) {
-            m_device->destroyFramebuffer(framebuffer);
-            m_device->waitIdle();
+            mDevice->getDevice().destroyFramebuffer(framebuffer);
+            mDevice->getDevice().waitIdle();
         }
         m_framebuffers.clear();
         m_depth_buffer.reset();
         for (auto &image_view: m_swapchain_img_views) {
-            m_device->destroyImageView(image_view);
-            m_device->waitIdle();
+            mDevice->getDevice().destroyImageView(image_view);
+            mDevice->getDevice().waitIdle();
         }
         m_swapchain_img_views.clear();
-        m_device->destroySwapchainKHR(m_swap_chain.release());
-        m_instance->destroySurfaceKHR(m_surface.release());
+        mDevice->getDevice().destroySwapchainKHR(m_swap_chain.release());
     }
 
     void complex_context::initialize_graphics(AHardwareBuffer *a_buffer) {
@@ -597,8 +610,8 @@ namespace graphics {
     void complex_context::render_frame(const std::any &a_params, AHardwareBuffer *a_buffer) {
         glm::vec4 a_rgba = any_cast<glm::vec4>(a_params);
 
-        auto img_idx = m_device->acquireNextImageKHR(m_swap_chain.get(), UINT64_MAX,
-                                                     m_proc_semaphores[m_proc_si]);
+        auto img_idx = mDevice->getDevice().acquireNextImageKHR(m_swap_chain.get(), UINT64_MAX,
+                                                                m_proc_semaphores[m_proc_si]);
 
         if (a_buffer) {
             m_camera_image->update(ImageUsageFlagBits::eSampled, SharingMode::eExclusive, a_buffer);
@@ -646,9 +659,9 @@ namespace graphics {
         cam_frag_barrier.srcAccessMask = AccessFlags{0};
         cam_frag_barrier.dstAccessMask = AccessFlagBits::eShaderRead;
 
-        auto wait_result = m_device->waitForFences(m_cmd_fences[img_idx.value], VK_TRUE, UINT64_MAX);
+        auto wait_result = mDevice->getDevice().waitForFences(m_cmd_fences[img_idx.value], VK_TRUE, UINT64_MAX);
 
-        m_device->updateDescriptorSets(m_desc_configs[img_idx.value].writes, nullptr);
+        mDevice->getDevice().updateDescriptorSets(m_desc_configs[img_idx.value].writes, nullptr);
 
         m_cmd_buffers[img_idx.value].begin(begin_info);
 
@@ -681,7 +694,7 @@ namespace graphics {
         submit_info.signalSemaphoreCount = 1;
         submit_info.pSignalSemaphores = &m_pres_semaphores[img_idx.value];
 
-        m_device->resetFences(m_cmd_fences[img_idx.value]);
+        mDevice->getDevice().resetFences(m_cmd_fences[img_idx.value]);
         m_pres_queue.submit(submit_info, m_cmd_fences[img_idx.value]);
 
         PresentInfoKHR pres_info;

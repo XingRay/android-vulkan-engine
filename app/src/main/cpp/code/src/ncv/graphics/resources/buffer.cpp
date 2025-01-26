@@ -30,7 +30,7 @@ namespace graphics{ namespace resources{
             m_device.freeMemory(m_memory);
     }
 
-    buffer<device>::buffer(const PhysicalDevice &a_gpu, const UniqueDevice &a_device,
+    buffer<device>::buffer(const PhysicalDevice &a_gpu, vk::Device a_device,
         BufferUsageFlags a_usage, SharingMode a_sharing, uint32_t a_size)
         : buffer_base{a_gpu, a_device}
     {
