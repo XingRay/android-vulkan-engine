@@ -33,6 +33,14 @@ set(TINYOBJLOADER_INCLUE_DIR ${TINYOBJLOADER_INSTALL_DIR})
 # for the detailed instructions.
 #find_package(game-activity REQUIRED CONFIG)
 
+# ncnn
+# https:/github.com/Tencent/ncnn
+set(NCNN_INSTALL_DIR D:/develop/ncnn/master/install/android)
+set(NCNN_INCLUDE ${NCNN_INSTALL_DIR}/arm64-v8a/include)
+set(ncnn_DIR ${NCNN_INSTALL_DIR}/arm64-v8a/lib/cmake/ncnn)
+find_package(ncnn REQUIRED)
+link_directories("${NCNN_INSTALL_DIR}/arm64-v8a/lib")
+
 file(GLOB_RECURSE PROJECT_SOURCES
         "code/src/*.c"
         "code/src/*.cpp"
@@ -67,6 +75,9 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
         # tinyobjloader
         ${TINYOBJLOADER_INCLUE_DIR}
+
+        # ncnn
+        ${NCNN_INCLUDE}
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -75,4 +86,5 @@ target_link_libraries(${PROJECT_NAME}
         mediandk
         log
         vulkan
+        ncnn
 )

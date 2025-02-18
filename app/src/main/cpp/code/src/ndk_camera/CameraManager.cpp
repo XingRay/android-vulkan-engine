@@ -3,7 +3,7 @@
 //
 
 #include "CameraManager.h"
-#include "engine/Log.h"
+#include "ndk_camera/Log.h"
 
 namespace ndkcamera {
     CameraManager::CameraManager() : mCameraManager(ACameraManager_create()) {

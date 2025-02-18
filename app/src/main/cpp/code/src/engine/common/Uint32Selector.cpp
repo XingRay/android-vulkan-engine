@@ -51,7 +51,7 @@ namespace common {
 
 
     LambdaUint32Selector::LambdaUint32Selector(std::function<uint32_t(const std::vector<uint32_t> &)> selector)
-        : mSelector(std::move(selector)) {
+            : mSelector(std::move(selector)) {
     }
 
     LambdaUint32Selector::~LambdaUint32Selector() = default;

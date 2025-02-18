@@ -4,7 +4,7 @@
 
 #include "ImageReader.h"
 
-#include "engine/Log.h"
+#include "ndk_camera/Log.h"
 #include "camera/NdkCameraDevice.h"
 
 namespace ndkcamera {

@@ -3,7 +3,7 @@
 //
 
 #include "CaptureRequest.h"
-#include "engine/Log.h"
+#include "ndk_camera/Log.h"
 
 namespace ndkcamera {
     CaptureRequest::CaptureRequest(ACaptureRequest *captureRequest) : mCaptureRequest(captureRequest) {

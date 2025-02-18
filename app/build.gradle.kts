@@ -18,8 +18,22 @@ android {
 
         externalNativeBuild {
             cmake {
-                abiFilters.addAll(listOf(/*"armeabi-v7a",*/ "arm64-v8a" /*"x86", "x86_64"*/))
-                arguments.addAll(listOf("-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_static"))
+                abiFilters.addAll(
+                    listOf(
+                        //"armeabi-v7a",
+                        "arm64-v8a",
+                        //"x86",
+                        // "x86_64"
+                    )
+                )
+
+                arguments.addAll(
+                    listOf(
+                        "-DANDROID_TOOLCHAIN=clang",
+//                    "-DANDROID_STL=c++_static",
+                        "-DANDROID_STL=c++_shared",
+                    )
+                )
             }
         }
     }

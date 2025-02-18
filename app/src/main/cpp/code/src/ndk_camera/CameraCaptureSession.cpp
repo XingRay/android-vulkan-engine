@@ -3,7 +3,7 @@
 //
 
 #include "CameraCaptureSession.h"
-#include "engine/Log.h"
+#include "ndk_camera/Log.h"
 #include <array>
 
 namespace ndkcamera {
