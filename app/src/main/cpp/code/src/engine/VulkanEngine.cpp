@@ -6,7 +6,7 @@
 #include <utility>
 #include <string>
 
-#include "engine/VulkanGraphicsEngine.h"
+#include "engine/VulkanEngine.h"
 #include "engine/common/StringListSelector.h"
 #include "engine/VkCheckCpp.h"
 #include "engine/VkCheck.h"
@@ -14,27 +14,27 @@
 
 namespace engine {
 
-    VulkanGraphicsEngine::VulkanGraphicsEngine(std::unique_ptr<VulkanInstance> vulkanInstance,
-                                               std::unique_ptr<VulkanSurface> vulkanSurface,
-                                               std::unique_ptr<VulkanPhysicalDevice> vulkanPhysicalDevice,
-                                               std::unique_ptr<VulkanDevice> vulkanDevice,
-                                               std::unique_ptr<VulkanCommandPool> commandPool,
-                                               std::unique_ptr<VulkanShader> vulkanShader,
-                                               std::unique_ptr<VulkanSwapchain> swapchain,
-                                               std::unique_ptr<VulkanRenderPass> renderPass,
-                                               std::unique_ptr<VulkanPipeline> pipeline,
-                                               std::unique_ptr<VulkanFrameBuffer> frameBuffer,
-                                               std::unique_ptr<VulkanSyncObject> syncObject,
-                                               uint32_t frameCount) {
+    VulkanEngine::VulkanEngine(std::unique_ptr<VulkanInstance> vulkanInstance,
+                               std::unique_ptr<VulkanSurface> vulkanSurface,
+                               std::unique_ptr<VulkanPhysicalDevice> vulkanPhysicalDevice,
+                               std::unique_ptr<VulkanDevice> vulkanDevice,
+                               std::unique_ptr<VulkanCommandPool> commandPool,
+                               std::unique_ptr<VulkanSwapchain> swapchain,
+                               std::unique_ptr<VulkanRenderPass> renderPass,
+                               std::unique_ptr<VulkanGraphicsPipeline> graphicsPipeline,
+                               std::unique_ptr<VulkanComputePipeline> computePipeline,
+                               std::unique_ptr<VulkanFrameBuffer> frameBuffer,
+                               std::unique_ptr<VulkanSyncObject> syncObject,
+                               uint32_t frameCount) {
         mInstance = std::move(vulkanInstance);
         mSurface = std::move(vulkanSurface);
         mPhysicalDevice = std::move(vulkanPhysicalDevice);
         mDevice = std::move(vulkanDevice);
         mCommandPool = std::move(commandPool);
-        mShader = std::move(vulkanShader);
         mSwapchain = std::move(swapchain);
         mRenderPass = std::move(renderPass);
-        mPipeline = std::move(pipeline);
+        mGraphicsPipeline = std::move(graphicsPipeline);
+        mComputePipeline = std::move(computePipeline);
         mFrameBuffer = std::move(frameBuffer);
         mSyncObject = std::move(syncObject);
         mFrameCount = frameCount;
@@ -58,17 +58,17 @@ namespace engine {
         if (mCommandPool == nullptr) {
             throw std::runtime_error("mCommandPool == nullptr");
         }
-        if (mShader == nullptr) {
-            throw std::runtime_error("mShader == nullptr");
-        }
         if (mSwapchain == nullptr) {
             throw std::runtime_error("mSwapchain == nullptr");
         }
         if (mRenderPass == nullptr) {
             throw std::runtime_error("mRenderPass == nullptr");
         }
-        if (mPipeline == nullptr) {
-            throw std::runtime_error("mPipeline == nullptr");
+        if (mGraphicsPipeline == nullptr) {
+            LOG_W("mGraphicsPipeline == nullptr");
+        }
+        if (mComputePipeline == nullptr) {
+            LOG_W("mComputePipeline is null");
         }
         if (mFrameBuffer == nullptr) {
             throw std::runtime_error("mFrameBuffer == nullptr");
@@ -78,7 +78,7 @@ namespace engine {
         }
     }
 
-    VulkanGraphicsEngine::~VulkanGraphicsEngine() {
+    VulkanEngine::~VulkanEngine() {
         LOG_D("~VulkanEngine()");
 
         mCommandPool.reset();
@@ -89,7 +89,8 @@ namespace engine {
         mVertexBuffers.clear();
         mFrameBuffer.reset();
 
-        mPipeline.reset();
+        mGraphicsPipeline.reset();
+        mComputePipeline.reset();
 
         mRenderPass.reset();
         mSwapchain.reset();
@@ -98,37 +99,37 @@ namespace engine {
         mInstance.reset();
     }
 
-    vk::Instance VulkanGraphicsEngine::getVKInstance() const {
+    vk::Instance VulkanEngine::getVKInstance() const {
         return mInstance->getInstance();
     }
 
-    vk::Device VulkanGraphicsEngine::getVKDevice() const {
+    vk::Device VulkanEngine::getVKDevice() const {
         return mDevice->getDevice();
     }
 
-    uint32_t VulkanGraphicsEngine::getCurrentFrameIndex() {
+    uint32_t VulkanEngine::getCurrentFrameIndex() {
         return mCurrentFrameIndex;
     }
 
-    void VulkanGraphicsEngine::createDirectlyTransferVertexBuffer(size_t size) {
+    void VulkanEngine::createDirectlyTransferVertexBuffer(size_t size) {
         std::unique_ptr<DirectlyTransferVertexBuffer> vertexBuffer = std::make_unique<DirectlyTransferVertexBuffer>(*mDevice, size);
         mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
         mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getVertexBuffer());
         mVertexBufferOffsets.push_back(0);
     }
 
-    void VulkanGraphicsEngine::createStagingTransferVertexBuffer(size_t size) {
+    void VulkanEngine::createStagingTransferVertexBuffer(size_t size) {
         std::unique_ptr<StagingTransferVertexBuffer> vertexBuffer = std::make_unique<StagingTransferVertexBuffer>(*mDevice, *mCommandPool, size);
         mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
         mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getVertexBuffer());
         mVertexBufferOffsets.push_back(0);
     }
 
-    void VulkanGraphicsEngine::updateVertexBuffer(const void *data, size_t size) {
+    void VulkanEngine::updateVertexBuffer(const void *data, size_t size) {
         updateVertexBuffer(0, data, size);
     }
 
-    void VulkanGraphicsEngine::updateVertexBuffer(uint32_t index, const void *data, size_t size) {
+    void VulkanEngine::updateVertexBuffer(uint32_t index, const void *data, size_t size) {
         if (index >= mVulkanVertexBuffers.size()) {
             LOG_E("index out of range, index:%d, size:%zu", index, mVulkanVertexBuffers.size());
 
@@ -142,33 +143,33 @@ namespace engine {
         mVulkanVertexBuffers[index]->update(data, size);
     }
 
-    void VulkanGraphicsEngine::createDirectlyTransferIndexBuffer(size_t size) {
+    void VulkanEngine::createDirectlyTransferIndexBuffer(size_t size) {
         mIndexBuffer.reset();
         mIndexBuffer = std::make_unique<DirectlyTransferIndexBuffer>(*mDevice, size);
     }
 
-    void VulkanGraphicsEngine::createStagingTransferIndexBuffer(size_t size) {
+    void VulkanEngine::createStagingTransferIndexBuffer(size_t size) {
         mIndexBuffer.reset();
         mIndexBuffer = std::make_unique<StagingTransferIndexBuffer>(*mDevice, *mCommandPool, size);
     }
 
-    void VulkanGraphicsEngine::updateIndexBuffer(std::vector<uint32_t> indices) const {
+    void VulkanEngine::updateIndexBuffer(std::vector<uint32_t> indices) const {
         mIndexBuffer->update(std::move(indices));
     }
 
-    void VulkanGraphicsEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
-        mShader->updateBuffer(frameIndex, set, binding, data, size);
-    }
+//    void VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
+//        mShader->updateBuffer(frameIndex, set, binding, data, size);
+//    }
+//
+//    void VulkanEngine::updatePushConstant(uint32_t index, const void *data) {
+//        mShader->updatePushConstant(index, data);
+//    }
 
-    void VulkanGraphicsEngine::updatePushConstant(uint32_t index, const void *data) {
-        mShader->updatePushConstant(index, data);
-    }
-
-    void VulkanGraphicsEngine::recreateSwapChain() {
+    void VulkanEngine::recreateSwapChain() {
         throw std::runtime_error("recreateSwapChain");
     }
 
-    void VulkanGraphicsEngine::drawFrame() {
+    void VulkanEngine::drawFrame() {
         const vk::Device device = mDevice->getDevice();
         vk::Semaphore imageAvailableSemaphore = mSyncObject->getImageAvailableSemaphore(mCurrentFrameIndex);
         vk::Semaphore renderFinishedSemaphore = mSyncObject->getRenderFinishedSemaphore(mCurrentFrameIndex);
@@ -247,7 +248,7 @@ namespace engine {
          * 适用于复杂的渲染流程，可以将渲染命令分散到多个次级命令缓冲区中，以提高代码的模块化和复用性。
          */
         commandBuffer.beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline->getPipeline());
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mGraphicsPipeline->getPipeline());
 
         /**
          * firstViewport 在某些情况下，可能需要将视口绑定到特定的范围，而不是从索引 0 开始
@@ -258,7 +259,7 @@ namespace engine {
 
         commandBuffer.bindVertexBuffers(0, mVertexBuffers, mVertexBufferOffsets);
         commandBuffer.bindIndexBuffer(mIndexBuffer->getIndexBuffer(), 0, vk::IndexType::eUint32);
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipeline->getPipelineLayout(), 0,
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mGraphicsPipeline->getPipelineLayout(), 0,
                                          mShader->getDescriptorSets(mCurrentFrameIndex), nullptr);
 
         // push constants
@@ -269,7 +270,7 @@ namespace engine {
                 const vk::PushConstantRange &pushConstantRange = pushConstantRanges[pushConstantIndex];
                 const std::vector<uint8_t> pushConstantData = pushConstantDataList[pushConstantIndex];
 
-                commandBuffer.pushConstants(mPipeline->getPipelineLayout(), pushConstantRange.stageFlags,
+                commandBuffer.pushConstants(mGraphicsPipeline->getPipelineLayout(), pushConstantRange.stageFlags,
                                             pushConstantRange.offset,
                                             pushConstantRange.size,
                                             pushConstantData.data());

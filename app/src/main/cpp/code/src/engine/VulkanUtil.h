@@ -13,7 +13,7 @@ namespace engine {
     class VulkanUtil {
     public:
 
-        static QueueFamilyIndices findQueueFamilies(const vk::PhysicalDevice &physicalDevice, const vk::SurfaceKHR &surface);
+        static QueueFamilyIndices findQueueFamilies(const vk::PhysicalDevice &physicalDevice, const vk::SurfaceKHR &surface, vk::QueueFlags requiredFlags = vk::QueueFlagBits::eGraphics);
 
         static bool isDeviceSupportedRequiredDeviceExtensions(const vk::PhysicalDevice &device,
                                                               const std::vector<const char *> &requiredDeviceExtensions);

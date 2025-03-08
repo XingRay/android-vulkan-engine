@@ -7,8 +7,8 @@
 
 namespace engine {
 
-    VulkanVertexConfigure::VulkanVertexConfigure(VulkanShaderConfigure &builder)
-            : mBuilder(builder), mSize(0), mBinding(0), mAttributes({}) {
+    VulkanVertexConfigure::VulkanVertexConfigure()
+            : mSize(0), mBinding(0), mAttributes({}) {
 
     }
 
@@ -27,7 +27,7 @@ namespace engine {
     }
 
     VulkanVertexConfigure &VulkanVertexConfigure::addAttribute(vk::Format format) {
-        addAttribute(mCurrentLocation + 1, mBinding, format, mCurrentOffset);
+        addAttribute(mCurrentAttributeLocation + 1, mBinding, format, mCurrentAttributeOffset);
         return *this;
     }
 
@@ -36,22 +36,17 @@ namespace engine {
     }
 
     VulkanVertexConfigure &VulkanVertexConfigure::addAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset) {
-        mCurrentLocation = location;
+        mCurrentAttributeLocation = location;
 
         mAttributes.push_back(VulkanVertexAttribute{binding, location, format, offset});
 
-        mCurrentOffset += VulkanUtil::getFormatSize(format);
+        mCurrentAttributeOffset += VulkanUtil::getFormatSize(format);
 
         return *this;
     }
 
-    VulkanVertex VulkanVertexConfigure::buildVertex() {
+    VulkanVertex VulkanVertexConfigure::build() const {
         return VulkanVertex{mBinding, mSize, mAttributes};
-    }
-
-    VulkanShaderConfigure &VulkanVertexConfigure::build() {
-        mBuilder.addVertex(buildVertex());
-        return mBuilder;
     }
 
 } // engine

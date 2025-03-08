@@ -10,30 +10,51 @@
 
 namespace engine {
 
-    SimpleVulkanPhysicalDeviceProvider::SimpleVulkanPhysicalDeviceProvider(std::unique_ptr<VulkanPhysicalDeviceCandidate> &&candidate)
-            : mCandidate(std::move(candidate)) {
+    SimpleVulkanPhysicalDeviceProvider::SimpleVulkanPhysicalDeviceProvider(std::unique_ptr<VulkanPhysicalDevice>&& physicalDevice)
+            : mVulkanPhysicalDevice(std::move(physicalDevice)) {
 
     }
 
     SimpleVulkanPhysicalDeviceProvider::~SimpleVulkanPhysicalDeviceProvider() = default;
 
-    std::unique_ptr<VulkanPhysicalDeviceCandidate> SimpleVulkanPhysicalDeviceProvider::provide() {
+    std::unique_ptr<VulkanPhysicalDeviceCandidate> SimpleVulkanPhysicalDeviceProvider::provide(const VulkanInstance &instance,
+                                                                                              const VulkanSurface &surface,
+                                                                                              const std::vector<std::string> &deviceExtensions) {
+        std::unique_ptr<VulkanPhysicalDeviceCandidate> candidate = std::make_unique<VulkanPhysicalDeviceCandidate>(std::move(mVulkanPhysicalDevice));
+        std::optional<VulkanPhysicalDeviceSurfaceSupport> surfaceSupport = candidate->getPhysicalDevice()->querySurfaceSupport(surface, mQueueFlags);
+        if (!surfaceSupport.has_value()) {
+            throw std::runtime_error("vulkanPhysicalDevice can not use for surface");
+        }
+        candidate->setSurfaceSupport(std::move(surfaceSupport.value()));
+        return std::move(candidate);
+    }
+
+
+    FixedVulkanPhysicalDeviceProvider::FixedVulkanPhysicalDeviceProvider(std::unique_ptr<VulkanPhysicalDeviceCandidate> &&candidate)
+            : mCandidate(std::move(candidate)) {
+
+    }
+
+    FixedVulkanPhysicalDeviceProvider::~FixedVulkanPhysicalDeviceProvider() = default;
+
+    std::unique_ptr<VulkanPhysicalDeviceCandidate> FixedVulkanPhysicalDeviceProvider::provide(const VulkanInstance &instance,
+                                                                                              const VulkanSurface &surface,
+                                                                                              const std::vector<std::string> &deviceExtensions) {
         return std::move(mCandidate);
     }
 
 
-    DefaultVulkanPhysicalDeviceProvider::DefaultVulkanPhysicalDeviceProvider(const VulkanInstance &instance,
-                                                                             const VulkanSurface &surface,
-                                                                             const std::vector<std::string> &deviceExtensions,
-                                                                             const VulkanPhysicalDeviceScoreConfig &scoreConfig)
-            : mInstance(instance), mSurface(surface), mDeviceExtensions(deviceExtensions), mScoreCalculator(scoreConfig) {
+    DefaultVulkanPhysicalDeviceProvider::DefaultVulkanPhysicalDeviceProvider(vk::QueueFlags requiredQueueFlags, const VulkanPhysicalDeviceScoreConfig &scoreConfig)
+            : mRequiredQueueFlags(requiredQueueFlags), mScoreCalculator(scoreConfig) {
 
     }
 
     DefaultVulkanPhysicalDeviceProvider::~DefaultVulkanPhysicalDeviceProvider() = default;
 
-    std::unique_ptr<VulkanPhysicalDeviceCandidate> DefaultVulkanPhysicalDeviceProvider::provide() {
-        std::vector<std::unique_ptr<VulkanPhysicalDevice>> physicalDevices = mInstance.listPhysicalDevices();
+    std::unique_ptr<VulkanPhysicalDeviceCandidate> DefaultVulkanPhysicalDeviceProvider::provide(const VulkanInstance &instance,
+                                                                                                const VulkanSurface &surface,
+                                                                                                const std::vector<std::string> &deviceExtensions) {
+        std::vector<std::unique_ptr<VulkanPhysicalDevice>> physicalDevices = instance.listPhysicalDevices();
         if (physicalDevices.empty()) {
             LOG_D("No physical devices found!");
             throw std::runtime_error("No physical devices found!");
@@ -41,7 +62,7 @@ namespace engine {
 
         std::vector<std::unique_ptr<VulkanPhysicalDeviceCandidate>> candidates;
         for (auto &physicalDevice: physicalDevices) {
-            auto result = calcPhysicalDeviceCandidate(std::move(physicalDevice), mSurface, mDeviceExtensions);
+            auto result = calcPhysicalDeviceCandidate(std::move(physicalDevice), surface, deviceExtensions, mRequiredQueueFlags);
             if (result.has_value()) {
                 candidates.push_back(std::move(result.value()));
             }
@@ -62,7 +83,8 @@ namespace engine {
     std::optional<std::unique_ptr<VulkanPhysicalDeviceCandidate>> DefaultVulkanPhysicalDeviceProvider::calcPhysicalDeviceCandidate(
             std::unique_ptr<VulkanPhysicalDevice> &&vulkanPhysicalDevice,
             const VulkanSurface &vulkanSurface,
-            const std::vector<std::string> &requiredDeviceExtensions) const {
+            const std::vector<std::string> &requiredDeviceExtensions,
+            vk::QueueFlags requiredQueueFlags) const {
 
         // 检查扩展支持
         if (!vulkanPhysicalDevice->isSupportExtensions(requiredDeviceExtensions)) {
@@ -71,7 +93,7 @@ namespace engine {
         }
 
         // 检查表面支持
-        auto surfaceSupport = vulkanPhysicalDevice->querySurfaceSupport(vulkanSurface);
+        auto surfaceSupport = vulkanPhysicalDevice->querySurfaceSupport(vulkanSurface, requiredQueueFlags);
         if (!surfaceSupport.has_value()) {
             LOG_W("Device queue family indices are not complete.");
             return std::nullopt; // 返回空值，表示无效候选项

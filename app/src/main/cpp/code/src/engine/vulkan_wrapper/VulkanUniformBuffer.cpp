@@ -15,12 +15,11 @@ namespace engine {
                                                                                   vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
         mUniformBuffersMapped = vulkanDevice.getDevice().mapMemory(mUniformBufferMemory, 0, bufferSize, vk::MemoryMapFlags{});
 
-        vk::Result result = vulkanDevice.getDevice().mapMemory(mUniformBufferMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mUniformBuffersMapped);
-        if (result != vk::Result::eSuccess || mUniformBuffersMapped == nullptr) {
-            throw std::runtime_error("Failed to map uniform buffer memory!");
-        }
-
-        LOG_D("Buffer memory: %p, mapped address: %p", static_cast<void *>(mUniformBufferMemory), mUniformBuffersMapped);
+//        vk::Result result = vulkanDevice.getDevice().mapMemory(mUniformBufferMemory, 0, bufferSize, vk::MemoryMapFlags{}, &mUniformBuffersMapped);
+//        if (result != vk::Result::eSuccess || mUniformBuffersMapped == nullptr) {
+//            throw std::runtime_error("Failed to map uniform buffer memory!");
+//        }
+//        LOG_D("Buffer memory: %p, mapped address: %p", static_cast<void *>(mUniformBufferMemory), mUniformBuffersMapped);
 
     }
 

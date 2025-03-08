@@ -68,6 +68,10 @@ namespace engine {
         return mShaderStageFlagBits;
     }
 
+    const std::vector<VulkanSampler> &VulkanDescriptor::getImmutableSamplers()const {
+        return mImmutableSamplers;
+    }
+
     const VulkanUniformData &VulkanDescriptor::getUniformData() const {
         return std::get<VulkanUniformData>(mData);
     }

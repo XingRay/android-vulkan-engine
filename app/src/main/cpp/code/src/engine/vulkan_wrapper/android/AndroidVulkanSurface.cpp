@@ -7,7 +7,7 @@
 #include "engine/Log.h"
 
 namespace engine {
-    AndroidVulkanSurface::AndroidVulkanSurface(const vk::Instance &instance, ANativeWindow *window) : mInstance(instance) {
+    AndroidVulkanSurface::AndroidVulkanSurface(const VulkanInstance &instance, ANativeWindow *window) : mInstance(instance) {
         LOG_D("AndroidSurface::AndroidSurface");
         vk::AndroidSurfaceCreateInfoKHR createInfo{};
         createInfo
@@ -15,7 +15,7 @@ namespace engine {
                 .setWindow(window);
 
         try {
-            mSurface = instance.createAndroidSurfaceKHR(createInfo);
+            mSurface = instance.getInstance().createAndroidSurfaceKHR(createInfo);
         } catch (vk::SystemError &err) {
             LOG_E("Failed to create Android surface: %s", std::string(err.what()).data());
             throw std::runtime_error("Failed to create Android surface: " + std::string(err.what()));
@@ -25,17 +25,22 @@ namespace engine {
     AndroidVulkanSurface::~AndroidVulkanSurface() {
         LOG_D("AndroidSurface::~AndroidSurface()");
         if (mSurface != nullptr) {
-            mInstance.destroy(mSurface);
+            mInstance.getInstance().destroy(mSurface);
         } else {
             LOG_W("surface is null");
         }
     }
 
-    std::function<std::unique_ptr<VulkanSurface>(const VulkanInstance &)> AndroidVulkanSurface::surfaceBuilder(ANativeWindow *window) {
-        return [window](const VulkanInstance &instance) -> std::unique_ptr<VulkanSurface> {
-            // 创建 AndroidVulkanSurface 实例
-            return std::make_unique<AndroidVulkanSurface>(instance.getInstance(), window);
-        };
+    AndroidVulkanSurfaceBuilder::AndroidVulkanSurfaceBuilder(ANativeWindow *window)
+            : mWindow(window) {
+
+    }
+
+    AndroidVulkanSurfaceBuilder::~AndroidVulkanSurfaceBuilder() = default;
+
+    [[nodiscard]]
+    std::unique_ptr<VulkanSurface> AndroidVulkanSurfaceBuilder::build(const VulkanInstance & vulkanInstance) const{
+        return std::make_unique<AndroidVulkanSurface>(vulkanInstance, mWindow);
     }
 
 } // engine

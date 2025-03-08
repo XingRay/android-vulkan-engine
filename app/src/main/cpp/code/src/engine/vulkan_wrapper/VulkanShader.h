@@ -24,6 +24,7 @@ namespace engine {
     private:
         const VulkanDevice &mVulkanDevice;
 
+        vk::ShaderModule mComputeShaderModule;
         vk::ShaderModule mVertexShaderModule;
         vk::ShaderModule mFragmentShaderModule;
 
@@ -52,6 +53,7 @@ namespace engine {
                               const VulkanDevice &vulkanDevice,
                               const VulkanCommandPool &commandPool,
                               uint32_t frameCount,
+                              const std::vector<char> &computeShaderCode,
                               const std::vector<char> &vertexShaderCode,
                               const std::vector<char> &fragmentShaderCode,
                               const std::vector<VulkanVertex> &vertices,
@@ -59,6 +61,9 @@ namespace engine {
                               const std::vector<VulkanPushConstant> &pushConstants);
 
         ~VulkanShader();
+
+        [[nodiscard]]
+        const vk::ShaderModule &getComputeShaderModule() const;
 
         [[nodiscard]]
         const vk::ShaderModule &getVertexShaderModule() const;

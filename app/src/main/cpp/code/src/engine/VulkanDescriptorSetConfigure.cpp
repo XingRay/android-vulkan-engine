@@ -6,8 +6,7 @@
 
 namespace engine {
 
-    VulkanDescriptorSetConfigure::VulkanDescriptorSetConfigure(VulkanShaderConfigure &builder)
-            : mBuilder(builder), mUniformSet({}) {
+    VulkanDescriptorSetConfigure::VulkanDescriptorSetConfigure() : mUniformSet({}) {
 
     }
 
@@ -36,9 +35,8 @@ namespace engine {
         return *this;
     }
 
-    VulkanShaderConfigure &VulkanDescriptorSetConfigure::build() {
-        mBuilder.addUniformSet(mUniformSet);
-        return mBuilder;
+    const VulkanDescriptorSet &VulkanDescriptorSetConfigure::build()const {
+        return mUniformSet;
     }
 
 } // engine

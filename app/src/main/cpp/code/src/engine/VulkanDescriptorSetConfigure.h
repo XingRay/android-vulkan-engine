@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "engine/VulkanShaderConfigure.h"
 #include "engine/VulkanDescriptorSet.h"
 #include <android/hardware_buffer.h>
 
@@ -12,13 +11,11 @@ namespace engine {
 
     class VulkanDescriptorSetConfigure {
     private:
-        VulkanShaderConfigure &mBuilder;
-
         VulkanDescriptorSet mUniformSet;
 
     public:
 
-        VulkanDescriptorSetConfigure(VulkanShaderConfigure &builder);
+        VulkanDescriptorSetConfigure();
 
         ~VulkanDescriptorSetConfigure();
 
@@ -28,9 +25,9 @@ namespace engine {
 
         VulkanDescriptorSetConfigure &addSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, ImageSize imageSize);
 
-        VulkanDescriptorSetConfigure &addAndroidHardwareBufferSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, AHardwareBuffer* hardwareBuffer);
+        VulkanDescriptorSetConfigure &addAndroidHardwareBufferSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, AHardwareBuffer *hardwareBuffer);
 
-        VulkanShaderConfigure &build();
+        const VulkanDescriptorSet &build() const;
     };
 
 } // engine

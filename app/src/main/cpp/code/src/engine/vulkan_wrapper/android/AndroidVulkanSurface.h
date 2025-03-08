@@ -5,28 +5,41 @@
 
 #pragma once
 
+#include "android/native_window.h"
 #include <vulkan/vulkan.hpp>
 
 #include "engine/vulkan_wrapper/VulkanSurface.h"
 #include "engine/vulkan_wrapper/VulkanInstance.h"
+#include "engine/VulkanSurfaceBuilder.h"
 
 namespace engine {
 
     class AndroidVulkanSurface : public VulkanSurface {
 
     private:
-        vk::Instance mInstance;
+        VulkanInstance mInstance;
         vk::SurfaceKHR mSurface;
 
     public:
-        AndroidVulkanSurface(const vk::Instance &instance, ANativeWindow *window);
+        AndroidVulkanSurface(const VulkanInstance &instance, ANativeWindow *window);
 
         ~AndroidVulkanSurface() override;
 
         [[nodiscard]]
         vk::SurfaceKHR getSurface() const override { return mSurface; }
+    };
 
-        static std::function<std::unique_ptr<VulkanSurface>(const VulkanInstance &)> surfaceBuilder(ANativeWindow *window);
+    class AndroidVulkanSurfaceBuilder : public VulkanSurfaceBuilder {
+    private:
+        ANativeWindow *mWindow;
+
+    public:
+        AndroidVulkanSurfaceBuilder(ANativeWindow *window);
+
+        ~AndroidVulkanSurfaceBuilder() override;
+
+        [[nodiscard]]
+        std::unique_ptr<VulkanSurface> build(const VulkanInstance &) const override;
     };
 
 } // engine

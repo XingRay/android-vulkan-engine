@@ -10,6 +10,7 @@
 #include "engine/vulkan_wrapper/VulkanSamplerBuffer.h"
 #include "engine/vulkan_wrapper/android/VulkanHardwareBuffer.h"
 #include "engine/vulkan_wrapper/android/VulkanAndroidHardwareSampler.h"
+#include "engine/vulkan_wrapper/android/VulkanAndroidUtil.h"
 
 namespace engine {
 
@@ -17,6 +18,7 @@ namespace engine {
                                const VulkanDevice &vulkanDevice,
                                const VulkanCommandPool &commandPool,
                                uint32_t frameCount,
+                               const std::vector<char> &computeShaderCode,
                                const std::vector<char> &vertexShaderCode,
                                const std::vector<char> &fragmentShaderCode,
                                const std::vector<VulkanVertex> &vertices,
@@ -24,8 +26,15 @@ namespace engine {
                                const std::vector<VulkanPushConstant> &pushConstants)
             : mVulkanDevice(vulkanDevice) {
 
-        mVertexShaderModule = vulkanDevice.createShaderModule(vertexShaderCode);
-        mFragmentShaderModule = vulkanDevice.createShaderModule(fragmentShaderCode);
+        if (!computeShaderCode.empty()) {
+            mComputeShaderModule = vulkanDevice.createShaderModule(computeShaderCode);
+        }
+        if (!vertexShaderCode.empty()) {
+            mVertexShaderModule = vulkanDevice.createShaderModule(vertexShaderCode);
+        }
+        if (!fragmentShaderCode.empty()) {
+            mFragmentShaderModule = vulkanDevice.createShaderModule(fragmentShaderCode);
+        }
 
         for (const VulkanVertex &vertex: vertices) {
             vk::VertexInputBindingDescription bindingDescription{};
@@ -69,7 +78,8 @@ namespace engine {
                     AHardwareBuffer *hardwareBuffer = descriptor.getVulkanAndroidHardwareBufferSamplerData().hardwareBuffer;
 
                     std::vector<std::unique_ptr<VulkanSampler>> samplers;
-                    samplers.push_back(std::move(std::make_unique<VulkanAndroidHardwareSampler>(vulkanDevice, hardwareBuffer)));
+                    vk::AndroidHardwareBufferFormatPropertiesANDROID formatInfo = VulkanAndroidUtil::getAndroidHardwareBufferFormat(vulkanDevice.getDevice(), hardwareBuffer);
+                    samplers.push_back(std::move(std::make_unique<VulkanAndroidHardwareSampler>(vulkanDevice, formatInfo)));
 
                     std::vector<vk::Sampler> vkSamplers;
                     vkSamplers.reserve(samplers.size());
@@ -318,8 +328,19 @@ namespace engine {
         LOG_D("VulkanDescriptorSet::~VulkanDescriptorSet");
         const vk::Device device = mVulkanDevice.getDevice();
 
-        device.destroy(mVertexShaderModule);
-        device.destroy(mFragmentShaderModule);
+        if (mComputeShaderModule != nullptr) {
+            device.destroy(mComputeShaderModule);
+            mComputeShaderModule = nullptr;
+        }
+        if (mVertexShaderModule != nullptr) {
+            device.destroy(mVertexShaderModule);
+            mVertexShaderModule = nullptr;
+        }
+        if (mFragmentShaderModule != nullptr) {
+            device.destroy(mFragmentShaderModule);
+            mFragmentShaderModule = nullptr;
+        }
+
 
         device.destroyDescriptorPool(mDescriptorPool);
 
@@ -331,6 +352,10 @@ namespace engine {
     /**
      * shader code
      */
+    const vk::ShaderModule &VulkanShader::getComputeShaderModule() const {
+        return mComputeShaderModule;
+    }
+
     const vk::ShaderModule &VulkanShader::getVertexShaderModule() const {
         return mVertexShaderModule;
     }

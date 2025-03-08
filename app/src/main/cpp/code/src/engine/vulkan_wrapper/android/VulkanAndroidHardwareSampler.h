@@ -17,7 +17,7 @@ namespace engine {
         vk::SamplerYcbcrConversion mConversion;
 
     public:
-        VulkanAndroidHardwareSampler(const VulkanDevice &vulkanDevice, AHardwareBuffer *hardwareBuffer);
+//        VulkanAndroidHardwareSampler(const VulkanDevice &vulkanDevice, AHardwareBuffer *hardwareBuffer);
 
         VulkanAndroidHardwareSampler(const VulkanDevice &vulkanDevice,
                                      const vk::AndroidHardwareBufferFormatPropertiesANDROID &formatInfo);

@@ -22,7 +22,7 @@ namespace engine {
 
         ~VulkanPhysicalDevice();
 
-        std::optional<VulkanPhysicalDeviceSurfaceSupport> querySurfaceSupport(const VulkanSurface &vulkanSurface) const;
+        std::optional<VulkanPhysicalDeviceSurfaceSupport> querySurfaceSupport(const VulkanSurface &vulkanSurface, vk::QueueFlags requiredQueueFlags) const;
 
         bool isSupportExtensions(const std::vector<std::string> extensions) const;
 

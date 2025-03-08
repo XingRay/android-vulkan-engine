@@ -52,6 +52,7 @@ namespace engine {
     // Staging transfer vertex buffer
     class StagingTransferVertexBuffer : public VulkanVertexBuffer {
     private:
+        // todo 作为方法参数提供?
         const VulkanCommandPool &mCommandPool;
     public:
         StagingTransferVertexBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &vulkanCommandPool, vk::DeviceSize bufferSize);

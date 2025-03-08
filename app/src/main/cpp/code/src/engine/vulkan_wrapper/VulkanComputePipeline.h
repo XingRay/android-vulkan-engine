@@ -11,21 +11,21 @@
 #include "engine/vulkan_wrapper/VulkanShader.h"
 
 namespace engine {
-    class VulkanShader;
 
-    class VulkanPipeline {
+    class VulkanComputePipeline {
     private:
         const VulkanDevice &mDevice;
         vk::Pipeline mPipeline;
         vk::PipelineLayout mPipelineLayout;
 
     public:
-        VulkanPipeline(const VulkanDevice &vulkanDevice,
-                       const VulkanSwapchain &swapchain,
-                       const VulkanRenderPass &renderPass,
-                       const VulkanShader &vertexShader);
+        VulkanComputePipeline(
+                const VulkanDevice &vulkanDevice,
+                const VulkanSwapchain &swapchain,
+                const VulkanRenderPass &renderPass,
+                const VulkanShader &vertexShader);
 
-        ~VulkanPipeline();
+        ~VulkanComputePipeline();
 
         [[nodiscard]]
         const vk::Pipeline &getPipeline() const;

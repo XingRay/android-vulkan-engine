@@ -8,7 +8,7 @@
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanSwapchain.h"
 #include "engine/vulkan_wrapper/VulkanRenderPass.h"
-#include "engine/vulkan_wrapper/VulkanPipeline.h"
+#include "engine/vulkan_wrapper/VulkanGraphicsPipeline.h"
 
 #include <functional>
 

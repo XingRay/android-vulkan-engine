@@ -10,6 +10,7 @@
 #include "engine/ImageSize.h"
 
 #include <android/hardware_buffer.h>
+#include "engine/vulkan_wrapper/VulkanSampler.h"
 
 namespace engine {
 
@@ -17,6 +18,7 @@ namespace engine {
         uniform,
         sampler,
         androidHardwareBufferSampler,
+        storage,
     };
 
     class VulkanUniformData {
@@ -36,13 +38,13 @@ namespace engine {
 
     class VulkanDescriptor {
     private:
-        VulkanDescriptorType mVulkanDescriptorType;
+//        VulkanDescriptorType mVulkanDescriptorType;
         uint32_t mBinding;
         vk::DescriptorType mDescriptorType;
-        uint32_t mIndex;
+//        uint32_t mIndex;
         uint32_t mDescriptorCount;
         vk::ShaderStageFlagBits mShaderStageFlagBits;
-
+        std::vector<VulkanSampler> mImmutableSamplers;
 
         std::variant<VulkanUniformData, VulkanSamplerData, VulkanAndroidHardwareBufferSamplerData> mData;
     public:
@@ -75,6 +77,8 @@ namespace engine {
         uint32_t getDescriptorCount() const;
 
         vk::ShaderStageFlagBits getStageFlags() const;
+
+        const std::vector<VulkanSampler> &getImmutableSamplers()const;
 
         const VulkanUniformData &getUniformData() const;
 

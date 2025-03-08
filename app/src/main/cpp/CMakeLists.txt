@@ -41,6 +41,21 @@ set(ncnn_DIR ${NCNN_INSTALL_DIR}/arm64-v8a/lib/cmake/ncnn)
 find_package(ncnn REQUIRED)
 link_directories("${NCNN_INSTALL_DIR}/arm64-v8a/lib")
 
+# opencv
+# https://github.com/opencv/opencv
+set(OPENCV_INSTALL_DIR D:/develop/opencv/4.11.0/sdk/android/OpenCV-android-sdk)
+set(OpenCV_DIR ${OPENCV_INSTALL_DIR}/sdk/native/jni)
+find_package(OpenCV REQUIRED)
+set(OPENCV_INCLUDE ${OPENCV_INSTALL_DIR}/sdk/native/jni/include)
+
+# mnn
+# https://github.com/alibaba/MNN
+set(MNN_INSTALL_DIR D:/develop/mnn/master/install/android_arm64-v8a_vulkan)
+set(MNN_INCLUDE ${MNN_INSTALL_DIR}/include)
+set(MNN_LIB_DIR ${MNN_INSTALL_DIR}/lib)
+
+link_directories(${MNN_LIB_DIR})
+
 file(GLOB_RECURSE PROJECT_SOURCES
         "code/src/*.c"
         "code/src/*.cpp"
@@ -78,6 +93,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 
         # ncnn
         ${NCNN_INCLUDE}
+
+        # OpenCV
+        ${OPENCV_INCLUDE}
+
+        # mnn
+        ${MNN_INCLUDE}
 )
 
 target_link_libraries(${PROJECT_NAME}
@@ -87,4 +108,7 @@ target_link_libraries(${PROJECT_NAME}
         log
         vulkan
         ncnn
+        ${OpenCV_LIBS}
+        ${MNN_LIB_DIR}/libMNN.so
+        ${MNN_LIB_DIR}/libMNN_Express.so
 )

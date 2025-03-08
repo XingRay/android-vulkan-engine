@@ -2,14 +2,19 @@
 // Created by leixing on 2024/12/28.
 //
 
-#include "VulkanPipeline.h"
+#include "VulkanGraphicsPipeline.h"
 #include "engine/Log.h"
 
 namespace engine {
-    VulkanPipeline::VulkanPipeline(const VulkanDevice &vulkanDevice,
-                                   const VulkanSwapchain &swapchain,
-                                   const VulkanRenderPass &renderPass,
-                                   const VulkanShader &shader)
+    VulkanGraphicsPipeline::VulkanGraphicsPipeline(const VulkanDevice &vulkanDevice,
+                                                   const VulkanSwapchain &swapchain,
+                                                   const VulkanRenderPass &renderPass,
+                                                   const vk::ShaderModule &vertexShaderModule,
+                                                   const vk::ShaderModule &fragmentShaderModule,
+                                                   const std::vector<vk::VertexInputBindingDescription> &vertexInputBindingDescriptions,
+                                                   const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributeDescriptions,
+                                                   const std::vector<vk::DescriptorSetLayout> & descriptorSetLayouts,
+                                                   const std::vector<vk::PushConstantRange> & pushConstantRanges)
             : mDevice(vulkanDevice) {
         vk::Device device = vulkanDevice.getDevice();
 
@@ -52,10 +57,9 @@ namespace engine {
         // vertex shader
         vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
         vertexInputStateCreateInfo
-                .setVertexBindingDescriptions(shader.getVertexDescriptions())
-                .setVertexAttributeDescriptions(shader.getVertexInputAttributeDescriptions());
+                .setVertexBindingDescriptions(vertexInputBindingDescriptions)
+                .setVertexAttributeDescriptions(vertexInputAttributeDescriptions);
 
-        vk::ShaderModule vertexShaderModule = shader.getVertexShaderModule();
         vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo;
         vertexShaderStageCreateInfo
                 .setStage(vk::ShaderStageFlagBits::eVertex)
@@ -128,7 +132,6 @@ namespace engine {
                         // 如果启用，片段的 Alpha 值将被强制设置为 1.0
                 .setAlphaToOneEnable(vk::False);
 
-        vk::ShaderModule fragmentShaderModule = shader.getFragmentShaderModule();
         // fragment shader
         vk::PipelineShaderStageCreateInfo fragmentShaderStageCreateInfo;
         fragmentShaderStageCreateInfo
@@ -161,8 +164,8 @@ namespace engine {
 
         vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
         pipelineLayoutCreateInfo
-                .setSetLayouts(shader.getDescriptorSetLayouts())
-                .setPushConstantRanges(shader.getPushConstantRanges());
+                .setSetLayouts(descriptorSetLayouts)
+                .setPushConstantRanges(pushConstantRanges);
 
         mPipelineLayout = vulkanDevice.getDevice().createPipelineLayout(pipelineLayoutCreateInfo);
 
@@ -192,18 +195,18 @@ namespace engine {
         mPipeline = pipeline;
     }
 
-    VulkanPipeline::~VulkanPipeline() {
-        LOG_D("VulkanPipeline::~VulkanPipeline");
+    VulkanGraphicsPipeline::~VulkanGraphicsPipeline() {
+        LOG_D("VulkanGraphicsPipeline::~VulkanGraphicsPipeline");
         vk::Device device = mDevice.getDevice();
         device.destroy(mPipeline);
         device.destroy(mPipelineLayout);
     }
 
-    const vk::Pipeline &VulkanPipeline::getPipeline() const {
+    const vk::Pipeline &VulkanGraphicsPipeline::getPipeline() const {
         return mPipeline;
     }
 
-    const vk::PipelineLayout &VulkanPipeline::getPipelineLayout() const {
+    const vk::PipelineLayout &VulkanGraphicsPipeline::getPipelineLayout() const {
         return mPipelineLayout;
     }
 } // engine

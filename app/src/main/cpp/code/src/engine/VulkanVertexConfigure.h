@@ -4,7 +4,13 @@
 
 #pragma once
 
-#include "engine/VulkanShaderConfigure.h"
+#include <cstdint>
+#include <memory>
+
+#include "engine/VulkanVertexAttribute.h"
+#include "engine/VulkanVertex.h"
+#include "engine/ShaderFormat.h"
+
 
 namespace engine {
 
@@ -12,17 +18,16 @@ namespace engine {
 
     class VulkanVertexConfigure {
     private:
-        VulkanShaderConfigure &mBuilder;
-
-        uint32_t mSize;
         uint32_t mBinding;
+        uint32_t mSize;
+
         std::vector<VulkanVertexAttribute> mAttributes;
 
-        uint32_t mCurrentLocation = -1;
-        uint32_t mCurrentOffset = 0;
+        uint32_t mCurrentAttributeLocation = -1;
+        uint32_t mCurrentAttributeOffset = 0;
 
     public:
-        VulkanVertexConfigure(VulkanShaderConfigure &builder);
+        VulkanVertexConfigure();
 
         VulkanVertexConfigure &size(uint32_t size);
 
@@ -36,9 +41,7 @@ namespace engine {
 
         VulkanVertexConfigure &addAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset);
 
-        VulkanShaderConfigure &build();
-
-        VulkanVertex buildVertex();
+        VulkanVertex build() const;
     };
 
 } // engine

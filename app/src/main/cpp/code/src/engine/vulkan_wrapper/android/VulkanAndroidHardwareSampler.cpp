@@ -8,18 +8,18 @@
 
 namespace engine {
 
-    VulkanAndroidHardwareSampler::VulkanAndroidHardwareSampler(const VulkanDevice &vulkanDevice, AHardwareBuffer *hardwareBuffer) : VulkanAndroidHardwareSampler(vulkanDevice, [&]() {
-        vk::Device device = vulkanDevice.getDevice();
-        // 获取 HardwareBuffer 属性
-        vk::AndroidHardwareBufferPropertiesANDROID propertiesInfo;
-        vk::AndroidHardwareBufferFormatPropertiesANDROID formatInfo;
-        propertiesInfo.pNext = &formatInfo;
-
-        CALL_VK(vkGetAndroidHardwareBufferPropertiesANDROID(device, hardwareBuffer, reinterpret_cast<VkAndroidHardwareBufferPropertiesANDROID *>(&propertiesInfo)));
-        return formatInfo;
-    }()) {
-        //...
-    }
+//    VulkanAndroidHardwareSampler::VulkanAndroidHardwareSampler(const VulkanDevice &vulkanDevice, AHardwareBuffer *hardwareBuffer) : VulkanAndroidHardwareSampler(vulkanDevice, [&]() {
+//        vk::Device device = vulkanDevice.getDevice();
+//        // 获取 HardwareBuffer 属性
+//        vk::AndroidHardwareBufferPropertiesANDROID propertiesInfo;
+//        vk::AndroidHardwareBufferFormatPropertiesANDROID formatInfo;
+//        propertiesInfo.pNext = &formatInfo;
+//
+//        CALL_VK(vkGetAndroidHardwareBufferPropertiesANDROID(device, hardwareBuffer, reinterpret_cast<VkAndroidHardwareBufferPropertiesANDROID *>(&propertiesInfo)));
+//        return formatInfo;
+//    }()) {
+//        //...
+//    }
 
     VulkanAndroidHardwareSampler::VulkanAndroidHardwareSampler(const VulkanDevice &vulkanDevice,
                                                                const vk::AndroidHardwareBufferFormatPropertiesANDROID &formatInfo)

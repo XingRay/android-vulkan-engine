@@ -9,22 +9,24 @@
 
 namespace engine {
 
-    QueueFamilyIndices VulkanUtil::findQueueFamilies(const vk::PhysicalDevice &physicalDevice, const vk::SurfaceKHR &surface) {
+    QueueFamilyIndices VulkanUtil::findQueueFamilies(const vk::PhysicalDevice &physicalDevice,
+                                                     const vk::SurfaceKHR &surface,
+                                                     vk::QueueFlags requiredFlags) {
         QueueFamilyIndices indices;
-        auto queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
+        std::vector<vk::QueueFamilyProperties> queueFamilyProperties = physicalDevice.getQueueFamilyProperties();
 
-        for (int i = 0; i < queueFamilyProperties.size(); i++) {
-            const auto &queueFamilyProperty = queueFamilyProperties[i];
+        for (int queueFamilyIndex = 0; queueFamilyIndex < queueFamilyProperties.size(); queueFamilyIndex++) {
+            const vk::QueueFamilyProperties &queueFamilyProperty = queueFamilyProperties[queueFamilyIndex];
             const vk::QueueFlags &queueFlags = queueFamilyProperty.queueFlags;
 
-            if (queueFlags & vk::QueueFlagBits::eGraphics) {
-                LOG_D("graphicQueueFamily found, index:%d", i);
-                indices.graphicQueueFamilyIndex = i;
+            if ((queueFlags & requiredFlags) == requiredFlags) {
+                LOG_D("graphicQueueFamily found, index:%d", queueFamilyIndex);
+                indices.graphicQueueFamilyIndex = queueFamilyIndex;
             }
 
-            if (physicalDevice.getSurfaceSupportKHR(i, surface)) {
-                LOG_D("presentQueueFamily found, index:%d", i);
-                indices.presentQueueFamilyIndex = i;
+            if (physicalDevice.getSurfaceSupportKHR(queueFamilyIndex, surface)) {
+                LOG_D("presentQueueFamily found, index:%d", queueFamilyIndex);
+                indices.presentQueueFamilyIndex = queueFamilyIndex;
             }
 
             if (indices.isComplete()) {

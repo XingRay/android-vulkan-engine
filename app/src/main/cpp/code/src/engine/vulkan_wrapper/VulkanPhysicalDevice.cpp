@@ -15,10 +15,10 @@ namespace engine {
 
     VulkanPhysicalDevice::~VulkanPhysicalDevice() = default;
 
-    std::optional<VulkanPhysicalDeviceSurfaceSupport> VulkanPhysicalDevice::querySurfaceSupport(const VulkanSurface &vulkanSurface) const {
+    std::optional<VulkanPhysicalDeviceSurfaceSupport> VulkanPhysicalDevice::querySurfaceSupport(const VulkanSurface &vulkanSurface, vk::QueueFlags requiredQueueFlags) const {
         const vk::SurfaceKHR &surface = vulkanSurface.getSurface();
 
-        QueueFamilyIndices indices = VulkanUtil::findQueueFamilies(mPhysicalDevice, surface);
+        QueueFamilyIndices indices = VulkanUtil::findQueueFamilies(mPhysicalDevice, surface, requiredQueueFlags);
         if (!indices.isComplete()) {
             LOG_W("device QueueFamilyIndices is not complete !");
             return std::nullopt;
