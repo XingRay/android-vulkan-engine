@@ -7,27 +7,32 @@
 #include <cstdint>
 #include <memory>
 
-#include "engine/VulkanVertexAttribute.h"
-#include "engine/VulkanVertex.h"
+#include "engine/VulkanVertexAttributeConfigure.h"
 #include "engine/ShaderFormat.h"
 
 
 namespace engine {
-
-    class VulkanShaderConfigure;
 
     class VulkanVertexConfigure {
     private:
         uint32_t mBinding;
         uint32_t mSize;
 
-        std::vector<VulkanVertexAttribute> mAttributes;
+        std::vector<VulkanVertexAttributeConfigure> mAttributes;
 
         uint32_t mCurrentAttributeLocation = -1;
         uint32_t mCurrentAttributeOffset = 0;
 
     public:
         VulkanVertexConfigure();
+
+        ~VulkanVertexConfigure();
+
+        uint32_t getBinding() const;
+
+        uint32_t getSize() const;
+
+        const std::vector<VulkanVertexAttributeConfigure> &getAttributes() const;
 
         VulkanVertexConfigure &size(uint32_t size);
 

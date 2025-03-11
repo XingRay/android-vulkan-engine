@@ -4,14 +4,17 @@
 
 #pragma once
 
-#include "engine/VulkanDescriptorSet.h"
-#include <android/hardware_buffer.h>
+#include <cstdint>
+#include <memory>
+#include "engine/VulkanDescriptorConfigure.h"
+#include "engine/vulkan_wrapper/VulkanDevice.h"
 
 namespace engine {
 
     class VulkanDescriptorSetConfigure {
     private:
-        VulkanDescriptorSet mUniformSet;
+        uint32_t mSet;
+        std::vector<std::unique_ptr<VulkanDescriptorConfigure>> mVulkanDescriptorConfigures;
 
     public:
 
@@ -19,15 +22,25 @@ namespace engine {
 
         ~VulkanDescriptorSetConfigure();
 
+        uint32_t getSet()const;
+
+        const std::vector<std::unique_ptr<VulkanDescriptorConfigure>>& getVulkanDescriptorConfigures();
+
         VulkanDescriptorSetConfigure &set(uint32_t set);
 
-        VulkanDescriptorSetConfigure &addUniform(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t size);
+        VulkanDescriptorSetConfigure &addVulkanDescriptor(std::unique_ptr<VulkanDescriptorConfigure> &&vulkanDescriptor);
 
-        VulkanDescriptorSetConfigure &addSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, ImageSize imageSize);
+        VulkanDescriptorSetConfigure &addUniform(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
 
-        VulkanDescriptorSetConfigure &addAndroidHardwareBufferSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, AHardwareBuffer *hardwareBuffer);
+        VulkanDescriptorSetConfigure &addSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
 
-        const VulkanDescriptorSet &build() const;
+        VulkanDescriptorSetConfigure &addImmutableSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
+
+        VulkanDescriptorSetConfigure &addStorage(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
+
+        std::vector<vk::DescriptorSetLayoutBinding> createDescriptorSetLayoutBindings();
+
+        vk::DescriptorSetLayout createDescriptorSetLayout(const VulkanDevice& vulkanDevice);
     };
 
 } // engine

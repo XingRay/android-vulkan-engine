@@ -8,7 +8,7 @@
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
-#include "engine/vulkan_wrapper/VulkanBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanBuffer.h"
 
 namespace engine {
 

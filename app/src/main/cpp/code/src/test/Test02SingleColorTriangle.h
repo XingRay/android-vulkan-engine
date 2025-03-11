@@ -8,7 +8,7 @@
 #include "test/common/TestBase.h"
 
 #include "engine/VulkanEngine.h"
-#include "engine/vulkan_wrapper/android/AndroidVulkanSurface.h"
+#include "engine/vulkan_wrapper/platform/android/AndroidVulkanSurface.h"
 
 #include "game_activity/native_app_glue/android_native_app_glue.h"
 #include "test/common/glm.h"

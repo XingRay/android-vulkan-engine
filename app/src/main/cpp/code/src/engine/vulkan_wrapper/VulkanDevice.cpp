@@ -141,13 +141,9 @@ namespace engine {
         return mPresentModes;
     }
 
-    vk::ShaderModule VulkanDevice::createShaderModule(const std::vector<char> &code) const {
-        vk::ShaderModuleCreateInfo createInfo;
-        createInfo
-                .setCodeSize(code.size())
-                .setPCode(reinterpret_cast<const uint32_t *>(code.data()));
-
-        return mDevice.createShaderModule(createInfo);
+    [[nodiscard]]
+    uint32_t VulkanDevice::getMaxPushConstantsSize() const {
+        vk::PhysicalDeviceProperties deviceProperties = mPhysicalDevice.getProperties();
+        return deviceProperties.limits.maxPushConstantsSize;
     }
-
 } // engine

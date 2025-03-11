@@ -11,10 +11,8 @@
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/ShaderFormat.h"
 #include "engine/ImageSize.h"
-#include "engine/VulkanDescriptorSet.h"
-#include "engine/VulkanVertex.h"
-#include "engine/vulkan_wrapper/VulkanBuffer.h"
-#include "engine/VulkanPushConstant.h"
+#include "engine/vulkan_wrapper/buffer/VulkanBuffer.h"
+#include "engine/VulkanPushConstantConfigure.h"
 #include "engine/vulkan_wrapper/VulkanSampler.h"
 
 namespace engine {
@@ -24,15 +22,7 @@ namespace engine {
     private:
         const VulkanDevice &mVulkanDevice;
 
-        vk::ShaderModule mComputeShaderModule;
-        vk::ShaderModule mVertexShaderModule;
-        vk::ShaderModule mFragmentShaderModule;
-
-        std::vector<vk::VertexInputBindingDescription> mVertexDescriptions;
-        std::vector<vk::VertexInputAttributeDescription> mVertexInputAttributeDescriptions;
-
         // uniform buffer/ texture sampler / storage buffer
-        std::vector<vk::DescriptorSetLayout> mDescriptorSetLayouts;
         std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
 
         // uniform set -> binding -> ImmutableSamplers
@@ -53,12 +43,9 @@ namespace engine {
                               const VulkanDevice &vulkanDevice,
                               const VulkanCommandPool &commandPool,
                               uint32_t frameCount,
-                              const std::vector<char> &computeShaderCode,
-                              const std::vector<char> &vertexShaderCode,
-                              const std::vector<char> &fragmentShaderCode,
                               const std::vector<VulkanVertex> &vertices,
                               const std::vector<VulkanDescriptorSet> &descriptorSets,
-                              const std::vector<VulkanPushConstant> &pushConstants);
+                              const std::vector<VulkanPushConstantConfigure> &pushConstants);
 
         ~VulkanShader();
 

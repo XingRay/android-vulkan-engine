@@ -5,8 +5,9 @@
 #pragma once
 
 #include "engine/VulkanEngineBuilder.h"
-#include "engine/VulkanVertexConfigure.h"
-#include "engine/VulkanDescriptorSetConfigure.h"
+#include "engine/VulkanVertexConfigures.h"
+#include "engine/VulkanDescriptorSetConfigures.h"
+#include "engine/VulkanPushConstantConfigures.h"
 
 namespace engine {
 
@@ -21,17 +22,17 @@ namespace engine {
         /**
          * vertex
          */
-        std::vector<VulkanVertexConfigure> mVulkanVertexConfigures;
+        VulkanVertexConfigures mVulkanVertexConfigures;
 
         /**
-         * uniform
+         * descriptor sets
          */
-        std::vector<VulkanDescriptorSetConfigure> mVulkanDescriptorSetConfigures;
+        VulkanDescriptorSetConfigures mVulkanDescriptorSetConfigures;
 
         /**
          * push constant
          */
-        std::vector<VulkanPushConstant> mPushConstants;
+        VulkanPushConstantConfigures mVulkanPushConstantConfigures;
 
     public:
         explicit VulkanGraphicsPipelineConfigure();
@@ -40,7 +41,7 @@ namespace engine {
 
         /**
          *
-         * shader coce
+         * shader code
          *
          */
         VulkanGraphicsPipelineConfigure &vertexShaderCode(std::vector<char> &&code);

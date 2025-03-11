@@ -9,8 +9,8 @@ namespace engine {
     VulkanGraphicsPipeline::VulkanGraphicsPipeline(const VulkanDevice &vulkanDevice,
                                                    const VulkanSwapchain &swapchain,
                                                    const VulkanRenderPass &renderPass,
-                                                   const vk::ShaderModule &vertexShaderModule,
-                                                   const vk::ShaderModule &fragmentShaderModule,
+                                                   const VulkanShaderModule &vertexShaderModule,
+                                                   const VulkanShaderModule &fragmentShaderModule,
                                                    const std::vector<vk::VertexInputBindingDescription> &vertexInputBindingDescriptions,
                                                    const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributeDescriptions,
                                                    const std::vector<vk::DescriptorSetLayout> & descriptorSetLayouts,
@@ -63,7 +63,7 @@ namespace engine {
         vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo;
         vertexShaderStageCreateInfo
                 .setStage(vk::ShaderStageFlagBits::eVertex)
-                .setModule(vertexShaderModule)
+                .setModule(vertexShaderModule.getShaderModule())
                 .setPName("main")
                 .setPSpecializationInfo(nullptr);
 
@@ -136,7 +136,7 @@ namespace engine {
         vk::PipelineShaderStageCreateInfo fragmentShaderStageCreateInfo;
         fragmentShaderStageCreateInfo
                 .setStage(vk::ShaderStageFlagBits::eFragment)
-                .setModule(fragmentShaderModule)
+                .setModule(fragmentShaderModule.getShaderModule())
                 .setPName("main")
                 .setPSpecializationInfo(nullptr);
 

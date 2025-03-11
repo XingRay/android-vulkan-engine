@@ -81,8 +81,6 @@ namespace engine {
 
 //        static SwapChainSupportDetail querySwapChainSupported(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface);
 
-        [[nodiscard]]
-        vk::ShaderModule createShaderModule(const std::vector<char> &code) const;
-
+        uint32_t getMaxPushConstantsSize()const;
     };
 } // engine

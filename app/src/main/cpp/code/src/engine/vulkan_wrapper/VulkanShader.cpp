@@ -6,11 +6,11 @@
 #include "engine/Log.h"
 
 #include "engine/VulkanUtil.h"
-#include "engine/vulkan_wrapper/VulkanUniformBuffer.h"
-#include "engine/vulkan_wrapper/VulkanSamplerBuffer.h"
-#include "engine/vulkan_wrapper/android/VulkanHardwareBuffer.h"
-#include "engine/vulkan_wrapper/android/VulkanAndroidHardwareSampler.h"
-#include "engine/vulkan_wrapper/android/VulkanAndroidUtil.h"
+#include "engine/vulkan_wrapper/buffer/VulkanUniformBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanSamplerBuffer.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanHardwareBuffer.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidHardwareSampler.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidUtil.h"
 
 namespace engine {
 
@@ -18,43 +18,10 @@ namespace engine {
                                const VulkanDevice &vulkanDevice,
                                const VulkanCommandPool &commandPool,
                                uint32_t frameCount,
-                               const std::vector<char> &computeShaderCode,
-                               const std::vector<char> &vertexShaderCode,
-                               const std::vector<char> &fragmentShaderCode,
                                const std::vector<VulkanVertex> &vertices,
                                const std::vector<VulkanDescriptorSet> &descriptorSets,
-                               const std::vector<VulkanPushConstant> &pushConstants)
+                               const std::vector<VulkanPushConstantConfigure> &pushConstants)
             : mVulkanDevice(vulkanDevice) {
-
-        if (!computeShaderCode.empty()) {
-            mComputeShaderModule = vulkanDevice.createShaderModule(computeShaderCode);
-        }
-        if (!vertexShaderCode.empty()) {
-            mVertexShaderModule = vulkanDevice.createShaderModule(vertexShaderCode);
-        }
-        if (!fragmentShaderCode.empty()) {
-            mFragmentShaderModule = vulkanDevice.createShaderModule(fragmentShaderCode);
-        }
-
-        for (const VulkanVertex &vertex: vertices) {
-            vk::VertexInputBindingDescription bindingDescription{};
-            bindingDescription
-                    .setBinding(vertex.binding)
-                    .setStride(vertex.size)
-                    .setInputRate(vk::VertexInputRate::eVertex);
-            mVertexDescriptions.push_back(bindingDescription);
-
-            for (const VulkanVertexAttribute &attribute: vertex.attributes) {
-                vk::VertexInputAttributeDescription attributeDescription{};
-                attributeDescription
-                        .setLocation(attribute.location)
-                        .setFormat(attribute.format)
-                        .setOffset(attribute.offset)
-                        .setBinding(attribute.binding);
-
-                mVertexInputAttributeDescriptions.push_back(attributeDescription);
-            }
-        }
 
         mImmutableSamplers.reserve(descriptorSets.size());
         mSamplers.reserve(descriptorSets.size());
@@ -104,46 +71,13 @@ namespace engine {
         for (int setIndex = 0; setIndex < descriptorSets.size(); setIndex++) {
             const VulkanDescriptorSet &descriptorSet = descriptorSets[setIndex];
 
-            std::vector<vk::DescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-            descriptorSetLayoutBindings.reserve(descriptorSet.descriptors.size());
-
             for (int descriptorIndex = 0; descriptorIndex < descriptorSet.descriptors.size(); descriptorIndex++) {
                 const VulkanDescriptor &descriptor = descriptorSet.descriptors[descriptorIndex];
 
                 vk::DescriptorPoolSize &descriptorPoolSize = VulkanUtil::getOrCreateDescriptorPoolSize(descriptorPoolSizes, descriptor.getDescriptorType());
                 // 每一帧中各种类型的描述符(uniform/sampler/storage ...)出现的次数还需要乘以帧数得到总共需要的描述符的数量
                 descriptorPoolSize.descriptorCount += descriptor.getDescriptorCount() * frameCount;
-
-                vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding{};
-                if (descriptor.getVulkanDescriptorType() == VulkanDescriptorType::androidHardwareBufferSampler) {
-                    descriptorSetLayoutBinding
-                            .setBinding(descriptor.getBinding())
-                            .setDescriptorType(descriptor.getDescriptorType())
-                            .setDescriptorCount(descriptor.getDescriptorCount())
-                            .setStageFlags(descriptor.getStageFlags())
-                                    // 不可变采样器 的数组。
-                                    // 仅在 descriptorType 为 vk::DescriptorType::eCombinedImageSampler 或 vk::DescriptorType::eSampler 时有效
-                                    //在描述符集布局创建时固定，不能在运行时修改。适用于静态纹理采样器（例如，采样器的配置在运行时不会改变）。
-                                    //不设置 setPImmutableSamplers：表示使用 可变采样器，采样器可以在运行时通过更新描述符集来修改。
-                            .setPImmutableSamplers(mSamplers[setIndex][descriptorIndex].data());
-                } else {
-                    descriptorSetLayoutBinding
-                            .setBinding(descriptor.getBinding())
-                            .setDescriptorType(descriptor.getDescriptorType())
-                            .setDescriptorCount(descriptor.getDescriptorCount())
-                            .setStageFlags(descriptor.getStageFlags())
-                            .setPImmutableSamplers(nullptr);
-                }
-
-                descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
             }
-
-            vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo{};
-            descriptorSetLayoutCreateInfo
-                    .setBindings(descriptorSetLayoutBindings);
-
-            vk::DescriptorSetLayout descriptorSetLayout = mVulkanDevice.getDevice().createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
-            mDescriptorSetLayouts.push_back(descriptorSetLayout);
         }
 
         vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo;
@@ -232,6 +166,7 @@ namespace engine {
                                 .setDstSet(mDescriptorSets[frameIndex][setIndex])
                                 .setDstBinding(pUniformBuffer->getBinding())
                                 .setDstArrayElement(pUniformBuffer->getIndex())
+                                .setDescriptorCount(1)
                                 .setDescriptorType(vk::DescriptorType::eUniformBuffer)
                                 .setBufferInfo(descriptorBufferInfos);
 
@@ -286,7 +221,7 @@ namespace engine {
         vk::PhysicalDeviceProperties deviceProperties = vulkanDevice.getPhysicalDevice().getProperties();
         uint32_t maxPushConstantsSize = deviceProperties.limits.maxPushConstantsSize;
         uint32_t totalPushConstantSize = 0;
-        for (const VulkanPushConstant &pushConstant: pushConstants) {
+        for (const VulkanPushConstantConfigure &pushConstant: pushConstants) {
             // 检查单个 Push Constant 的大小是否合理
             if (pushConstant.size == 0) {
                 throw std::runtime_error("Push Constant size cannot be zero");

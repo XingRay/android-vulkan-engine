@@ -25,7 +25,7 @@ namespace engine {
         ~VulkanAndroidHardwareSampler() override;
 
         [[nodiscard]]
-        vk::SamplerYcbcrConversion getConversion() const override;
+        vk::SamplerYcbcrConversion getConversion() const;
 
         [[nodiscard]]
         vk::Sampler getSampler() const override;

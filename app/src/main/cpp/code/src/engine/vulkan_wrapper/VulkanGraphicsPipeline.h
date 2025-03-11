@@ -9,6 +9,7 @@
 #include "engine/vulkan_wrapper/VulkanSwapchain.h"
 #include "engine/vulkan_wrapper/VulkanRenderPass.h"
 #include "engine/vulkan_wrapper/VulkanShader.h"
+#include "engine/vulkan_wrapper/VulkanShaderModule.h"
 
 namespace engine {
     class VulkanShader;
@@ -23,8 +24,8 @@ namespace engine {
         VulkanGraphicsPipeline(const VulkanDevice &vulkanDevice,
                                const VulkanSwapchain &swapchain,
                                const VulkanRenderPass &renderPass,
-                               const vk::ShaderModule &vertexShaderModule,
-                               const vk::ShaderModule &fragmentShaderModule,
+                               const VulkanShaderModule &vertexShaderModule,
+                               const VulkanShaderModule &fragmentShaderModule,
                                const std::vector<vk::VertexInputBindingDescription> &vertexInputBindingDescriptions,
                                const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributeDescriptions,
                                const std::vector<vk::DescriptorSetLayout> & descriptorSetLayouts,

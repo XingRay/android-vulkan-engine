@@ -16,8 +16,8 @@ namespace engine {
         [[nodiscard]]
         virtual vk::Sampler getSampler() const = 0;
 
-        [[nodiscard]]
-        virtual vk::SamplerYcbcrConversion getConversion() const = 0;
+//        [[nodiscard]]
+//        virtual vk::SamplerYcbcrConversion getConversion() const = 0;
     };
 
 } // engine

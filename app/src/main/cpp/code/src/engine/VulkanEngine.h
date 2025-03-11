@@ -18,12 +18,12 @@
 #include "engine/vulkan_wrapper/VulkanGraphicsPipeline.h"
 #include "engine/vulkan_wrapper/VulkanComputePipeline.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
-#include "engine/vulkan_wrapper/VulkanVertexBuffer.h"
-#include "engine/vulkan_wrapper/VulkanIndexBuffer.h"
-#include "engine/vulkan_wrapper/VulkanUniformBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanVertexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanIndexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
-#include "engine/vulkan_wrapper/VulkanSamplerBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanSamplerBuffer.h"
 
 #include "engine/common/StringListSelector.h"
 #include "engine/VulkanPhysicalDeviceProvider.h"
@@ -32,9 +32,9 @@ namespace engine {
 
 //    class VulkanShaderConfigure;
 
-    class VulkanVertex;
+//    class VulkanVertex;
 
-    class VulkanDescriptorSet;
+//    class VulkanDescriptorSet;
 
     class VulkanEngine {
     private:

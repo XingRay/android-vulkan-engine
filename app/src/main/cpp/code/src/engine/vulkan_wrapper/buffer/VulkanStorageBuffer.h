@@ -6,12 +6,14 @@
 
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
-#include "engine/vulkan_wrapper/VulkanBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanBuffer.h"
+#include "VulkanStagingBuffer.h"
 
 namespace engine {
 
-    class VulkanUniformBuffer : public VulkanBuffer {
+    class VulkanStorageBuffer : public VulkanBuffer {
     private:
         const VulkanDevice &mDevice;
         /**
@@ -24,14 +26,19 @@ namespace engine {
          */
         uint32_t mOffset = 0;
 
-        vk::Buffer mUniformBuffer;
-        vk::DeviceMemory mUniformBufferMemory;
-        void *mUniformBuffersMapped;
+        std::unique_ptr<VulkanStagingBuffer> mVulkanStagingBuffer;
+
+        vk::Buffer mBuffer;
+        vk::DeviceMemory mDeviceMemory;
+        void *mMappedMemoryPointer;
+
+        const VulkanCommandPool &mCommandPool;
 
     public:
-        VulkanUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize, uint32_t binding, uint32_t index);
+        VulkanStorageBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &vulkanCommandPool,
+                            vk::DeviceSize bufferSize, uint32_t binding, uint32_t index);
 
-        ~VulkanUniformBuffer() override;
+        ~VulkanStorageBuffer() override;
 
         [[nodiscard]]
         const vk::Buffer &getUniformBuffer() const;
