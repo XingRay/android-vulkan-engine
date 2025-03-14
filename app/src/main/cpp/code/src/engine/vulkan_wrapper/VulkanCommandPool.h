@@ -33,6 +33,8 @@ namespace engine {
 
         vk::CommandBuffer allocateCommand() const;
 
+        std::vector<vk::CommandBuffer> allocateCommands(uint32_t count) const;
+
         void submitOneTimeCommand(const std::function<void(const vk::CommandBuffer&)> &command) const;
 
         void submitCommand(const vk::CommandBuffer &commandBuffer) const;

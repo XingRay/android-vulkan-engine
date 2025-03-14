@@ -95,4 +95,15 @@ namespace engine {
         return mSampler;
     }
 
+    std::vector<vk::DescriptorImageInfo> VulkanAndroidHardwareSampler::createDescriptorImageInfos(){
+        vk::DescriptorImageInfo samplerDescriptorImageInfo;
+                        samplerDescriptorImageInfo
+                                .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+                                .setImageView(pVulkanHardwareBuffer->getImageView())
+                                .setSampler(pVulkanHardwareBuffer->getSampler());
+
+                        std::array<vk::DescriptorImageInfo, 1> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};
+
+    }
+
 } // engine

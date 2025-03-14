@@ -11,11 +11,11 @@
 #include "engine/vulkan_wrapper/VulkanInstance.h"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
-#include "engine/vulkan_wrapper/buffer/VulkanBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleBuffer.h"
 
 namespace engine {
 
-    class VulkanHardwareBuffer : public VulkanBuffer {
+    class VulkanHardwareBuffer : public VulkanHostVisibleBuffer {
     private:
         const VulkanInstance &mVulkanInstance;
         const VulkanDevice &mVulkanDevice;

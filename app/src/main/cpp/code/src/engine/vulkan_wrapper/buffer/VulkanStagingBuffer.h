@@ -4,33 +4,20 @@
 
 #pragma once
 
-#include "vulkan/vulkan.hpp"
-#include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleBuffer.h"
 
 namespace engine {
 
     class VulkanStagingBuffer {
     private:
-        const VulkanDevice &mDevice;
-        /**
-         * 指定缓冲区的范围（以字节为单位）。
-         */
-        uint32_t mBufferSize;
-
-        /**
-         *  指定缓冲区的起始偏移量（以字节为单位）。
-         */
-        uint32_t mOffset = 0;
-
-        vk::Buffer mBuffer;
-        vk::DeviceMemory mDeviceMemory;
-        void *mMappedMemoryPointer;
+        VulkanHostVisibleBuffer mVulkanHostVisibleBuffer;
 
     public:
         VulkanStagingBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize);
 
         ~VulkanStagingBuffer();
 
+        [[nodiscard]]
         const vk::Buffer &getBuffer() const;
 
         void updateBuffer(void *data, uint32_t size);

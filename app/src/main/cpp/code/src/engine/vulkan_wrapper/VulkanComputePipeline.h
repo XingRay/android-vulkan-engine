@@ -21,9 +21,9 @@ namespace engine {
     public:
         VulkanComputePipeline(
                 const VulkanDevice &vulkanDevice,
-                const VulkanSwapchain &swapchain,
-                const VulkanRenderPass &renderPass,
-                const VulkanShader &vertexShader);
+                const VulkanShaderModule &computeShaderModule,
+                const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
+                const std::vector<vk::PushConstantRange> &pushConstantRanges);
 
         ~VulkanComputePipeline();
 

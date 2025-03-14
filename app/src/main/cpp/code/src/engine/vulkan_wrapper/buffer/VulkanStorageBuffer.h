@@ -8,12 +8,12 @@
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
-#include "engine/vulkan_wrapper/buffer/VulkanBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleBuffer.h"
 #include "VulkanStagingBuffer.h"
 
 namespace engine {
 
-    class VulkanStorageBuffer : public VulkanBuffer {
+    class VulkanStorageBuffer : public VulkanHostVisibleBuffer {
     private:
         const VulkanDevice &mDevice;
         /**

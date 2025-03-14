@@ -9,7 +9,7 @@
 namespace engine {
     VulkanStorageBuffer::VulkanStorageBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &vulkanCommandPool,
                                              vk::DeviceSize bufferSize, uint32_t binding, uint32_t index)
-            : mDevice(vulkanDevice), mCommandPool(vulkanCommandPool), mBufferSize(bufferSize), VulkanBuffer(binding, VulkanBufferType::NORMAL, index) {
+            : mDevice(vulkanDevice), mCommandPool(vulkanCommandPool), mBufferSize(bufferSize), VulkanHostVisibleBuffer(binding, VulkanBufferType::NORMAL, index) {
         LOG_D("VulkanUniformBuffer::VulkanUniformBuffer#bufferSize: %lu", bufferSize);
 
         mVulkanStagingBuffer = std::make_unique<VulkanStagingBuffer>(vulkanDevice, bufferSize);

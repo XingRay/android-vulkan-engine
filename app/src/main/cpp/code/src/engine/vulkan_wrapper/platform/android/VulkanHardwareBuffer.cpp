@@ -18,7 +18,7 @@ namespace engine {
                                                uint32_t binding, uint32_t index, const vk::DescriptorSet &descriptorSet)
             : mVulkanInstance(vulkanInstance), mVulkanDevice(vulkanDevice), mCommandPool(commandPool), mSampler(sampler), mConversion(conversion),
               mDescriptorSet(descriptorSet),
-              VulkanBuffer(binding, VulkanBufferType::ANDROID_HARDWARE_BUFFER, index) {
+              VulkanHostVisibleBuffer(binding, VulkanBufferType::ANDROID_HARDWARE_BUFFER, index) {
 
         const vk::Instance &instance = mVulkanInstance.getInstance();
         initAndroidVulkanWrapper(instance);

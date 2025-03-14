@@ -51,6 +51,16 @@ namespace engine {
         return mDevice.getDevice().allocateCommandBuffers(commandBufferAllocateInfo)[0];
     }
 
+    std::vector<vk::CommandBuffer> VulkanCommandPool::allocateCommands(uint32_t count) const {
+        vk::CommandBufferAllocateInfo commandBufferAllocateInfo{};
+        commandBufferAllocateInfo
+                .setLevel(vk::CommandBufferLevel::ePrimary)
+                .setCommandPool(mCommandPool)
+                .setCommandBufferCount(count);
+
+        return mDevice.getDevice().allocateCommandBuffers(commandBufferAllocateInfo);
+    }
+
     void VulkanCommandPool::submitCommand(const vk::CommandBuffer &commandBuffer) const {
         vk::SubmitInfo submitInfo{};
         submitInfo.setCommandBufferCount(1)

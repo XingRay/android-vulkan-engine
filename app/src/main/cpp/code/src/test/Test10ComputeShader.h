@@ -33,7 +33,7 @@
 #include "engine/vulkan_wrapper/buffer/VulkanUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanSamplerBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanSampler.h"
 
 #include "engine/common/StringListSelector.h"
 #include "engine/VulkanPhysicalDeviceProvider.h"

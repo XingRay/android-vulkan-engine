@@ -98,7 +98,7 @@ namespace engine {
         return mPhysicalDevice;
     }
 
-    vk::Device VulkanDevice::getDevice() const {
+    const vk::Device &VulkanDevice::getDevice() const {
         return mDevice;
     }
 
@@ -118,32 +118,33 @@ namespace engine {
         return mQueueFamilyIndices;
     }
 
-    vk::Queue VulkanDevice::getGraphicsQueue() const {
+    const vk::Queue &VulkanDevice::getGraphicsQueue() const {
         return mGraphicsQueue;
     }
 
-    vk::Queue VulkanDevice::getPresentQueue() const {
+    const vk::Queue &VulkanDevice::getPresentQueue() const {
         return mPresentQueue;
     }
 
-    [[nodiscard]]
     vk::SurfaceCapabilitiesKHR VulkanDevice::getCapabilities() const {
         return mCapabilities;
     }
 
-    [[nodiscard]]
     std::vector<vk::SurfaceFormatKHR> VulkanDevice::getFormats() const {
         return mFormats;
     }
 
-    [[nodiscard]]
     std::vector<vk::PresentModeKHR> VulkanDevice::getPresentModes() const {
         return mPresentModes;
     }
 
-    [[nodiscard]]
     uint32_t VulkanDevice::getMaxPushConstantsSize() const {
         vk::PhysicalDeviceProperties deviceProperties = mPhysicalDevice.getProperties();
         return deviceProperties.limits.maxPushConstantsSize;
+    }
+
+    float VulkanDevice::getMaxSamplerAnisotropy() const {
+        vk::PhysicalDeviceProperties properties = mPhysicalDevice.getProperties();
+        return properties.limits.maxSamplerAnisotropy;
     }
 } // engine

@@ -23,6 +23,8 @@ namespace engine {
         VulkanDescriptorSetConfigures& addVulkanDescriptorSetConfigure(std::unique_ptr<VulkanDescriptorSetConfigure>&& vulkanDescriptorSetConfigure);
 
         std::vector<vk::DescriptorSetLayout> createDescriptorSetLayouts(const VulkanDevice& vulkanDevice);
+
+        std::vector<vk::DescriptorPoolSize> createDescriptorPoolSizes();
     };
 
 } // engine

@@ -7,42 +7,20 @@
 #include "engine/Log.h"
 
 namespace engine {
+
     VulkanStagingBuffer::VulkanStagingBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize)
-            : mDevice(vulkanDevice), mBufferSize(bufferSize) {
-        std::tie(mBuffer, mDeviceMemory) = VulkanUtil::createBuffer(vulkanDevice, bufferSize,
-                                                                    vk::BufferUsageFlagBits::eTransferSrc,
-                                                                    vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent);
-        mMappedMemoryPointer = vulkanDevice.getDevice().mapMemory(mDeviceMemory, 0, bufferSize, vk::MemoryMapFlags{});
+            : mVulkanHostVisibleBuffer(vulkanDevice, bufferSize, vk::BufferUsageFlagBits::eTransferSrc) {
+
     }
 
-    VulkanStagingBuffer::~VulkanStagingBuffer() {
-        vk::Device device = mDevice.getDevice();
-
-        device.unmapMemory(mDeviceMemory);
-        device.destroy(mBuffer);
-        device.freeMemory(mDeviceMemory);
-        mMappedMemoryPointer = nullptr;
-    }
+    VulkanStagingBuffer::~VulkanStagingBuffer() = default;
 
     const vk::Buffer &VulkanStagingBuffer::getBuffer() const {
-        return mBuffer;
+        return mVulkanHostVisibleBuffer.getBuffer();
     }
 
-    void VulkanStagingBuffer::updateBuffer(void *data, uint32_t size){
-        if (mMappedMemoryPointer == nullptr) {
-            LOG_E("staging buffer memory is not mapped!");
-            return;
-        }
-        if (data == nullptr) {
-            LOG_E("Input data is null!");
-            return;
-        }
-        if (size > mBufferSize) {
-            LOG_E("Data size (%u) exceeds buffer size (%d)!", size, mBufferSize);
-            return;
-        }
-
-        memcpy(mMappedMemoryPointer, data, size);
+    void VulkanStagingBuffer::updateBuffer(void *data, uint32_t size) {
+        mVulkanHostVisibleBuffer.updateBuffer(data, size);
     }
 
 } // engine

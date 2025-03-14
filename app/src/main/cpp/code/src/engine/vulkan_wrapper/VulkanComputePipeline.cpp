@@ -7,20 +7,22 @@
 
 namespace engine {
     VulkanComputePipeline::VulkanComputePipeline(const VulkanDevice &vulkanDevice,
-                                                 const VulkanSwapchain &swapchain,
-                                                 const VulkanRenderPass &renderPass,
-                                                 const VulkanShader &shader)
+                                                 const VulkanShaderModule &computeShaderModule,
+                                                 const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
+                                                 const std::vector<vk::PushConstantRange> &pushConstantRanges)
             : mDevice(vulkanDevice) {
         vk::Device device = vulkanDevice.getDevice();
 
         vk::PipelineShaderStageCreateInfo computeShaderStageInfo{};
         computeShaderStageInfo
                 .setStage(vk::ShaderStageFlagBits::eCompute)
-                .setModule(shader.getComputeShaderModule())
+                .setModule(computeShaderModule.getShaderModule())
                 .setPName("main");
 
         vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
-        pipelineLayoutCreateInfo.setSetLayouts(shader.getDescriptorSetLayouts());
+        pipelineLayoutCreateInfo
+                .setSetLayouts(descriptorSetLayouts)
+                .setPushConstantRanges(pushConstantRanges);
 
         mPipelineLayout = vulkanDevice.getDevice().createPipelineLayout(pipelineLayoutCreateInfo);
 

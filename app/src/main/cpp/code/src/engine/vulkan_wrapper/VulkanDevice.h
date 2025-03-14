@@ -46,7 +46,7 @@ namespace engine {
         vk::PhysicalDevice getPhysicalDevice() const;
 
         [[nodiscard]]
-        vk::Device getDevice() const;
+        const vk::Device& getDevice() const;
 
         [[nodiscard]]
         vk::SampleCountFlagBits getMsaaSamples() const;
@@ -61,10 +61,10 @@ namespace engine {
         const std::vector<uint32_t> &getQueueFamilyIndices() const;
 
         [[nodiscard]]
-        vk::Queue getGraphicsQueue() const;
+        const vk::Queue& getGraphicsQueue() const;
 
         [[nodiscard]]
-        vk::Queue getPresentQueue() const;
+        const vk::Queue& getPresentQueue() const;
 
         [[nodiscard]]
         vk::SurfaceCapabilitiesKHR getCapabilities() const;
@@ -75,12 +75,18 @@ namespace engine {
         [[nodiscard]]
         std::vector<vk::PresentModeKHR> getPresentModes() const;
 
+        [[nodiscard]]
         static QueueFamilyIndices findQueueFamilies(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface);
 
+        [[nodiscard]]
         static vk::SampleCountFlagBits getMaxUsableSampleCount(const vk::PhysicalDevice &device);
 
 //        static SwapChainSupportDetail querySwapChainSupported(const vk::PhysicalDevice &device, const vk::SurfaceKHR &surface);
 
+        [[nodiscard]]
         uint32_t getMaxPushConstantsSize()const;
+
+        [[nodiscard]]
+        float getMaxSamplerAnisotropy()const;
     };
 } // engine

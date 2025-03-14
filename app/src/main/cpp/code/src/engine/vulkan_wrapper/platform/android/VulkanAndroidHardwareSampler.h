@@ -6,11 +6,11 @@
 
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
-#include "engine/vulkan_wrapper/VulkanSampler.h"
+#include "engine/vulkan_wrapper/buffer/VulkanSampler.h"
 
 namespace engine {
 
-    class VulkanAndroidHardwareSampler : public VulkanSampler {
+    class VulkanAndroidHardwareSampler {
     private:
         const VulkanDevice &mVulkanDevice;
         vk::Sampler mSampler;
@@ -22,13 +22,13 @@ namespace engine {
         VulkanAndroidHardwareSampler(const VulkanDevice &vulkanDevice,
                                      const vk::AndroidHardwareBufferFormatPropertiesANDROID &formatInfo);
 
-        ~VulkanAndroidHardwareSampler() override;
+        ~VulkanAndroidHardwareSampler();
 
         [[nodiscard]]
         vk::SamplerYcbcrConversion getConversion() const;
 
         [[nodiscard]]
-        vk::Sampler getSampler() const override;
+        vk::Sampler getSampler() const;
     };
 
 } // engine
