@@ -1,22 +1,18 @@
 //
-// Created by leixing on 2025/1/24.
+// Created by leixing on 2025/3/15.
 //
 
-#include "AndroidVulkanWrapper.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidInstancePlugin.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidApi.h"
 
 namespace engine {
 
-    PFN_vkGetAndroidHardwareBufferPropertiesANDROID vkGetAndroidHardwareBufferPropertiesANDROID;
-    PFN_vkBindImageMemory2KHR vkBindImageMemory2KHR;
+    VulkanAndroidInstancePlugin::VulkanAndroidInstancePlugin() = default;
 
-    PFN_vkCreateSamplerYcbcrConversion vkCreateSamplerYcbcrConversion;
-    PFN_vkDestroySamplerYcbcrConversion vkDestroySamplerYcbcrConversion;
+    VulkanAndroidInstancePlugin::~VulkanAndroidInstancePlugin() = default;
 
-    PFN_vkGetImageMemoryRequirements2KHR vkGetImageMemoryRequirements2KHR;
-
-    bool initialized = false;
-
-    void initAndroidVulkanWrapper(const vk::Instance &instance) {
+    void VulkanAndroidInstancePlugin::onVulkanInstanceCreated(const VulkanInstance &vulkanInstance) {
+        const vk::Instance &instance = vulkanInstance.getInstance();
 
         vkGetAndroidHardwareBufferPropertiesANDROID = (PFN_vkGetAndroidHardwareBufferPropertiesANDROID) vkGetInstanceProcAddr(instance, "vkGetAndroidHardwareBufferPropertiesANDROID");
         vkBindImageMemory2KHR = (PFN_vkBindImageMemory2KHR) vkGetInstanceProcAddr(instance, "vkBindImageMemory2KHR");
@@ -25,7 +21,5 @@ namespace engine {
         vkDestroySamplerYcbcrConversion = (PFN_vkDestroySamplerYcbcrConversion) vkGetInstanceProcAddr(instance, "vkDestroySamplerYcbcrConversion");
 
         vkGetImageMemoryRequirements2KHR = (PFN_vkGetImageMemoryRequirements2KHR) vkGetInstanceProcAddr(instance, "vkGetImageMemoryRequirements2KHR");
-
-        initialized = true;
     }
-}
+} // engine

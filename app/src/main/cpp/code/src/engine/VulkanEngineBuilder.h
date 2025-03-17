@@ -148,7 +148,7 @@ namespace engine {
 //
 //        VulkanEngineBuilder &setPushConstants(std::vector<VulkanPushConstant> &&pushConstants);
 
-        std::unique_ptr<VulkanEngine> build();
+//        std::unique_ptr<VulkanEngine> build();
 
     private:
 

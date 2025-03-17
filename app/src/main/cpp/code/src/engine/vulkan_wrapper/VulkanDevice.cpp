@@ -59,21 +59,21 @@ namespace engine {
 
         std::vector<const char *> layerNames = common::StringUtil::toStringPtrArray(layers);
 
-        vk::PhysicalDeviceFeatures2 dev_features;
+        vk::PhysicalDeviceFeatures2 physicalDeviceFeatures2;
         vk::PhysicalDeviceSamplerYcbcrConversionFeatures ycbcr_features;
-        dev_features.pNext = &ycbcr_features;
+        physicalDeviceFeatures2.pNext = &ycbcr_features;
 
         ycbcr_features.samplerYcbcrConversion = true;
-        dev_features.features.samplerAnisotropy = true;
+        physicalDeviceFeatures2.features.samplerAnisotropy = true;
 
         vk::DeviceCreateInfo deviceCreateInfo;
         deviceCreateInfo
                 .setFlags(vk::DeviceCreateFlags{})
                 .setQueueCreateInfos(queueCreateInfos)
-//                .setPEnabledFeatures(&deviceFeatures)
+                .setPEnabledFeatures(&deviceFeatures)
                 .setPEnabledExtensionNames(enabledDeviceExtensionNames)
                 .setPEnabledLayerNames(layerNames)
-                .setPNext(&dev_features);
+                .setPNext(&physicalDeviceFeatures2);
 
         mDevice = mPhysicalDevice.createDevice(deviceCreateInfo);
 

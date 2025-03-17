@@ -28,10 +28,13 @@ namespace engine {
 
         ~VulkanVertexConfigure();
 
+        [[nodiscard]]
         uint32_t getBinding() const;
 
+        [[nodiscard]]
         uint32_t getSize() const;
 
+        [[nodiscard]]
         const std::vector<VulkanVertexAttributeConfigure> &getAttributes() const;
 
         VulkanVertexConfigure &size(uint32_t size);
@@ -45,8 +48,6 @@ namespace engine {
         VulkanVertexConfigure &addAttribute(uint32_t location, uint32_t binding, ShaderFormat format, uint32_t offset);
 
         VulkanVertexConfigure &addAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset);
-
-        VulkanVertex build() const;
     };
 
 } // engine

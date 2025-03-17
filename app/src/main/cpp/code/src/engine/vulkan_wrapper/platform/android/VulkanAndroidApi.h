@@ -1,10 +1,10 @@
 //
-// Created by leixing on 2025/1/24.
+// Created by leixing on 2025/3/17.
 //
 
 #pragma once
 
-#include <vulkan/vulkan.hpp>
+#include "vulkan/vulkan.hpp"
 
 namespace engine {
 
@@ -16,9 +16,4 @@ namespace engine {
 
     extern PFN_vkGetImageMemoryRequirements2KHR vkGetImageMemoryRequirements2KHR;
 
-    extern bool initialized;
-
-    void initAndroidVulkanWrapper(const vk::Instance &instance);
-}
-
-
+} // engine

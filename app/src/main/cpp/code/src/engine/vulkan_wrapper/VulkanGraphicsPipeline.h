@@ -12,7 +12,6 @@
 #include "engine/vulkan_wrapper/VulkanShaderModule.h"
 
 namespace engine {
-    class VulkanShader;
 
     class VulkanGraphicsPipeline {
     private:
@@ -28,8 +27,8 @@ namespace engine {
                                const VulkanShaderModule &fragmentShaderModule,
                                const std::vector<vk::VertexInputBindingDescription> &vertexInputBindingDescriptions,
                                const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributeDescriptions,
-                               const std::vector<vk::DescriptorSetLayout> & descriptorSetLayouts,
-                               const std::vector<vk::PushConstantRange> & pushConstantRanges);
+                               const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
+                               const std::vector<vk::PushConstantRange> &pushConstantRanges);
 
         ~VulkanGraphicsPipeline();
 

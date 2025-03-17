@@ -3,7 +3,7 @@
 //
 
 #include "engine/VulkanDescriptorConfigure.h"
-#include "engine/vulkan_wrapper/platform/android/VulkanAndroidHardwareSampler.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidHardwareBufferSampler.h"
 
 namespace engine {
 

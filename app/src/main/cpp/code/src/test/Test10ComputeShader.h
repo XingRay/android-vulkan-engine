@@ -28,9 +28,9 @@
 #include "engine/vulkan_wrapper/VulkanRenderPass.h"
 #include "engine/vulkan_wrapper/VulkanGraphicsPipeline.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
-#include "engine/vulkan_wrapper/buffer/VulkanVertexBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanIndexBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanUniformBuffer.h"
+//#include "engine/vulkan_wrapper/buffer/VulkanVertexBuffer.h"
+//#include "engine/vulkan_wrapper/buffer/VulkanIndexBuffer.h"
+//#include "engine/vulkan_wrapper/buffer/VulkanUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
 #include "engine/vulkan_wrapper/buffer/VulkanSampler.h"
@@ -71,29 +71,28 @@ namespace test10 {
         std::unique_ptr<engine::VulkanSurface> mSurface;
         std::unique_ptr<engine::VulkanPhysicalDevice> mPhysicalDevice;
         std::unique_ptr<engine::VulkanDevice> mDevice;
-        std::unique_ptr<engine::VulkanShader> mShader;
 
         std::unique_ptr<engine::VulkanSwapchain> mSwapchain;
         std::unique_ptr<engine::VulkanRenderPass> mRenderPass;
 
-        std::unique_ptr<engine::VulkanPipeline> mPipeline;
+//        std::unique_ptr<engine::VulkanPipeline> mPipeline;
         std::unique_ptr<engine::VulkanCommandPool> mCommandPool;
         std::unique_ptr<engine::VulkanFrameBuffer> mFrameBuffer;
 
-        std::vector<std::unique_ptr<engine::VulkanVertexBuffer>> mVulkanVertexBuffers;
+//        std::vector<std::unique_ptr<engine::VulkanVertexBuffer>> mVulkanVertexBuffers;
         std::vector<vk::Buffer> mVertexBuffers;
         std::vector<vk::DeviceSize> mVertexBufferOffsets;
 
-        std::unique_ptr<engine::VulkanIndexBuffer> mIndexBuffer;
+//        std::unique_ptr<engine::VulkanIndexBuffer> mIndexBuffer;
 
         std::unique_ptr<engine::VulkanSyncObject> mSyncObject;
 
         // shader
         std::vector<char> mVertexShaderCode;
         std::vector<char> mFragmentShaderCode;
-        std::vector<engine::VulkanVertex> mVertices;
-        std::vector<engine::VulkanDescriptorSet> mDescriptorSets;
-        std::vector<engine::VulkanPushConstantConfigure> mPushConstants;
+//        std::vector<engine::VulkanVertex> mVertices;
+//        std::vector<engine::VulkanDescriptorSet> mDescriptorSets;
+//        std::vector<engine::VulkanPushConstantConfigure> mPushConstants;
 
     public:
         // 构造函数初始化基类 TestBase，并传递 name

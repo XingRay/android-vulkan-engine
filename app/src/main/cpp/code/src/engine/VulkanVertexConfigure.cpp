@@ -12,7 +12,7 @@ namespace engine {
 
     }
 
-    VulkanVertexConfigure::~VulkanVertexConfigure()=default;
+    VulkanVertexConfigure::~VulkanVertexConfigure() = default;
 
     uint32_t VulkanVertexConfigure::getBinding() const {
         return mBinding;
@@ -51,18 +51,10 @@ namespace engine {
 
     VulkanVertexConfigure &VulkanVertexConfigure::addAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset) {
         mCurrentAttributeLocation = location;
-
         mAttributes.push_back(VulkanVertexAttributeConfigure{binding, location, format, offset});
-
         mCurrentAttributeOffset += VulkanUtil::getFormatSize(format);
 
         return *this;
     }
-
-    VulkanVertex VulkanVertexConfigure::build() const {
-        return VulkanVertex{mBinding, mSize, mAttributes};
-    }
-
-
 
 } // engine

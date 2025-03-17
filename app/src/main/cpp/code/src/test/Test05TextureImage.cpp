@@ -36,34 +36,34 @@ namespace test05 {
         int width, height, channels;
         stbi_uc *pixels = stbi_load("/storage/emulated/0/01.png", &width, &height, &channels, STBI_rgb_alpha);
 
-        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
-                .layers({}, layers)
-                .extensions({}, instanceExtensions)
-                .asGraphics()
-                .deviceExtensions(std::move(deviceExtensions))
-                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
-                .enableMsaa()
-                .physicalDeviceAsDefault()
-                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
-                    shaderConfigure
-                            .vertexShaderCode(std::move(vertexShaderCode))
-                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
-                                vertexConfigure
-                                        .binding(0)
-                                        .size(sizeof(Vertex))
-                                        .addAttribute(ShaderFormat::Vec3)
-                                        .addAttribute(ShaderFormat::Vec2);
-                            })
-                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
-                                engine::ImageSize imageSize(width, height, channels);
-                                configure.addSampler(0, vk::ShaderStageFlagBits::eFragment, imageSize);
-                            })
-                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex);
-                })
-                .build();
-
-        mVulkanEngine = std::move(engine);
+//        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
+//                .layers({}, layers)
+//                .extensions({}, instanceExtensions)
+//                .asGraphics()
+//                .deviceExtensions(std::move(deviceExtensions))
+//                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
+//                .enableMsaa()
+//                .physicalDeviceAsDefault()
+//                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
+//                    shaderConfigure
+//                            .vertexShaderCode(std::move(vertexShaderCode))
+//                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+//                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
+//                                vertexConfigure
+//                                        .binding(0)
+//                                        .size(sizeof(Vertex))
+//                                        .addAttribute(ShaderFormat::Vec3)
+//                                        .addAttribute(ShaderFormat::Vec2);
+//                            })
+//                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
+//                                engine::ImageSize imageSize(width, height, channels);
+//                                configure.addSampler(0, vk::ShaderStageFlagBits::eFragment, imageSize);
+//                            })
+//                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex);
+//                })
+//                .build();
+//
+//        mVulkanEngine = std::move(engine);
     }
 
     void Test05TextureImage::init() {
@@ -95,21 +95,21 @@ namespace test05 {
         }
         LOG_D("image: [ %d, x %d], channels: %d", width, height, channels);
 
-        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
-        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
-
-        LOG_D("mVulkanEngine->updateVertexBuffer");
-        mVulkanEngine->updateVertexBuffer(vertices);
-
-        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
-        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-        LOG_D("mVulkanEngine->updateIndexBuffer");
-        mVulkanEngine->updateIndexBuffer(indices);
-
-        for (int i = 0; i < mFrameCount; i++) {
-            LOG_D("mVulkanEngine->updateTextureSampler");
-            mVulkanEngine->updateUniformBuffer(i, 0, 0, pixels, width * height * channels);
-        }
+//        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
+//        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
+//
+//        LOG_D("mVulkanEngine->updateVertexBuffer");
+//        mVulkanEngine->updateVertexBuffer(vertices);
+//
+//        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
+//        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
+//        LOG_D("mVulkanEngine->updateIndexBuffer");
+//        mVulkanEngine->updateIndexBuffer(indices);
+//
+//        for (int i = 0; i < mFrameCount; i++) {
+//            LOG_D("mVulkanEngine->updateTextureSampler");
+//            mVulkanEngine->updateUniformBuffer(i, 0, 0, pixels, width * height * channels);
+//        }
 
         stbi_image_free(pixels);
     }
@@ -135,15 +135,15 @@ namespace test05 {
 //        mMvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mMvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-        mVulkanEngine->updatePushConstant(0, &(mvp));
+//        mVulkanEngine->updatePushConstant(0, &(mvp));
 
-        mVulkanEngine->drawFrame();
+//        mVulkanEngine->drawFrame();
     }
 
     // 清理操作
     void Test05TextureImage::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-        mVulkanEngine.reset();
+//        mVulkanEngine.reset();
     }
 
 } // test

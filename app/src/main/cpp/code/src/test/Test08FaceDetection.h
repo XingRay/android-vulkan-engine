@@ -40,7 +40,7 @@ namespace test08 {
 
         const android_app &mApp;
 
-        std::unique_ptr<engine::VulkanGraphicsEngine> mVulkanEngine;
+//        std::unique_ptr<engine::VulkanGraphicsEngine> mVulkanEngine;
 
         std::unique_ptr<ndkcamera::NdkCamera> mNdkCamera;
 

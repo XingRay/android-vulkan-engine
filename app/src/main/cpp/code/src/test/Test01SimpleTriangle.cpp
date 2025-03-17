@@ -33,28 +33,28 @@ namespace test01 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.frag.spv");
 
-        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
-                .layers({}, layers)
-                .extensions({}, instanceExtensions)
-                .asGraphics()
-                .deviceExtensions(std::move(deviceExtensions))
-                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
-                .enableMsaa()
-                .physicalDeviceAsDefault()
-                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
-                    shaderConfigure
-                            .vertexShaderCode(std::move(vertexShaderCode))
-                            .fragmentShaderCode(std::move(fragmentShaderCode))
-                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
-                                vertexConfigure
-                                        .binding(0)
-                                        .size(sizeof(Vertex))
-                                        .addAttribute(ShaderFormat::Vec3);
-                            });
-                })
-                .build();
-
-        mVulkanEngine = std::move(engine);
+//        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
+//                .layers({}, layers)
+//                .extensions({}, instanceExtensions)
+//                .asGraphics()
+//                .deviceExtensions(std::move(deviceExtensions))
+//                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
+//                .enableMsaa()
+//                .physicalDeviceAsDefault()
+//                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
+//                    shaderConfigure
+//                            .vertexShaderCode(std::move(vertexShaderCode))
+//                            .fragmentShaderCode(std::move(fragmentShaderCode))
+//                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
+//                                vertexConfigure
+//                                        .binding(0)
+//                                        .size(sizeof(Vertex))
+//                                        .addAttribute(ShaderFormat::Vec3);
+//                            });
+//                })
+//                .build();
+//
+//        mVulkanEngine = std::move(engine);
 
     }
 
@@ -68,11 +68,11 @@ namespace test01 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
-        mVulkanEngine->updateVertexBuffer(vertices);
-
-        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-        mVulkanEngine->updateIndexBuffer(indices);
+//        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
+//        mVulkanEngine->updateVertexBuffer(vertices);
+//
+//        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
+//        mVulkanEngine->updateIndexBuffer(indices);
     }
 
     // 检查是否准备好
@@ -82,13 +82,13 @@ namespace test01 {
 
     // 绘制三角形帧
     void Test01SimpleTriangle::drawFrame() {
-        mVulkanEngine->drawFrame();
+//        mVulkanEngine->drawFrame();
     }
 
     // 清理操作
     void Test01SimpleTriangle::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-        mVulkanEngine.reset();
+//        mVulkanEngine.reset();
     }
 
 } // test

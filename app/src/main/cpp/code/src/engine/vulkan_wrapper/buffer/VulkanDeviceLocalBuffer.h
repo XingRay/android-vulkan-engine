@@ -24,7 +24,7 @@ namespace engine {
         vk::DeviceMemory mDeviceMemory;
 
     public:
-        VulkanDeviceLocalBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize, vk::BufferUsageFlagBits bufferUsageFlagBits);
+        VulkanDeviceLocalBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize, vk::BufferUsageFlags bufferUsageFlagBits);
 
         virtual  ~VulkanDeviceLocalBuffer();
 

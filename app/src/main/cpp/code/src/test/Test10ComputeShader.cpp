@@ -142,35 +142,35 @@ namespace test10 {
 
 
 
-        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
-                .layers({}, layers)
-                .extensions({}, instanceExtensions)
-                .asGraphics()
-                .deviceExtensions(std::move(deviceExtensions))
-                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
-                .enableMsaa(1)
-                .physicalDeviceProvider(std::make_unique<engine::DefaultVulkanPhysicalDeviceProvider>(
-                        *mInstance, *mSurface, deviceExtensions, engine::VulkanPhysicalDeviceScoreConfig{}, vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute))
-                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
-                    shaderConfigure
-                            .vertexShaderCode(std::move(vertexShaderCode))
-                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
-                                vertexConfigure
-                                        .binding(0)
-                                        .size(sizeof(Vertex))
-                                        .addAttribute(ShaderFormat::Vec3)
-                                        .addAttribute(ShaderFormat::Vec2);
-                            })
-                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
-                                configure
-                                        .set(0)
-                                        .addAndroidHardwareBufferSampler(0, vk::ShaderStageFlagBits::eFragment, hardwareBuffer);
-                            });
-                })
-                .build();
-
-        mVulkanEngine = std::move(engine);
+//        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
+//                .layers({}, layers)
+//                .extensions({}, instanceExtensions)
+//                .asGraphics()
+//                .deviceExtensions(std::move(deviceExtensions))
+//                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
+//                .enableMsaa(1)
+//                .physicalDeviceProvider(std::make_unique<engine::DefaultVulkanPhysicalDeviceProvider>(
+//                        *mInstance, *mSurface, deviceExtensions, engine::VulkanPhysicalDeviceScoreConfig{}, vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute))
+//                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
+//                    shaderConfigure
+//                            .vertexShaderCode(std::move(vertexShaderCode))
+//                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+//                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
+//                                vertexConfigure
+//                                        .binding(0)
+//                                        .size(sizeof(Vertex))
+//                                        .addAttribute(ShaderFormat::Vec3)
+//                                        .addAttribute(ShaderFormat::Vec2);
+//                            })
+//                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
+//                                configure
+//                                        .set(0)
+//                                        .addAndroidHardwareBufferSampler(0, vk::ShaderStageFlagBits::eFragment, hardwareBuffer);
+//                            });
+//                })
+//                .build();
+//
+//        mVulkanEngine = std::move(engine);
     }
 
     void Test10ComputeShader::init() {
@@ -185,16 +185,16 @@ namespace test10 {
 
         std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
 
-        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
-        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
-
-        LOG_D("mVulkanEngine->updateVertexBuffer");
-        mVulkanEngine->updateVertexBuffer(vertices);
-
-        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
-        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-        LOG_D("mVulkanEngine->updateIndexBuffer");
-        mVulkanEngine->updateIndexBuffer(indices);
+//        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
+//        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
+//
+//        LOG_D("mVulkanEngine->updateVertexBuffer");
+//        mVulkanEngine->updateVertexBuffer(vertices);
+//
+//        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
+//        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
+//        LOG_D("mVulkanEngine->updateIndexBuffer");
+//        mVulkanEngine->updateIndexBuffer(indices);
 
 
         std::string original_img_path = R"(/storage/emulated/0/test/image/face_image_1080_1920.png)";
@@ -216,11 +216,11 @@ namespace test10 {
         }
 
         // 1. letterbox处理后得到 padded 图像，尺寸为 128x128，格式为 RGB
-        PaddingParams padding_params{};
-        cv::Mat padded = letterbox_padding(originalImg, cv::Size(128, 128), padding_params);
-
-        cv::Mat padded_float;
-        padded.convertTo(padded_float, CV_32FC3, 1.0 / 255.0);
+//        PaddingParams padding_params{};
+//        cv::Mat padded = letterbox_padding(originalImg, cv::Size(128, 128), padding_params);
+//
+//        cv::Mat padded_float;
+//        padded.convertTo(padded_float, CV_32FC3, 1.0 / 255.0);
 
     }
 
@@ -240,8 +240,8 @@ namespace test10 {
         AHardwareBuffer *buffer = mNdkCamera->getLatestHardwareBuffer();
 //        LOG_D("AHardwareBuffer:%p", buffer);
         if (buffer != nullptr) {
-            mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
-            mVulkanEngine->drawFrame();
+//            mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
+//            mVulkanEngine->drawFrame();
 
             // 增加帧计数器
             frameCount++;
@@ -267,6 +267,6 @@ namespace test10 {
     // 清理操作
     void Test10ComputeShader::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-        mVulkanEngine.reset();
+//        mVulkanEngine.reset();
     }
 } // test

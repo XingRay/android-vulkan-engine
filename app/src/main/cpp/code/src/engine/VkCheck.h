@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "engine/Log.h"
+
 // Vulkan call wrapper
 #define CALL_VK(func)                                                 \
   if (VK_SUCCESS != (func)) {                                         \

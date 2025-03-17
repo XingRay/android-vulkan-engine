@@ -9,7 +9,7 @@
 
 namespace engine {
 
-    VulkanDeviceLocalBuffer::VulkanDeviceLocalBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize, vk::BufferUsageFlagBits bufferUsageFlagBits)
+    VulkanDeviceLocalBuffer::VulkanDeviceLocalBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize, vk::BufferUsageFlags bufferUsageFlagBits)
             : mVulkanDevice(vulkanDevice), mBufferSize(bufferSize) {
         std::tie(mBuffer, mDeviceMemory) = VulkanUtil::createBuffer(vulkanDevice, bufferSize, vk::BufferUsageFlagBits::eTransferDst | bufferUsageFlagBits,
                                                                     vk::MemoryPropertyFlagBits::eDeviceLocal);

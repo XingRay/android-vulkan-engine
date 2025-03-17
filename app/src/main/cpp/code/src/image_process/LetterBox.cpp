@@ -31,4 +31,15 @@ namespace image {
         return params;
     }
 
+    // 将一组关键点坐标从 padded 图像转换回原始图像坐标
+    std::vector<cv::Point> transform_keypoints(const std::vector<cv::Point2f> &keypoints, const PaddingParams &params) {
+        std::vector<cv::Point> pts;
+//        for (const auto &kp: keypoints) {
+//            float x, y;
+//            transform_coords_back(kp.x, kp.y, params, x, y);
+//            pts.push_back(cv::Point(std::round(x), std::round(y)));
+//        }
+        return pts;
+    }
+
 } // image

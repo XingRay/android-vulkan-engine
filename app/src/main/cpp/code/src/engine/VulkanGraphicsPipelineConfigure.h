@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "engine/VulkanEngineBuilder.h"
 #include "engine/VulkanVertexConfigures.h"
 #include "engine/VulkanDescriptorSetConfigures.h"
 #include "engine/VulkanPushConstantConfigures.h"

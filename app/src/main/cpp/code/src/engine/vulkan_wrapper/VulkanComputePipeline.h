@@ -6,9 +6,7 @@
 
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
-#include "engine/vulkan_wrapper/VulkanSwapchain.h"
-#include "engine/vulkan_wrapper/VulkanRenderPass.h"
-#include "engine/vulkan_wrapper/VulkanShader.h"
+#include "engine/vulkan_wrapper/VulkanShaderModule.h"
 
 namespace engine {
 
