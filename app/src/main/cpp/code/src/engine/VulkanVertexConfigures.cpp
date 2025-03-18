@@ -18,7 +18,7 @@ namespace engine {
         return *this;
     }
 
-    std::vector <vk::VertexInputBindingDescription> VulkanVertexConfigures::createVertexInputBindingDescriptions() {
+    std::vector <vk::VertexInputBindingDescription> VulkanVertexConfigures::createVertexInputBindingDescriptions() const {
         std::vector <vk::VertexInputBindingDescription> vertexInputBindingDescriptions;
 
         for (const VulkanVertexConfigure &vertexConfigure: mVulkanVertexConfigures) {
@@ -34,7 +34,7 @@ namespace engine {
     }
 
 
-    std::vector <vk::VertexInputAttributeDescription> VulkanVertexConfigures::createVertexInputAttributeDescriptions() {
+    std::vector <vk::VertexInputAttributeDescription> VulkanVertexConfigures::createVertexInputAttributeDescriptions() const {
 
         std::vector <vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions;
 

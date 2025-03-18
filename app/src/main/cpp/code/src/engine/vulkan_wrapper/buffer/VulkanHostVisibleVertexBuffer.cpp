@@ -24,7 +24,7 @@ namespace engine {
         return mVertexBuffer.getDeviceMemory();
     }
 
-    void VulkanHostVisibleVertexBuffer::updateBuffer(void *data, uint32_t size) {
+    void VulkanHostVisibleVertexBuffer::updateBuffer(const void *data, uint32_t size) {
         mVertexBuffer.updateBuffer(data, size);
     }
 

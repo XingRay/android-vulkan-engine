@@ -24,7 +24,7 @@ namespace engine {
         return mUniformBuffer.getDeviceMemory();
     }
 
-    void VulkanHostVisibleUniformBuffer::updateBuffer(void *data, uint32_t size) {
+    void VulkanHostVisibleUniformBuffer::updateBuffer(const void *data, uint32_t size) {
         mUniformBuffer.updateBuffer(data, size);
     }
 } // engine

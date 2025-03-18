@@ -29,7 +29,7 @@ namespace engine {
         return mIndicesCount;
     }
 
-    void VulkanDeviceLocalIndexBuffer::recordCommandUpdate(const vk::CommandBuffer &commandBuffer, std::vector<uint32_t> indices) {
+    void VulkanDeviceLocalIndexBuffer::recordCommandUpdate(const vk::CommandBuffer &commandBuffer, const std::vector<uint32_t> &indices) {
         size_t size = indices.size() * sizeof(uint32_t);
         mIndicesCount = indices.size();
 
@@ -37,7 +37,7 @@ namespace engine {
         mIndexBuffer.recordCommandCopyFrom(commandBuffer, mStagingBuffer.getBuffer());
     }
 
-    void VulkanDeviceLocalIndexBuffer::update(const VulkanCommandPool &vulkanCommandPool, std::vector<uint32_t> indices) {
+    void VulkanDeviceLocalIndexBuffer::update(const VulkanCommandPool &vulkanCommandPool, const std::vector<uint32_t> &indices) {
         size_t size = indices.size() * sizeof(uint32_t);
         mIndicesCount = indices.size();
 

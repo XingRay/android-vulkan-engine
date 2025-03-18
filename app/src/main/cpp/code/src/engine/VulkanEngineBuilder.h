@@ -33,7 +33,6 @@
 namespace engine {
 
     class VulkanEngineBuilder {
-        friend class VulkanShaderConfigure;
 
     private:
         std::unique_ptr<common::ListSelector<std::string>> mExtensionsSelector;
@@ -72,14 +71,14 @@ namespace engine {
         ~VulkanEngineBuilder();
 
         // instance extensions
-        VulkanEngineBuilder &extensions(const std::vector<std::string> required, const std::vector<std::string> optional = {});
+        VulkanEngineBuilder &extensions(std::vector<std::string> &&required, std::vector<std::string> &&optional = {});
 
         VulkanEngineBuilder &extensionsSelector(std::unique_ptr<common::ListSelector<std::string>> &selector);
 
         VulkanEngineBuilder &extensionsSelector(std::function<std::vector<std::string>(const std::vector<std::string> &)> selector);
 
         // instance layers
-        VulkanEngineBuilder &layers(const std::vector<std::string> required, const std::vector<std::string> optional = {});
+        VulkanEngineBuilder &layers(std::vector<std::string> &&required, std::vector<std::string> &&optional = {});
 
         VulkanEngineBuilder &layersSelector(std::unique_ptr<common::ListSelector<std::string>> &selector);
 
@@ -89,6 +88,7 @@ namespace engine {
         VulkanEngineBuilder &applicationName(const std::string &applicationName);
 
         VulkanEngineBuilder &applicationVersion(uint32_t version);
+
         // version: "1.0" or "1.0.0"
         VulkanEngineBuilder &applicationVersion(const std::string &version);
 
@@ -97,6 +97,7 @@ namespace engine {
         VulkanEngineBuilder &engineName(const std::string &engineName);
 
         VulkanEngineBuilder &engineVersion(uint32_t version);
+
         // version: "1.0" or "1.0.0"
         VulkanEngineBuilder &engineVersion(const std::string &version);
 
@@ -127,9 +128,6 @@ namespace engine {
 
         VulkanEngineBuilder &enableMsaa(const std::function<uint32_t(const std::vector<uint32_t> &)> &selector);
 
-//        VulkanEngineBuilder &shader(const std::function<void(VulkanShaderConfigure &)> &configure);
-//        VulkanEngineBuilder &shader(const std::function<void(VulkanShaderConfigure &)> &configure);
-
         // graphics pipeline
         VulkanEngineBuilder &graphicsPipeline(const std::function<void(VulkanGraphicsPipelineConfigure &)> &configure);
 
@@ -148,7 +146,7 @@ namespace engine {
 //
 //        VulkanEngineBuilder &setPushConstants(std::vector<VulkanPushConstant> &&pushConstants);
 
-//        std::unique_ptr<VulkanEngine> build();
+        std::unique_ptr<VulkanEngine> build();
 
     private:
 

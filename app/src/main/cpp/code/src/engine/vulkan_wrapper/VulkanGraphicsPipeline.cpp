@@ -13,9 +13,11 @@ namespace engine {
                                                    const VulkanShaderModule &fragmentShaderModule,
                                                    const std::vector<vk::VertexInputBindingDescription> &vertexInputBindingDescriptions,
                                                    const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributeDescriptions,
-                                                   const std::vector<vk::DescriptorSetLayout> & descriptorSetLayouts,
-                                                   const std::vector<vk::PushConstantRange> & pushConstantRanges)
-            : mDevice(vulkanDevice) {
+                                                   uint32_t frameCount,
+                                                   std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
+                                                   const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
+                                                   std::vector<vk::PushConstantRange> &&pushConstantRanges)
+            : mDevice(vulkanDevice), mVulkanDescriptorPool(std::move(vulkanDescriptorPool)), mPushConstantRanges(std::move(pushConstantRanges)) {
         vk::Device device = vulkanDevice.getDevice();
 
         // input assembler
@@ -36,7 +38,8 @@ namespace engine {
         vk::Extent2D displaySize = swapchain.getDisplaySize();
 
         vk::Viewport viewport;
-        viewport.setX(0.0f)
+        viewport
+                .setX(0.0f)
                 .setY(0.0f)
                 .setWidth((float) displaySize.width)
                 .setHeight((float) displaySize.height)
@@ -45,7 +48,8 @@ namespace engine {
         std::array<vk::Viewport, 1> viewports{viewport};
 
         vk::Rect2D scissor{};
-        scissor.setOffset(vk::Offset2D{0, 0})
+        scissor
+                .setOffset(vk::Offset2D{0, 0})
                 .setExtent(displaySize);
         std::array<vk::Rect2D, 1> scissors{scissor};
 
@@ -165,7 +169,7 @@ namespace engine {
         vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo{};
         pipelineLayoutCreateInfo
                 .setSetLayouts(descriptorSetLayouts)
-                .setPushConstantRanges(pushConstantRanges);
+                .setPushConstantRanges(mPushConstantRanges);
 
         mPipelineLayout = vulkanDevice.getDevice().createPipelineLayout(pipelineLayoutCreateInfo);
 
@@ -193,6 +197,16 @@ namespace engine {
             throw std::runtime_error("createGraphicsPipelines failed");
         }
         mPipeline = pipeline;
+
+        for (int i = 0; i < frameCount; i++) {
+            mDescriptorSets.push_back(mVulkanDescriptorPool->allocateDescriptorSets(descriptorSetLayouts));
+        }
+
+        for (const vk::PushConstantRange &pushConstantRange: mPushConstantRanges) {
+            // 创建数据缓冲区
+            std::vector<uint8_t> data(pushConstantRange.size);
+            mPushConstantDataList.push_back(std::move(data));
+        }
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline() {
@@ -209,4 +223,17 @@ namespace engine {
     const vk::PipelineLayout &VulkanGraphicsPipeline::getPipelineLayout() const {
         return mPipelineLayout;
     }
+
+    const std::vector<vk::DescriptorSet> &VulkanGraphicsPipeline::getDescriptorSets(uint32_t frameIndex) const {
+        return mDescriptorSets[frameIndex];
+    }
+
+    const std::vector<vk::PushConstantRange> &VulkanGraphicsPipeline::getPushConstantRanges() const {
+        return mPushConstantRanges;
+    }
+
+    const std::vector<std::vector<uint8_t>> &VulkanGraphicsPipeline::getPushConstantDataList() const {
+        return mPushConstantDataList;
+    }
+
 } // engine

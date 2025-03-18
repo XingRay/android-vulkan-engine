@@ -18,7 +18,7 @@ namespace engine {
 
         ~VulkanPushConstantsBuffer();
 
-        void update(void *data, uint32_t size);
+        void update(const void *data, uint32_t size);
     };
 
 } // engine

@@ -12,7 +12,7 @@ namespace engine {
 
     VulkanPushConstantsBuffer::~VulkanPushConstantsBuffer() = default;
 
-    void VulkanPushConstantsBuffer::update(void *data, uint32_t size) {
+    void VulkanPushConstantsBuffer::update(const void *data, uint32_t size) {
         std::memcpy(mPushConstants.data(), data, size);
     }
 } // engine

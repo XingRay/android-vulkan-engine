@@ -20,6 +20,7 @@ namespace engine {
 
         ~VulkanDescriptorPool();
 
+        [[nodiscard]]
         const vk::DescriptorPool &getDescriptorPool() const;
 
         std::vector<vk::DescriptorSet> allocateDescriptorSets(const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts);

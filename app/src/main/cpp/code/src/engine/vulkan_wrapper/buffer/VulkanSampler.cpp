@@ -61,7 +61,7 @@ namespace engine {
         return mSampler;
     }
 
-    void VulkanSampler::updateBuffer(const VulkanCommandPool &vulkanCommandPool, void *data, uint32_t size) {
+    void VulkanSampler::updateBuffer(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size) {
         mVulkanStagingBuffer.updateBuffer(data, size);
         mVulkanImage.copyFromBuffer(vulkanCommandPool, mVulkanStagingBuffer.getBuffer());
     }

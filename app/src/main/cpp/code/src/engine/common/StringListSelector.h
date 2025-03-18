@@ -30,8 +30,8 @@ namespace common {
         std::vector<std::string> mRequired;
         std::vector<std::string> mOptional;
     public:
-        explicit RequiredAndOptionalStringListSelector(const std::vector<std::string> &required,
-                                                       const std::vector<std::string> &optional = {});
+        explicit RequiredAndOptionalStringListSelector(std::vector<std::string> &&required,
+                                                       std::vector<std::string> &&optional = {});
 
         ~RequiredAndOptionalStringListSelector() override;
 

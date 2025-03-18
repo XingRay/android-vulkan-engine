@@ -37,7 +37,7 @@ namespace engine {
         return mDeviceMemory;
     }
 
-    void VulkanHostVisibleBuffer::updateBuffer(void *data, uint32_t size) {
+    void VulkanHostVisibleBuffer::updateBuffer(const void *data, uint32_t size) {
         if (mMappedMemoryPointer == nullptr) {
             LOG_E("staging buffer memory is not mapped!");
             return;

@@ -31,7 +31,7 @@ namespace engine {
         [[nodiscard]]
         uint32_t getIndicesCount() const;
 
-        void update(std::vector<uint32_t> indices);
+        void update(const std::vector<uint32_t>& indices);
     };
 
 } // engine

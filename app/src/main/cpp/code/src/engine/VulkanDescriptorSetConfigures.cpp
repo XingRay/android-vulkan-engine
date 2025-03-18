@@ -8,20 +8,17 @@
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 
 namespace engine {
-    VulkanDescriptorSetConfigures::VulkanDescriptorSetConfigures() {
 
-    }
+    VulkanDescriptorSetConfigures::VulkanDescriptorSetConfigures() = default;
 
-    VulkanDescriptorSetConfigures::~VulkanDescriptorSetConfigures() {
-
-    }
+    VulkanDescriptorSetConfigures::~VulkanDescriptorSetConfigures() = default;
 
     VulkanDescriptorSetConfigures &VulkanDescriptorSetConfigures::addVulkanDescriptorSetConfigure(std::unique_ptr<VulkanDescriptorSetConfigure> &&vulkanDescriptorSetConfigure) {
         mVulkanDescriptorSetConfigures.push_back(std::move(vulkanDescriptorSetConfigure));
         return *this;
     }
 
-    std::vector<vk::DescriptorSetLayout> VulkanDescriptorSetConfigures::createDescriptorSetLayouts(const VulkanDevice &vulkanDevice) {
+    std::vector<vk::DescriptorSetLayout> VulkanDescriptorSetConfigures::createDescriptorSetLayouts(const VulkanDevice &vulkanDevice) const {
         std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
 
         for (const std::unique_ptr<VulkanDescriptorSetConfigure> &descriptorSetConfigure: mVulkanDescriptorSetConfigures) {
@@ -63,13 +60,13 @@ namespace engine {
         return descriptorSetLayouts;
     }
 
-    std::vector<vk::DescriptorPoolSize> VulkanDescriptorSetConfigures::createDescriptorPoolSizes() {
+    std::vector<vk::DescriptorPoolSize> VulkanDescriptorSetConfigures::createDescriptorPoolSizes(uint32_t frameCount) const {
         std::vector<vk::DescriptorPoolSize> descriptorPoolSizes;
         std::unordered_map<vk::DescriptorType, size_t> descriptorTypeToIndexMap;
         for (const std::unique_ptr<VulkanDescriptorSetConfigure> &vulkanDescriptorSetConfigure: mVulkanDescriptorSetConfigures) {
             for (const std::unique_ptr<VulkanDescriptorConfigure> &vulkanDescriptorConfigures: vulkanDescriptorSetConfigure->getVulkanDescriptorConfigures()) {
                 const vk::DescriptorType type = vulkanDescriptorConfigures->getDescriptorType();
-                const uint32_t count = vulkanDescriptorConfigures->getDescriptorCount();
+                const uint32_t count = vulkanDescriptorConfigures->getDescriptorCount() * frameCount;
                 if (descriptorTypeToIndexMap.contains(type)) {
                     descriptorPoolSizes[descriptorTypeToIndexMap[type]].descriptorCount += count;
                 } else {
@@ -80,6 +77,10 @@ namespace engine {
         }
 
         return descriptorPoolSizes;
+    }
+
+    uint32_t VulkanDescriptorSetConfigures::getSetCount(uint32_t frameCount) const {
+        return mVulkanDescriptorSetConfigures.size() * frameCount;
     }
 
 } // engine

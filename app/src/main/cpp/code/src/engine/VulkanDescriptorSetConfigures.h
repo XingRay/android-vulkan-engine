@@ -20,11 +20,16 @@ namespace engine {
 
         ~VulkanDescriptorSetConfigures();
 
-        VulkanDescriptorSetConfigures& addVulkanDescriptorSetConfigure(std::unique_ptr<VulkanDescriptorSetConfigure>&& vulkanDescriptorSetConfigure);
+        VulkanDescriptorSetConfigures &addVulkanDescriptorSetConfigure(std::unique_ptr<VulkanDescriptorSetConfigure> &&vulkanDescriptorSetConfigure);
 
-        std::vector<vk::DescriptorSetLayout> createDescriptorSetLayouts(const VulkanDevice& vulkanDevice);
+        [[nodiscard]]
+        std::vector<vk::DescriptorSetLayout> createDescriptorSetLayouts(const VulkanDevice &vulkanDevice) const;
 
-        std::vector<vk::DescriptorPoolSize> createDescriptorPoolSizes();
+        [[nodiscard]]
+        std::vector<vk::DescriptorPoolSize> createDescriptorPoolSizes(uint32_t frameCount = 1) const;
+
+        [[nodiscard]]
+        uint32_t getSetCount(uint32_t frameCount = 1) const;
     };
 
 } // engine

@@ -31,9 +31,9 @@ namespace engine {
         [[nodiscard]]
         uint32_t getIndicesCount() const;
 
-        void recordCommandUpdate(const vk::CommandBuffer& commandBuffer, std::vector<uint32_t> indices);
+        void recordCommandUpdate(const vk::CommandBuffer& commandBuffer, const std::vector<uint32_t>& indices);
 
-        void update(const VulkanCommandPool& vulkanCommandPool, std::vector<uint32_t> indices);
+        void update(const VulkanCommandPool& vulkanCommandPool, const std::vector<uint32_t>& indices);
     };
 
 } // engine

@@ -32,9 +32,9 @@ namespace engine {
         [[nodiscard]]
         const vk::DeviceMemory &getDeviceMemory() const;
 
-        void recordCommandUpdate(const vk::CommandBuffer &commandBuffer, void *data, uint32_t size);
+        void recordCommandUpdate(const vk::CommandBuffer &commandBuffer, const void *data, uint32_t size);
 
-        void update(const VulkanCommandPool &vulkanCommandPool, void *data, uint32_t size);
+        void update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size);
 
         [[nodiscard]]
         std::vector<vk::DescriptorBufferInfo> createDescriptorBufferInfos();

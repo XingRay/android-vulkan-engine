@@ -22,9 +22,9 @@ namespace common {
     }
 
 
-    RequiredAndOptionalStringListSelector::RequiredAndOptionalStringListSelector(const std::vector<std::string> &required,
-                                                                                 const std::vector<std::string> &optional)
-        : mRequired(required), mOptional(optional) {
+    RequiredAndOptionalStringListSelector::RequiredAndOptionalStringListSelector(std::vector<std::string> &&required,
+                                                                                 std::vector<std::string> &&optional)
+        : mRequired(std::move(required)), mOptional(std::move(optional)) {
     }
 
     RequiredAndOptionalStringListSelector::~RequiredAndOptionalStringListSelector() = default;

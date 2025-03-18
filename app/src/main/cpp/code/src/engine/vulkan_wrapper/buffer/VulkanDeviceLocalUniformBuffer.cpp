@@ -22,12 +22,12 @@ namespace engine {
         return mUniformBuffer.getDeviceMemory();
     }
 
-    void VulkanDeviceLocalUniformBuffer::recordCommandUpdate(const vk::CommandBuffer &commandBuffer, void *data, uint32_t size) {
+    void VulkanDeviceLocalUniformBuffer::recordCommandUpdate(const vk::CommandBuffer &commandBuffer, const void *data, uint32_t size) {
         mStagingBuffer.updateBuffer(data, size);
         mUniformBuffer.recordCommandCopyFrom(commandBuffer, mStagingBuffer.getBuffer());
     }
 
-    void VulkanDeviceLocalUniformBuffer::update(const VulkanCommandPool &vulkanCommandPool, void *data, uint32_t size) {
+    void VulkanDeviceLocalUniformBuffer::update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size) {
         mStagingBuffer.updateBuffer(data, size);
         mUniformBuffer.copyFrom(vulkanCommandPool, mStagingBuffer.getBuffer());
     }

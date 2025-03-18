@@ -41,7 +41,7 @@ namespace engine {
         [[nodiscard]]
         const vk::Sampler &getSampler() const;
 
-        void updateBuffer(const VulkanCommandPool &vulkanCommandPool, void *data, uint32_t size);
+        void updateBuffer(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size);
 
         std::vector<vk::DescriptorImageInfo> createDescriptorImageInfos();
 

@@ -31,7 +31,7 @@ namespace engine {
         return mIndicesCount;
     }
 
-    void VulkanHostVisibleIndexBuffer::update(std::vector<uint32_t> indices) {
+    void VulkanHostVisibleIndexBuffer::update(const std::vector<uint32_t>& indices) {
         size_t size = indices.size() * sizeof(uint32_t);
         mIndicesCount = indices.size();
 

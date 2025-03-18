@@ -37,7 +37,7 @@ namespace engine {
         [[nodiscard]]
         const vk::DeviceMemory &getDeviceMemory() const;
 
-        void updateBuffer(void *data, uint32_t size);
+        void updateBuffer(const void *data, uint32_t size);
     };
 
 } // engine

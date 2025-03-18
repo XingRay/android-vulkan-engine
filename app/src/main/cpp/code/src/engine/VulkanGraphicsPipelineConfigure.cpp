@@ -4,12 +4,11 @@
 
 #include "VulkanGraphicsPipelineConfigure.h"
 #include "engine/vulkan_wrapper/VulkanShaderModule.h"
+#include "engine/vulkan_wrapper/VulkanDescriptorPool.h"
 
 namespace engine {
 
-    VulkanGraphicsPipelineConfigure::VulkanGraphicsPipelineConfigure() {
-
-    }
+    VulkanGraphicsPipelineConfigure::VulkanGraphicsPipelineConfigure() = default;
 
     VulkanGraphicsPipelineConfigure::~VulkanGraphicsPipelineConfigure() = default;
 
@@ -45,16 +44,21 @@ namespace engine {
 
     std::unique_ptr<VulkanGraphicsPipeline> VulkanGraphicsPipelineConfigure::build(const VulkanDevice &vulkanDevice,
                                                                                    const VulkanSwapchain &swapchain,
-                                                                                   const VulkanRenderPass &renderPass) {
+                                                                                   const VulkanRenderPass &renderPass,
+                                                                                   uint32_t frameCount) const {
 
         // shader code
         std::unique_ptr<VulkanShaderModule> vertexShaderModule = std::make_unique<VulkanShaderModule>(vulkanDevice, mVertexShaderCode);
         std::unique_ptr<VulkanShaderModule> fragmentShaderModule = std::make_unique<VulkanShaderModule>(vulkanDevice, mFragmentShaderCode);
 
+        // vertex
         std::vector<vk::VertexInputBindingDescription> vertexInputBindingDescriptions = mVulkanVertexConfigures.createVertexInputBindingDescriptions();
         std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions = mVulkanVertexConfigures.createVertexInputAttributeDescriptions();
 
+        // descriptor -> uniform / sampler ...
         std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = mVulkanDescriptorSetConfigures.createDescriptorSetLayouts(vulkanDevice);
+        std::unique_ptr<VulkanDescriptorPool> vulkanDescriptorPool = std::make_unique<VulkanDescriptorPool>(vulkanDevice, mVulkanDescriptorSetConfigures.createDescriptorPoolSizes(frameCount),
+                                                                                                            mVulkanDescriptorSetConfigures.getSetCount(frameCount));
 
         // push constant
         std::vector<vk::PushConstantRange> pushConstantRanges = mVulkanPushConstantConfigures.createPushConstantRanges();
@@ -72,8 +76,10 @@ namespace engine {
                                                         *vertexShaderModule, *fragmentShaderModule,
                                                         vertexInputBindingDescriptions,
                                                         vertexInputAttributeDescriptions,
+                                                        frameCount,
+                                                        std::move(vulkanDescriptorPool),
                                                         descriptorSetLayouts,
-                                                        pushConstantRanges);
+                                                        std::move(pushConstantRanges));
     }
 
 } // engine

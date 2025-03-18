@@ -19,7 +19,7 @@ namespace engine {
         return mVulkanHostVisibleBuffer.getBuffer();
     }
 
-    void VulkanStagingBuffer::updateBuffer(void *data, uint32_t size) {
+    void VulkanStagingBuffer::updateBuffer(const void *data, uint32_t size) {
         mVulkanHostVisibleBuffer.updateBuffer(data, size);
     }
 

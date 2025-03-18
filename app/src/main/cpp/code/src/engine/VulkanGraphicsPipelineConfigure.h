@@ -10,7 +10,11 @@
 
 namespace engine {
 
+    class VulkanEngineBuilder;
+
     class VulkanGraphicsPipelineConfigure {
+        friend VulkanEngineBuilder;
+
     private:
         /**
          * shader code
@@ -71,9 +75,11 @@ namespace engine {
          */
         VulkanGraphicsPipelineConfigure &addPushConstant(uint32_t size, uint32_t offset, vk::ShaderStageFlagBits stageFlagBits);
 
+    private:
         std::unique_ptr<VulkanGraphicsPipeline> build(const VulkanDevice &vulkanDevice,
                                                       const VulkanSwapchain &swapchain,
-                                                      const VulkanRenderPass &renderPass);
+                                                      const VulkanRenderPass &renderPass,
+                                                      uint32_t frameCount) const;
     };
 
 } // engine

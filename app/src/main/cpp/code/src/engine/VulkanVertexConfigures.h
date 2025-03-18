@@ -19,13 +19,16 @@ namespace engine {
 
     public:
         VulkanVertexConfigures();
+
         ~VulkanVertexConfigures();
 
-        VulkanVertexConfigures& addVulkanVertexConfigure(VulkanVertexConfigure vulkanVertexConfigure);
+        VulkanVertexConfigures &addVulkanVertexConfigure(VulkanVertexConfigure vulkanVertexConfigure);
 
-        std::vector<vk::VertexInputBindingDescription> createVertexInputBindingDescriptions();
+        [[nodiscard]]
+        std::vector<vk::VertexInputBindingDescription> createVertexInputBindingDescriptions() const;
 
-        std::vector<vk::VertexInputAttributeDescription> createVertexInputAttributeDescriptions();
+        [[nodiscard]]
+        std::vector<vk::VertexInputAttributeDescription> createVertexInputAttributeDescriptions() const;
     };
 
 } // engine
