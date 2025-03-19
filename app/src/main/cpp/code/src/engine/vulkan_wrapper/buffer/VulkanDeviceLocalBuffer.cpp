@@ -35,7 +35,7 @@ namespace engine {
         return mDeviceMemory;
     }
 
-    void VulkanDeviceLocalBuffer::recordCommandCopyFrom(const vk::CommandBuffer &commandBuffer, vk::Buffer srcBuffer, vk::DeviceSize srcOffset, vk::DeviceSize copyDataSize, vk::DeviceSize dstOffset) {
+    void VulkanDeviceLocalBuffer::recordCommandCopyFrom(const vk::CommandBuffer &commandBuffer, vk::Buffer srcBuffer, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset, vk::DeviceSize copyDataSize) {
         vk::BufferCopy bufferCopy;
         bufferCopy
                 .setSrcOffset(srcOffset)

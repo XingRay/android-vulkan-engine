@@ -55,11 +55,11 @@ namespace engine {
         std::unique_ptr<VulkanCommandPool> mCommandPool;
         std::unique_ptr<VulkanFrameBuffer> mFrameBuffer;
 
-        std::vector<std::unique_ptr<VulkanHostVisibleVertexBuffer>> mVulkanVertexBuffers;
+        std::vector<std::unique_ptr<VulkanDeviceLocalVertexBuffer>> mVulkanVertexBuffers;
         std::vector<vk::Buffer> mVertexBuffers;
         std::vector<vk::DeviceSize> mVertexBufferOffsets;
 
-        std::unique_ptr<VulkanHostVisibleIndexBuffer> mIndexBuffer;
+        std::unique_ptr<VulkanDeviceLocalIndexBuffer> mIndexBuffer;
 
         std::unique_ptr<VulkanSyncObject> mSyncObject;
 
@@ -111,7 +111,7 @@ namespace engine {
                                            std::to_string(mVulkanVertexBuffers.size());
                 throw std::runtime_error(errorMessage);
             }
-            mVulkanVertexBuffers[index]->updateBuffer(data.data(), data.size() * sizeof(T));
+            mVulkanVertexBuffers[index]->update(*mCommandPool, data.data(), data.size() * sizeof(T));
         }
 
         void createIndexBuffer(size_t size);

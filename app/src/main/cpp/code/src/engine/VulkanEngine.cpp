@@ -113,8 +113,8 @@ namespace engine {
     }
 
     void VulkanEngine::createVertexBuffer(size_t size) {
-//        std::unique_ptr<VulkanDeviceLocalVertexBuffer> vertexBuffer = std::make_unique<VulkanDeviceLocalVertexBuffer>(*mVulkanDevice, size);
-        std::unique_ptr<VulkanHostVisibleVertexBuffer> vertexBuffer = std::make_unique<VulkanHostVisibleVertexBuffer>(*mVulkanDevice, size);
+        std::unique_ptr<VulkanDeviceLocalVertexBuffer> vertexBuffer = std::make_unique<VulkanDeviceLocalVertexBuffer>(*mVulkanDevice, size);
+//        std::unique_ptr<VulkanHostVisibleVertexBuffer> vertexBuffer = std::make_unique<VulkanHostVisibleVertexBuffer>(*mVulkanDevice, size);
         mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
         mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getBuffer());
         mVertexBufferOffsets.push_back(0);
@@ -135,16 +135,16 @@ namespace engine {
                                        std::to_string(mVulkanVertexBuffers.size());
             throw std::runtime_error(errorMessage);
         }
-        mVulkanVertexBuffers[index]->updateBuffer(data, size);
+        mVulkanVertexBuffers[index]->update(*mCommandPool, data, size);
     }
 
     void VulkanEngine::createIndexBuffer(size_t size) {
         mIndexBuffer.reset();
-        mIndexBuffer = std::make_unique<VulkanHostVisibleIndexBuffer>(*mVulkanDevice, size);
+        mIndexBuffer = std::make_unique<VulkanDeviceLocalIndexBuffer>(*mVulkanDevice, size);
     }
 
     void VulkanEngine::updateIndexBuffer(const std::vector<uint32_t> &indices) const {
-        mIndexBuffer->update(indices);
+        mIndexBuffer->update(*mCommandPool, indices);
     }
 
 //    void VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {

@@ -37,7 +37,7 @@ namespace engine {
         [[nodiscard]]
         const vk::DeviceMemory &getDeviceMemory() const;
 
-        void recordCommandCopyFrom(const vk::CommandBuffer &commandBuffer, vk::Buffer srcBuffer, vk::DeviceSize srcOffset, vk::DeviceSize copyDataSize, vk::DeviceSize dstOffset);
+        void recordCommandCopyFrom(const vk::CommandBuffer &commandBuffer, vk::Buffer srcBuffer, vk::DeviceSize srcOffset,  vk::DeviceSize dstOffset, vk::DeviceSize copyDataSize);
 
         void recordCommandCopyFrom(const vk::CommandBuffer &commandBuffer, vk::Buffer srcBuffer);
 
