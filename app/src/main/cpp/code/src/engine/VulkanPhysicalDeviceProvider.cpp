@@ -44,7 +44,7 @@ namespace engine {
     }
 
 
-    DefaultVulkanPhysicalDeviceProvider::DefaultVulkanPhysicalDeviceProvider(vk::QueueFlags requiredQueueFlags, const VulkanPhysicalDeviceScoreConfig &scoreConfig)
+    DefaultVulkanPhysicalDeviceProvider::DefaultVulkanPhysicalDeviceProvider(vk::QueueFlags requiredQueueFlags, VulkanPhysicalDeviceScoreConfig scoreConfig)
             : mRequiredQueueFlags(requiredQueueFlags), mScoreCalculator(scoreConfig) {
 
     }

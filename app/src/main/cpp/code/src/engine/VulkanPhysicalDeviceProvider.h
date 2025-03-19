@@ -36,7 +36,7 @@ namespace engine {
 
     public:
 
-        explicit SimpleVulkanPhysicalDeviceProvider(std::unique_ptr<VulkanPhysicalDevice>&& physicalDevice);
+        explicit SimpleVulkanPhysicalDeviceProvider(std::unique_ptr<VulkanPhysicalDevice> &&physicalDevice);
 
         ~SimpleVulkanPhysicalDeviceProvider() override;
 
@@ -65,12 +65,12 @@ namespace engine {
 
     class DefaultVulkanPhysicalDeviceProvider : public VulkanPhysicalDeviceProvider {
     private:
-        const VulkanPhysicalDeviceScoreCalculator mScoreCalculator;
+        VulkanPhysicalDeviceScoreCalculator mScoreCalculator;
         vk::QueueFlags mRequiredQueueFlags;
 
     public:
         DefaultVulkanPhysicalDeviceProvider(vk::QueueFlags requiredQueueFlags = vk::QueueFlagBits::eGraphics,
-                                            const VulkanPhysicalDeviceScoreConfig &scoreConfig = {});
+                                            VulkanPhysicalDeviceScoreConfig scoreConfig = VulkanPhysicalDeviceScoreConfig());
 
         ~DefaultVulkanPhysicalDeviceProvider() override;
 

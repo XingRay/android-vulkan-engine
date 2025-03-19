@@ -123,38 +123,38 @@ namespace engine {
 
         std::array<vk::SubpassDescription, 1> subPassDescriptions{subPassDescription};
 
-        std::vector<vk::SubpassDependency> subPassDependencies;
-
-        vk::SubpassDependency startingPass{};
-        startingPass
-                .setSrcSubpass(vk::SubpassExternal)
-                .setDstSubpass(0)
-                .setSrcStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
-                .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
-                .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
-                .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-                .setDependencyFlags(vk::DependencyFlagBits::eByRegion);
-        subPassDependencies.push_back(startingPass);
-
-        vk::SubpassDependency endingPass;
-        endingPass
-                .setSrcSubpass(0)
-                .setDstSubpass(vk::SubpassExternal)
-                .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
-                .setDstStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
-                .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
-                .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
-                .setDependencyFlags(vk::DependencyFlagBits::eByRegion);
-        subPassDependencies.push_back(endingPass);
-
-//        vk::SubpassDependency subPassDependency = vk::SubpassDependency{}
+//        std::vector<vk::SubpassDependency> subPassDependencies;
+//
+//        vk::SubpassDependency startingPass{};
+//        startingPass
 //                .setSrcSubpass(vk::SubpassExternal)
 //                .setDstSubpass(0)
-//                .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
-//                .setSrcAccessMask(vk::AccessFlagBits::eNone)
+//                .setSrcStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
 //                .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
-//                .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
-//        std::array<vk::SubpassDependency, 1> subPassDependencies = {subPassDependency};
+//                .setSrcAccessMask(vk::AccessFlagBits::eMemoryRead)
+//                .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+//                .setDependencyFlags(vk::DependencyFlagBits::eByRegion);
+//        subPassDependencies.push_back(startingPass);
+//
+//        vk::SubpassDependency endingPass;
+//        endingPass
+//                .setSrcSubpass(0)
+//                .setDstSubpass(vk::SubpassExternal)
+//                .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
+//                .setDstStageMask(vk::PipelineStageFlagBits::eBottomOfPipe)
+//                .setSrcAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite)
+//                .setDstAccessMask(vk::AccessFlagBits::eMemoryRead)
+//                .setDependencyFlags(vk::DependencyFlagBits::eByRegion);
+//        subPassDependencies.push_back(endingPass);
+
+        vk::SubpassDependency subPassDependency = vk::SubpassDependency{}
+                .setSrcSubpass(vk::SubpassExternal)
+                .setDstSubpass(0)
+                .setSrcStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
+                .setSrcAccessMask(vk::AccessFlagBits::eNone)
+                .setDstStageMask(vk::PipelineStageFlagBits::eColorAttachmentOutput | vk::PipelineStageFlagBits::eEarlyFragmentTests)
+                .setDstAccessMask(vk::AccessFlagBits::eColorAttachmentWrite | vk::AccessFlagBits::eDepthStencilAttachmentWrite);
+        std::array<vk::SubpassDependency, 1> subPassDependencies = {subPassDependency};
 
         vk::RenderPassCreateInfo renderPassCreateInfo{};
         renderPassCreateInfo

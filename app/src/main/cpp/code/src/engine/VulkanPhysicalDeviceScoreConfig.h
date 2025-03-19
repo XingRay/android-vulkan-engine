@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace engine {
 
@@ -70,25 +70,25 @@ namespace engine {
 
         // 获取各项分值的方法
         [[nodiscard]]
-        int getGeometryShaderScore() const { return geometryShaderScore; }
+        int32_t getGeometryShaderScore() const { return geometryShaderScore; }
 
         [[nodiscard]]
-        int getSamplerAnisotropyScore() const { return samplerAnisotropyScore; }
+        int32_t getSamplerAnisotropyScore() const { return samplerAnisotropyScore; }
 
         [[nodiscard]]
-        int getIntegratedGpuScore() const { return integratedGpuScore; }
+        int32_t getIntegratedGpuScore() const { return integratedGpuScore; }
 
         [[nodiscard]]
-        int getDiscreteGpuScore() const { return discreteGpuScore; }
+        int32_t getDiscreteGpuScore() const { return discreteGpuScore; }
 
         [[nodiscard]]
-        int getVirtualGpuScore() const { return virtualGpuScore; }
+        int32_t getVirtualGpuScore() const { return virtualGpuScore; }
 
         [[nodiscard]]
-        int getCpuScore() const { return cpuScore; }
+        int32_t getCpuScore() const { return cpuScore; }
 
         [[nodiscard]]
-        int getOtherDeviceTypeScore() const { return otherDeviceTypeScore; }
+        int32_t getOtherDeviceTypeScore() const { return otherDeviceTypeScore; }
     };
 
 } // engine

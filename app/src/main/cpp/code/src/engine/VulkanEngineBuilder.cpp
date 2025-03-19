@@ -151,13 +151,6 @@ namespace engine {
         return *this;
     }
 
-//    VulkanEngineBuilder &VulkanEngineBuilder::shader(const std::function<void(VulkanShaderConfigure &)> &configure) {
-//        VulkanShaderConfigure builder(*this);
-//        configure(builder);
-//        builder.build();
-//        return *this;
-//    }
-
     VulkanEngineBuilder &VulkanEngineBuilder::graphicsPipeline(const std::function<void(VulkanGraphicsPipelineConfigure &)> &configure) {
         mVulkanGraphicsPipelineConfigure = std::make_unique<VulkanGraphicsPipelineConfigure>();
         configure(*mVulkanGraphicsPipelineConfigure);
@@ -167,36 +160,6 @@ namespace engine {
     VulkanEngineBuilder &VulkanEngineBuilder::computePipeline(const std::function<void(VulkanComputePipelineConfigure &)> &configure) {
         return *this;
     }
-//
-//    VulkanEngineBuilder &VulkanEngineBuilder::setComputeShaderCode(std::vector<char> &&code) {
-//        mComputeShaderCode = std::move(code);
-//        return *this;
-//    }
-//
-//    VulkanEngineBuilder &VulkanEngineBuilder::setVertexShaderCode(std::vector<char> &&code) {
-//        mVertexShaderCode = std::move(code);
-//        return *this;
-//    }
-//
-//    VulkanEngineBuilder &VulkanEngineBuilder::setFragmentShaderCode(std::vector<char> &&code) {
-//        mFragmentShaderCode = std::move(code);
-//        return *this;
-//    }
-//
-//    VulkanEngineBuilder &VulkanEngineBuilder::setVertices(std::vector<VulkanVertex> &&vertices) {
-//        mVertices = std::move(vertices);
-//        return *this;
-//    }
-//
-//    VulkanEngineBuilder &VulkanEngineBuilder::setUniformSets(std::vector<VulkanDescriptorSet> &&uniformSets) {
-//        mDescriptorSets = std::move(uniformSets);
-//        return *this;
-//    }
-//
-//    VulkanEngineBuilder &VulkanEngineBuilder::setPushConstants(std::vector<VulkanPushConstant> &&pushConstants) {
-//        mPushConstants = std::move(pushConstants);
-//        return *this;
-//    }
 
     std::unique_ptr<VulkanEngine> VulkanEngineBuilder::build() {
         // instance
@@ -235,14 +198,6 @@ namespace engine {
 
         // command pool
         std::unique_ptr<VulkanCommandPool> commandPool = std::make_unique<VulkanCommandPool>(*vulkanDevice, mFrameCount);
-
-//        std::unique_ptr<VulkanShader> vulkanShader = std::make_unique<VulkanShader>(*instance, *vulkanDevice, *commandPool, mFrameCount,
-//                                                                                    mComputeShaderCode,
-//                                                                                    mVertexShaderCode,
-//                                                                                    mFragmentShaderCode,
-//                                                                                    mVertices,
-//                                                                                    mDescriptorSets,
-//                                                                                    mPushConstants);
 
         std::unique_ptr<VulkanRenderPass> renderPass = std::make_unique<VulkanRenderPass>(*vulkanDevice, *swapchain);
 

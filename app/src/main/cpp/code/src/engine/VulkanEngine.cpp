@@ -30,7 +30,7 @@ namespace engine {
         mInstance = std::move(vulkanInstance);
         mSurface = std::move(vulkanSurface);
         mPhysicalDevice = std::move(vulkanPhysicalDevice);
-        mDevice = std::move(vulkanDevice);
+        mVulkanDevice = std::move(vulkanDevice);
         mCommandPool = std::move(commandPool);
         mSwapchain = std::move(swapchain);
         mRenderPass = std::move(renderPass);
@@ -40,7 +40,7 @@ namespace engine {
         mSyncObject = std::move(syncObject);
         mFrameCount = frameCount;
 
-        LOG_D("VulkanGraphicsEngine::init");
+        LOG_D("VulkanEngine::init");
         if (mFrameCount <= 0) {
             throw std::runtime_error("mFrameCount <= 0");
         }
@@ -53,7 +53,7 @@ namespace engine {
         if (mPhysicalDevice == nullptr) {
             throw std::runtime_error("mPhysicalDevice == nullptr");
         }
-        if (mDevice == nullptr) {
+        if (mVulkanDevice == nullptr) {
             throw std::runtime_error("mDevice == nullptr");
         }
         if (mCommandPool == nullptr) {
@@ -95,7 +95,7 @@ namespace engine {
 
         mRenderPass.reset();
         mSwapchain.reset();
-        mDevice.reset();
+        mVulkanDevice.reset();
         mSurface.reset();
         mInstance.reset();
     }
@@ -105,7 +105,7 @@ namespace engine {
     }
 
     vk::Device VulkanEngine::getVKDevice() const {
-        return mDevice->getDevice();
+        return mVulkanDevice->getDevice();
     }
 
     uint32_t VulkanEngine::getCurrentFrameIndex() {
@@ -113,7 +113,8 @@ namespace engine {
     }
 
     void VulkanEngine::createVertexBuffer(size_t size) {
-        std::unique_ptr<VulkanDeviceLocalVertexBuffer> vertexBuffer = std::make_unique<VulkanDeviceLocalVertexBuffer>(*mDevice, size);
+//        std::unique_ptr<VulkanDeviceLocalVertexBuffer> vertexBuffer = std::make_unique<VulkanDeviceLocalVertexBuffer>(*mVulkanDevice, size);
+        std::unique_ptr<VulkanHostVisibleVertexBuffer> vertexBuffer = std::make_unique<VulkanHostVisibleVertexBuffer>(*mVulkanDevice, size);
         mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
         mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getBuffer());
         mVertexBufferOffsets.push_back(0);
@@ -134,16 +135,16 @@ namespace engine {
                                        std::to_string(mVulkanVertexBuffers.size());
             throw std::runtime_error(errorMessage);
         }
-        mVulkanVertexBuffers[index]->update(*mCommandPool, data, size);
+        mVulkanVertexBuffers[index]->updateBuffer(data, size);
     }
 
     void VulkanEngine::createIndexBuffer(size_t size) {
         mIndexBuffer.reset();
-        mIndexBuffer = std::make_unique<VulkanDeviceLocalIndexBuffer>(*mDevice, size);
+        mIndexBuffer = std::make_unique<VulkanHostVisibleIndexBuffer>(*mVulkanDevice, size);
     }
 
     void VulkanEngine::updateIndexBuffer(const std::vector<uint32_t> &indices) const {
-        mIndexBuffer->update(*mCommandPool, indices);
+        mIndexBuffer->update(indices);
     }
 
 //    void VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
@@ -159,7 +160,7 @@ namespace engine {
     }
 
     void VulkanEngine::drawFrame() {
-        const vk::Device device = mDevice->getDevice();
+        const vk::Device device = mVulkanDevice->getDevice();
         vk::Semaphore imageAvailableSemaphore = mSyncObject->getImageAvailableSemaphore(mCurrentFrameIndex);
         vk::Semaphore renderFinishedSemaphore = mSyncObject->getRenderFinishedSemaphore(mCurrentFrameIndex);
         vk::Fence fence = mSyncObject->getFence(mCurrentFrameIndex);
@@ -291,7 +292,7 @@ namespace engine {
                 .setSignalSemaphores(signalSemaphores);
 
         std::array<vk::SubmitInfo, 1> submitInfos = {submitInfo};
-        mDevice->getGraphicsQueue().submit(submitInfos, fence);
+        mVulkanDevice->getGraphicsQueue().submit(submitInfos, fence);
 
         std::array<vk::SwapchainKHR, 1> swapChains = {mSwapchain->getSwapChain()};
         std::array<uint32_t, 1> imageIndices = {imageIndex};
@@ -306,7 +307,7 @@ namespace engine {
         // https://github.com/KhronosGroup/Vulkan-Hpp/issues/599
         // 当出现图片不匹配时， cpp风格的 presentKHR 会抛出异常， 而不是返回 result， 而C风格的 presentKHR 接口会返回 result
         try {
-            result = mDevice->getPresentQueue().presentKHR(presentInfo);
+            result = mVulkanDevice->getPresentQueue().presentKHR(presentInfo);
         } catch (const vk::OutOfDateKHRError &e) {
             LOG_E("mPresentQueue.presentKHR => OutOfDateKHRError");
             result = vk::Result::eErrorOutOfDateKHR;

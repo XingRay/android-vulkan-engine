@@ -12,7 +12,7 @@ namespace engine {
 
     class VulkanPhysicalDeviceScoreCalculator {
     private:
-        const VulkanPhysicalDeviceScoreConfig &mScoreConfig;
+        VulkanPhysicalDeviceScoreConfig mScoreConfig;
 
     public:
         VulkanPhysicalDeviceScoreCalculator(const VulkanPhysicalDeviceScoreConfig &scoreConfig) : mScoreConfig(scoreConfig) {}

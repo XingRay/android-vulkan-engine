@@ -19,7 +19,9 @@
 #include "engine/vulkan_wrapper/VulkanComputePipeline.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalVertexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleVertexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalIndexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
@@ -35,13 +37,14 @@ namespace engine {
         bool mFrameBufferResized = false;
         uint32_t mFrameCount = 2;
         uint32_t mCurrentFrameIndex = 0;
-        const std::array<float, 4> mClearColor = {0.05f, 0.05f, 0.05f, 1.0f};//{0.2f, 0.4f, 0.6f, 1.0f};
+//        const std::array<float, 4> mClearColor = {0.05f, 0.05f, 0.05f, 1.0f};
+        const std::array<float, 4> mClearColor = {0.2f, 0.4f, 0.6f, 1.0f};
         const std::array<float, 4> mDepthStencil = {1.0f, 0, 0, 0};
 
         std::unique_ptr<VulkanInstance> mInstance;
         std::unique_ptr<VulkanSurface> mSurface;
         std::unique_ptr<VulkanPhysicalDevice> mPhysicalDevice;
-        std::unique_ptr<VulkanDevice> mDevice;
+        std::unique_ptr<VulkanDevice> mVulkanDevice;
 
         std::unique_ptr<VulkanSwapchain> mSwapchain;
         std::unique_ptr<VulkanRenderPass> mRenderPass;
@@ -52,11 +55,11 @@ namespace engine {
         std::unique_ptr<VulkanCommandPool> mCommandPool;
         std::unique_ptr<VulkanFrameBuffer> mFrameBuffer;
 
-        std::vector<std::unique_ptr<VulkanDeviceLocalVertexBuffer>> mVulkanVertexBuffers;
+        std::vector<std::unique_ptr<VulkanHostVisibleVertexBuffer>> mVulkanVertexBuffers;
         std::vector<vk::Buffer> mVertexBuffers;
         std::vector<vk::DeviceSize> mVertexBufferOffsets;
 
-        std::unique_ptr<VulkanDeviceLocalIndexBuffer> mIndexBuffer;
+        std::unique_ptr<VulkanHostVisibleIndexBuffer> mIndexBuffer;
 
         std::unique_ptr<VulkanSyncObject> mSyncObject;
 
@@ -108,7 +111,7 @@ namespace engine {
                                            std::to_string(mVulkanVertexBuffers.size());
                 throw std::runtime_error(errorMessage);
             }
-            mVulkanVertexBuffers[index]->update(*mCommandPool, data.data(), data.size() * sizeof(T));
+            mVulkanVertexBuffers[index]->updateBuffer(data.data(), data.size() * sizeof(T));
         }
 
         void createIndexBuffer(size_t size);
