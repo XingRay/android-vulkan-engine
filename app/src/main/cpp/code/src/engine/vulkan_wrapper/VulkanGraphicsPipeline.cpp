@@ -17,7 +17,7 @@ namespace engine {
                                                    std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
                                                    const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
                                                    std::vector<vk::PushConstantRange> &&pushConstantRanges)
-            : mDevice(vulkanDevice), mVulkanDescriptorPool(std::move(vulkanDescriptorPool)), mPushConstantRanges(std::move(pushConstantRanges)) {
+            : mVulkanDevice(vulkanDevice), mVulkanDescriptorPool(std::move(vulkanDescriptorPool)), mPushConstantRanges(std::move(pushConstantRanges)) {
         vk::Device device = vulkanDevice.getDevice();
 
         // input assembler
@@ -45,18 +45,18 @@ namespace engine {
                 .setHeight((float) displaySize.height)
                 .setMinDepth(0.0f)
                 .setMaxDepth(1.0f);
-        std::array<vk::Viewport, 1> viewports{viewport};
+        mViewports.push_back(viewport);
 
         vk::Rect2D scissor{};
         scissor
                 .setOffset(vk::Offset2D{0, 0})
                 .setExtent(displaySize);
-        std::array<vk::Rect2D, 1> scissors{scissor};
+        mScissors.push_back(scissor);
 
         vk::PipelineViewportStateCreateInfo viewportStateCreateInfo;
         viewportStateCreateInfo
-                .setViewports(viewports)
-                .setScissors(scissors);
+                .setViewports(mViewports)
+                .setScissors(mScissors);
 
         // vertex shader
         vk::PipelineVertexInputStateCreateInfo vertexInputStateCreateInfo;
@@ -207,11 +207,12 @@ namespace engine {
             std::vector<uint8_t> data(pushConstantRange.size);
             mPushConstantDataList.push_back(std::move(data));
         }
+
     }
 
     VulkanGraphicsPipeline::~VulkanGraphicsPipeline() {
         LOG_D("VulkanGraphicsPipeline::~VulkanGraphicsPipeline");
-        vk::Device device = mDevice.getDevice();
+        vk::Device device = mVulkanDevice.getDevice();
         device.destroy(mPipeline);
         device.destroy(mPipelineLayout);
     }
@@ -234,6 +235,93 @@ namespace engine {
 
     const std::vector<std::vector<uint8_t>> &VulkanGraphicsPipeline::getPushConstantDataList() const {
         return mPushConstantDataList;
+    }
+
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::createVertexBuffer(size_t size) {
+        std::unique_ptr<VulkanDeviceLocalVertexBuffer> vertexBuffer = std::make_unique<VulkanDeviceLocalVertexBuffer>(mVulkanDevice, size);
+        mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
+        mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getBuffer());
+        mVertexBufferOffsets.push_back(0);
+
+        return *this;
+    }
+
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::updateVertexBuffer(const VulkanCommandPool &vulkanCommandPool, const void *data, size_t size) {
+        return updateVertexBuffer(vulkanCommandPool, 0, data, size);
+    }
+
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::updateVertexBuffer(const VulkanCommandPool &vulkanCommandPool, uint32_t index, const void *data, size_t size) {
+        if (index >= mVulkanVertexBuffers.size()) {
+            LOG_E("index out of range, index:%d, size:%zu", index, mVulkanVertexBuffers.size());
+
+            // Format the error message using std::to_string
+            std::string errorMessage = "updateVertexBuffer: index out of range, index:" +
+                                       std::to_string(index) +
+                                       ", size:" +
+                                       std::to_string(mVulkanVertexBuffers.size());
+            throw std::runtime_error(errorMessage);
+        }
+        mVulkanVertexBuffers[index]->update(vulkanCommandPool, data, size);
+
+        return *this;
+    }
+
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::createIndexBuffer(size_t size) {
+        mIndexBuffer.reset();
+        mIndexBuffer = std::make_unique<VulkanDeviceLocalIndexBuffer>(mVulkanDevice, size);
+
+        return *this;
+    }
+
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::updateIndexBuffer(const VulkanCommandPool &vulkanCommandPool, const std::vector<uint32_t> &indices) {
+        mIndexBuffer->update(vulkanCommandPool, indices);
+
+        return *this;
+    }
+
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
+//        mGraphicsPipeline->updateBuffer(frameIndex, set, binding, data, size);
+
+        return *this;
+    }
+
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::updatePushConstant(uint32_t index, const void *data) {
+//        mGraphicsPipeline->updatePushConstant(index, data);
+
+        return *this;
+    }
+
+    void VulkanGraphicsPipeline::drawFrame(const vk::CommandBuffer &commandBuffer, uint32_t frameIndex) {
+
+        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline);
+
+        /**
+         * firstViewport 在某些情况下，可能需要将视口绑定到特定的范围，而不是从索引 0 开始
+         * 类似于 copy中的 dst_Index [s,s,s] -> [_,_,_, d,d,d, _,_,...] (firstViewport=3)
+         */
+        commandBuffer.setViewport(0, mViewports);
+        commandBuffer.setScissor(0, mScissors);
+
+        commandBuffer.bindVertexBuffers(0, mVertexBuffers, mVertexBufferOffsets);
+        commandBuffer.bindIndexBuffer(mIndexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, mDescriptorSets[frameIndex], nullptr);
+
+        // push constants
+        if (!mPushConstantRanges.empty()) {
+            for (uint32_t pushConstantIndex = 0; pushConstantIndex < mPushConstantRanges.size(); pushConstantIndex++) {
+                const vk::PushConstantRange &pushConstantRange = mPushConstantRanges[pushConstantIndex];
+                const std::vector<uint8_t> pushConstantData = mPushConstantDataList[pushConstantIndex];
+
+                commandBuffer.pushConstants(mPipelineLayout, pushConstantRange.stageFlags,
+                                            pushConstantRange.offset,
+                                            pushConstantRange.size,
+                                            pushConstantData.data());
+            }
+        }
+
+        // draw call
+        commandBuffer.drawIndexed(mIndexBuffer->getIndicesCount(), 1, 0, 0, 0);
+
     }
 
 } // engine

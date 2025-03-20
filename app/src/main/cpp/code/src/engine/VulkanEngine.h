@@ -49,10 +49,11 @@ namespace engine {
         std::unique_ptr<VulkanSwapchain> mSwapchain;
         std::unique_ptr<VulkanRenderPass> mRenderPass;
 
+        // todo std::vector<VulkanGraphicsPipeline> mGraphicsPipelines;
         std::unique_ptr<VulkanGraphicsPipeline> mGraphicsPipeline;
         std::unique_ptr<VulkanComputePipeline> mComputePipeline;
 
-        std::unique_ptr<VulkanCommandPool> mCommandPool;
+        std::unique_ptr<VulkanCommandPool> mVulkanCommandPool;
         std::unique_ptr<VulkanFrameBuffer> mFrameBuffer;
 
         std::vector<std::unique_ptr<VulkanDeviceLocalVertexBuffer>> mVulkanVertexBuffers;
@@ -86,7 +87,13 @@ namespace engine {
         vk::Device getVKDevice() const;
 
         [[nodiscard]]
-        uint32_t getCurrentFrameIndex();
+        const VulkanCommandPool &getVulkanCommandPool() const;
+
+        [[nodiscard]]
+        uint32_t getCurrentFrameIndex() const;
+
+        [[nodiscard]]
+        VulkanGraphicsPipeline &getGraphicsPipeline() const;
 
         void createVertexBuffer(size_t size);
 
@@ -111,16 +118,16 @@ namespace engine {
                                            std::to_string(mVulkanVertexBuffers.size());
                 throw std::runtime_error(errorMessage);
             }
-            mVulkanVertexBuffers[index]->update(*mCommandPool, data.data(), data.size() * sizeof(T));
+            mVulkanVertexBuffers[index]->update(*mVulkanCommandPool, data.data(), data.size() * sizeof(T));
         }
 
         void createIndexBuffer(size_t size);
 
         void updateIndexBuffer(const std::vector<uint32_t> &indices) const;
 
-//        void updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
-//
-//        void updatePushConstant(uint32_t index, const void *data);
+        void updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
+
+        void updatePushConstant(uint32_t index, const void *data);
 
         void drawFrame();
 

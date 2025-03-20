@@ -7,6 +7,7 @@
 #include "engine/VulkanVertexConfigures.h"
 #include "engine/VulkanDescriptorSetConfigures.h"
 #include "engine/VulkanPushConstantConfigures.h"
+#include "engine/vulkan_wrapper/VulkanGraphicsPipeline.h"
 
 namespace engine {
 
@@ -76,6 +77,7 @@ namespace engine {
         VulkanGraphicsPipelineConfigure &addPushConstant(uint32_t size, uint32_t offset, vk::ShaderStageFlagBits stageFlagBits);
 
     private:
+        [[nodiscard]]
         std::unique_ptr<VulkanGraphicsPipeline> build(const VulkanDevice &vulkanDevice,
                                                       const VulkanSwapchain &swapchain,
                                                       const VulkanRenderPass &renderPass,

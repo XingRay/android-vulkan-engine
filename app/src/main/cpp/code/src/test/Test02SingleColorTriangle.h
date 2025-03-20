@@ -32,11 +32,11 @@ namespace test02 {
 
         const android_app &mApp;
 
-//        std::unique_ptr<engine::VulkanGraphicsEngine> mVulkanEngine;
+        std::unique_ptr<engine::VulkanEngine> mVulkanEngine;
 
     public:
         // 构造函数初始化基类 TestBase，并传递 name
-        explicit Test02SingleColorTriangle(const android_app &uniformSetConfigure, const std::string &name);
+        explicit Test02SingleColorTriangle(const android_app &graphicsPipelineConfigure, const std::string &name);
 
         // 初始化操作
         void init() override;

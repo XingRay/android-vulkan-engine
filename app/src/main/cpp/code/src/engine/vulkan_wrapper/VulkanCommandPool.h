@@ -6,9 +6,8 @@
 
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
-#include "engine/vulkan_wrapper/VulkanSwapchain.h"
-#include "engine/vulkan_wrapper/VulkanRenderPass.h"
-#include "engine/vulkan_wrapper/VulkanGraphicsPipeline.h"
+//#include "engine/vulkan_wrapper/VulkanSwapchain.h"
+//#include "engine/vulkan_wrapper/VulkanRenderPass.h"
 
 #include <functional>
 
@@ -27,15 +26,15 @@ namespace engine {
 
         ~VulkanCommandPool();
 
-        const vk::CommandPool& getCommandPool() const;
+        const vk::CommandPool &getCommandPool() const;
 
-        const std::vector<vk::CommandBuffer>& getCommandBuffers() const;
+        const std::vector<vk::CommandBuffer> &getCommandBuffers() const;
 
         vk::CommandBuffer allocateCommand() const;
 
         std::vector<vk::CommandBuffer> allocateCommands(uint32_t count) const;
 
-        void submitOneTimeCommand(const std::function<void(const vk::CommandBuffer&)> &command) const;
+        void submitOneTimeCommand(const std::function<void(const vk::CommandBuffer &)> &command) const;
 
         void submitCommand(const vk::CommandBuffer &commandBuffer) const;
 

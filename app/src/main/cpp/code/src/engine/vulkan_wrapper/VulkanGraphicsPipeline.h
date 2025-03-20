@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanSwapchain.h"
@@ -11,12 +13,20 @@
 #include "engine/vulkan_wrapper/VulkanShader.h"
 #include "engine/vulkan_wrapper/VulkanShaderModule.h"
 #include "engine/vulkan_wrapper/VulkanDescriptorPool.h"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
+#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalVertexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleVertexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalIndexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleIndexBuffer.h"
 
 namespace engine {
 
     class VulkanGraphicsPipeline {
     private:
-        const VulkanDevice &mDevice;
+        const VulkanDevice &mVulkanDevice;
+
+        std::vector<vk::Viewport> mViewports;
+        std::vector<vk::Rect2D> mScissors;
 
         vk::Pipeline mPipeline;
         vk::PipelineLayout mPipelineLayout;
@@ -26,6 +36,12 @@ namespace engine {
 
         std::vector<vk::PushConstantRange> mPushConstantRanges;
         std::vector<std::vector<uint8_t>> mPushConstantDataList;
+
+        std::vector<std::unique_ptr<VulkanDeviceLocalVertexBuffer>> mVulkanVertexBuffers;
+        std::vector<vk::Buffer> mVertexBuffers;
+        std::vector<vk::DeviceSize> mVertexBufferOffsets;
+
+        std::unique_ptr<VulkanDeviceLocalIndexBuffer> mIndexBuffer;
 
     public:
         VulkanGraphicsPipeline(const VulkanDevice &vulkanDevice,
@@ -56,6 +72,45 @@ namespace engine {
 
         [[nodiscard]]
         const std::vector<std::vector<uint8_t>> &getPushConstantDataList() const;
+
+        VulkanGraphicsPipeline &createVertexBuffer(size_t size);
+
+        VulkanGraphicsPipeline &updateVertexBuffer(const VulkanCommandPool &vulkanCommandPool, const void *data, size_t size);
+
+        VulkanGraphicsPipeline &updateVertexBuffer(const VulkanCommandPool &vulkanCommandPool, uint32_t index, const void *data, size_t size);
+
+        template<typename T>
+        VulkanGraphicsPipeline &updateVertexBuffer(const VulkanCommandPool &vulkanCommandPool, const std::vector<T> &data) {
+            return updateVertexBuffer(vulkanCommandPool, 0, data);
+        }
+
+        template<typename T>
+        VulkanGraphicsPipeline &updateVertexBuffer(const VulkanCommandPool &vulkanCommandPool, uint32_t index, const std::vector<T> &data) {
+            if (index >= mVulkanVertexBuffers.size()) {
+                LOG_E("index out of range, index:%d, size:%zu", index, mVulkanVertexBuffers.size());
+
+                // Format the error message using std::to_string
+                std::string errorMessage = "updateVertexBuffer: index out of range, index:" +
+                                           std::to_string(index) +
+                                           ", size:" +
+                                           std::to_string(mVulkanVertexBuffers.size());
+                throw std::runtime_error(errorMessage);
+            }
+            mVulkanVertexBuffers[index]->update(vulkanCommandPool, data.data(), data.size() * sizeof(T));
+
+            return *this;
+        }
+
+
+        VulkanGraphicsPipeline &createIndexBuffer(size_t size);
+
+        VulkanGraphicsPipeline &updateIndexBuffer(const VulkanCommandPool &vulkanCommandPool, const std::vector<uint32_t> &indices);
+
+        VulkanGraphicsPipeline &updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
+
+        VulkanGraphicsPipeline &updatePushConstant(uint32_t index, const void *data);
+
+        void drawFrame(const vk::CommandBuffer &commandBuffer, uint32_t frameIndex);
     };
 
 } // engine

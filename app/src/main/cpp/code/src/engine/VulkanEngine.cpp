@@ -31,7 +31,7 @@ namespace engine {
         mSurface = std::move(vulkanSurface);
         mPhysicalDevice = std::move(vulkanPhysicalDevice);
         mVulkanDevice = std::move(vulkanDevice);
-        mCommandPool = std::move(commandPool);
+        mVulkanCommandPool = std::move(commandPool);
         mSwapchain = std::move(swapchain);
         mRenderPass = std::move(renderPass);
         mGraphicsPipeline = std::move(graphicsPipeline);
@@ -56,7 +56,7 @@ namespace engine {
         if (mVulkanDevice == nullptr) {
             throw std::runtime_error("mDevice == nullptr");
         }
-        if (mCommandPool == nullptr) {
+        if (mVulkanCommandPool == nullptr) {
             throw std::runtime_error("mCommandPool == nullptr");
         }
         if (mSwapchain == nullptr) {
@@ -82,7 +82,7 @@ namespace engine {
     VulkanEngine::~VulkanEngine() {
         LOG_D("~VulkanEngine()");
 
-        mCommandPool.reset();
+        mVulkanCommandPool.reset();
 
         mSyncObject.reset();
 
@@ -108,8 +108,16 @@ namespace engine {
         return mVulkanDevice->getDevice();
     }
 
-    uint32_t VulkanEngine::getCurrentFrameIndex() {
+    const VulkanCommandPool &VulkanEngine::getVulkanCommandPool() const {
+        return *mVulkanCommandPool;
+    }
+
+    uint32_t VulkanEngine::getCurrentFrameIndex() const {
         return mCurrentFrameIndex;
+    }
+
+    VulkanGraphicsPipeline &VulkanEngine::getGraphicsPipeline() const {
+        return *mGraphicsPipeline;
     }
 
     void VulkanEngine::createVertexBuffer(size_t size) {
@@ -135,7 +143,7 @@ namespace engine {
                                        std::to_string(mVulkanVertexBuffers.size());
             throw std::runtime_error(errorMessage);
         }
-        mVulkanVertexBuffers[index]->update(*mCommandPool, data, size);
+        mVulkanVertexBuffers[index]->update(*mVulkanCommandPool, data, size);
     }
 
     void VulkanEngine::createIndexBuffer(size_t size) {
@@ -144,16 +152,16 @@ namespace engine {
     }
 
     void VulkanEngine::updateIndexBuffer(const std::vector<uint32_t> &indices) const {
-        mIndexBuffer->update(*mCommandPool, indices);
+        mIndexBuffer->update(*mVulkanCommandPool, indices);
     }
 
-//    void VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
-//        mShader->updateBuffer(frameIndex, set, binding, data, size);
-//    }
-//
-//    void VulkanEngine::updatePushConstant(uint32_t index, const void *data) {
-//        mShader->updatePushConstant(index, data);
-//    }
+    void VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
+//        mGraphicsPipeline->updateBuffer(frameIndex, set, binding, data, size);
+    }
+
+    void VulkanEngine::updatePushConstant(uint32_t index, const void *data) {
+//        mGraphicsPipeline->updatePushConstant(index, data);
+    }
 
     void VulkanEngine::recreateSwapChain() {
         throw std::runtime_error("recreateSwapChain");
@@ -188,6 +196,19 @@ namespace engine {
             }
         }
 
+        vk::CommandBufferBeginInfo commandBufferBeginInfo;
+        commandBufferBeginInfo
+//                .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)
+                .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse)
+                .setPInheritanceInfo(nullptr);
+
+
+
+        vk::CommandBuffer commandBuffer = mVulkanCommandPool->getCommandBuffers()[mCurrentFrameIndex];
+        commandBuffer.reset();
+        commandBuffer.begin(commandBufferBeginInfo);
+
+
         vk::Extent2D displaySize = mSwapchain->getDisplaySize();
         vk::Rect2D renderArea{};
         renderArea
@@ -198,37 +219,12 @@ namespace engine {
         vk::ClearValue depthStencilClearValue = vk::ClearValue{vk::ClearColorValue(mDepthStencil)};
         std::array<vk::ClearValue, 2> clearValues = {colorClearValue, depthStencilClearValue};
 
-        vk::Viewport viewport{};
-        viewport.setX(0.0f)
-                .setY(0.0f)
-                .setWidth((float) displaySize.width)
-                .setHeight((float) displaySize.height)
-                .setMinDepth(0.0f)
-                .setMaxDepth(1.0f);
-        std::array<vk::Viewport, 1> viewports = {viewport};
-
-        vk::Rect2D scissor{};
-        scissor.setOffset(vk::Offset2D{0, 0})
-                .setExtent(displaySize);
-        std::array<vk::Rect2D, 1> scissors = {scissor};
-
-        vk::CommandBufferBeginInfo commandBufferBeginInfo;
-        commandBufferBeginInfo
-//                .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)
-                .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse)
-                .setPInheritanceInfo(nullptr);
-
         vk::RenderPassBeginInfo renderPassBeginInfo{};
         renderPassBeginInfo
                 .setRenderPass(mRenderPass->getRenderPass())
                 .setFramebuffer(mFrameBuffer->getFrameBuffers()[imageIndex])
                 .setRenderArea(renderArea)
                 .setClearValues(clearValues);
-
-        vk::CommandBuffer commandBuffer = mCommandPool->getCommandBuffers()[mCurrentFrameIndex];
-        commandBuffer.reset();
-        commandBuffer.begin(commandBufferBeginInfo);
-
         /**
          * vk::SubpassContents::eInline
          * 子流程的渲染命令直接记录在当前的命令缓冲区中, 适用于简单的渲染流程，所有渲染命令都在同一个命令缓冲区中记录。
@@ -239,37 +235,7 @@ namespace engine {
          */
         commandBuffer.beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
 
-        commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mGraphicsPipeline->getPipeline());
-
-        /**
-         * firstViewport 在某些情况下，可能需要将视口绑定到特定的范围，而不是从索引 0 开始
-         * 类似于 copy中的 dst_Index [s,s,s] -> [_,_,_, d,d,d, _,_,...] (firstViewport=3)
-         */
-        commandBuffer.setViewport(0, viewports);
-        commandBuffer.setScissor(0, scissors);
-
-        commandBuffer.bindVertexBuffers(0, mVertexBuffers, mVertexBufferOffsets);
-        commandBuffer.bindIndexBuffer(mIndexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
-        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mGraphicsPipeline->getPipelineLayout(), 0,
-                                         mGraphicsPipeline->getDescriptorSets(mCurrentFrameIndex), nullptr);
-
-        // push constants
-        const std::vector<vk::PushConstantRange> &pushConstantRanges = mGraphicsPipeline->getPushConstantRanges();
-        const std::vector<std::vector<uint8_t>> &pushConstantDataList = mGraphicsPipeline->getPushConstantDataList();
-        if (!pushConstantRanges.empty()) {
-            for (uint32_t pushConstantIndex = 0; pushConstantIndex < pushConstantRanges.size(); pushConstantIndex++) {
-                const vk::PushConstantRange &pushConstantRange = pushConstantRanges[pushConstantIndex];
-                const std::vector<uint8_t> pushConstantData = pushConstantDataList[pushConstantIndex];
-
-                commandBuffer.pushConstants(mGraphicsPipeline->getPipelineLayout(), pushConstantRange.stageFlags,
-                                            pushConstantRange.offset,
-                                            pushConstantRange.size,
-                                            pushConstantData.data());
-            }
-        }
-
-        // draw call
-        commandBuffer.drawIndexed(mIndexBuffer->getIndicesCount(), 1, 0, 0, 0);
+        mGraphicsPipeline->drawFrame(commandBuffer, mCurrentFrameIndex);
 
         commandBuffer.endRenderPass();
         commandBuffer.end();
