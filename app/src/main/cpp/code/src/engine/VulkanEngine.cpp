@@ -86,8 +86,6 @@ namespace engine {
 
         mSyncObject.reset();
 
-        mIndexBuffer.reset();
-        mVertexBuffers.clear();
         mFrameBuffer.reset();
 
         mGraphicsPipeline.reset();
@@ -120,47 +118,36 @@ namespace engine {
         return *mGraphicsPipeline;
     }
 
-    void VulkanEngine::createVertexBuffer(size_t size) {
-        std::unique_ptr<VulkanDeviceLocalVertexBuffer> vertexBuffer = std::make_unique<VulkanDeviceLocalVertexBuffer>(*mVulkanDevice, size);
-//        std::unique_ptr<VulkanHostVisibleVertexBuffer> vertexBuffer = std::make_unique<VulkanHostVisibleVertexBuffer>(*mVulkanDevice, size);
-        mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
-        mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getBuffer());
-        mVertexBufferOffsets.push_back(0);
+    VulkanEngine &VulkanEngine::createVertexBuffer(size_t size) {
+        getGraphicsPipeline().createVertexBuffer(size);
+        return *this;
     }
 
-    void VulkanEngine::updateVertexBuffer(const void *data, size_t size) {
-        updateVertexBuffer(0, data, size);
+    VulkanEngine &VulkanEngine::updateVertexBuffer(const void *data, size_t size) {
+        return updateVertexBuffer(0, data, size);
     }
 
-    void VulkanEngine::updateVertexBuffer(uint32_t index, const void *data, size_t size) {
-        if (index >= mVulkanVertexBuffers.size()) {
-            LOG_E("index out of range, index:%d, size:%zu", index, mVulkanVertexBuffers.size());
-
-            // Format the error message using std::to_string
-            std::string errorMessage = "updateVertexBuffer: index out of range, index:" +
-                                       std::to_string(index) +
-                                       ", size:" +
-                                       std::to_string(mVulkanVertexBuffers.size());
-            throw std::runtime_error(errorMessage);
-        }
-        mVulkanVertexBuffers[index]->update(*mVulkanCommandPool, data, size);
+    VulkanEngine &VulkanEngine::updateVertexBuffer(uint32_t index, const void *data, size_t size) {
+        getGraphicsPipeline().updateVertexBuffer(*mVulkanCommandPool, data, size);
+        return *this;
     }
 
-    void VulkanEngine::createIndexBuffer(size_t size) {
-        mIndexBuffer.reset();
-        mIndexBuffer = std::make_unique<VulkanDeviceLocalIndexBuffer>(*mVulkanDevice, size);
+    VulkanEngine &VulkanEngine::createIndexBuffer(size_t size) {
+        getGraphicsPipeline().createIndexBuffer(size);
+        return *this;
     }
 
-    void VulkanEngine::updateIndexBuffer(const std::vector<uint32_t> &indices) const {
-        mIndexBuffer->update(*mVulkanCommandPool, indices);
+    VulkanEngine &VulkanEngine::updateIndexBuffer(const std::vector<uint32_t> &indices) {
+        getGraphicsPipeline().updateIndexBuffer(*mVulkanCommandPool, indices);
+        return *this;
     }
 
-    void VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
-//        mGraphicsPipeline->updateBuffer(frameIndex, set, binding, data, size);
+    VulkanEngine &VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
+        return *this;
     }
 
-    void VulkanEngine::updatePushConstant(uint32_t index, const void *data) {
-//        mGraphicsPipeline->updatePushConstant(index, data);
+    VulkanEngine &VulkanEngine::updatePushConstant(uint32_t index, const void *data) {
+        return *this;
     }
 
     void VulkanEngine::recreateSwapChain() {
@@ -201,7 +188,6 @@ namespace engine {
 //                .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)
                 .setFlags(vk::CommandBufferUsageFlagBits::eSimultaneousUse)
                 .setPInheritanceInfo(nullptr);
-
 
 
         vk::CommandBuffer commandBuffer = mVulkanCommandPool->getCommandBuffers()[mCurrentFrameIndex];

@@ -215,6 +215,9 @@ namespace engine {
         vk::Device device = mVulkanDevice.getDevice();
         device.destroy(mPipeline);
         device.destroy(mPipelineLayout);
+
+        mIndexBuffer.reset();
+        mVertexBuffers.clear();
     }
 
     const vk::Pipeline &VulkanGraphicsPipeline::getPipeline() const {

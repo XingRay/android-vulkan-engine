@@ -68,11 +68,18 @@ namespace test01 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-        mVulkanEngine->getGraphicsPipeline()
+//        mVulkanEngine->getGraphicsPipeline()
+//                .createVertexBuffer(vertices.size() * sizeof(Vertex))
+//                .updateVertexBuffer(mVulkanEngine->getVulkanCommandPool(), vertices)
+//                .createIndexBuffer(indices.size() * sizeof(uint32_t))
+//                .updateIndexBuffer(mVulkanEngine->getVulkanCommandPool(), indices);
+
+        (*mVulkanEngine)
                 .createVertexBuffer(vertices.size() * sizeof(Vertex))
-                .updateVertexBuffer(mVulkanEngine->getVulkanCommandPool(), vertices)
+                .updateVertexBuffer(vertices)
                 .createIndexBuffer(indices.size() * sizeof(uint32_t))
-                .updateIndexBuffer(mVulkanEngine->getVulkanCommandPool(), indices);
+                .updateIndexBuffer(indices);
+
     }
 
     // 检查是否准备好

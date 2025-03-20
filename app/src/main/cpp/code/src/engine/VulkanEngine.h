@@ -56,12 +56,6 @@ namespace engine {
         std::unique_ptr<VulkanCommandPool> mVulkanCommandPool;
         std::unique_ptr<VulkanFrameBuffer> mFrameBuffer;
 
-        std::vector<std::unique_ptr<VulkanDeviceLocalVertexBuffer>> mVulkanVertexBuffers;
-        std::vector<vk::Buffer> mVertexBuffers;
-        std::vector<vk::DeviceSize> mVertexBufferOffsets;
-
-        std::unique_ptr<VulkanDeviceLocalIndexBuffer> mIndexBuffer;
-
         std::unique_ptr<VulkanSyncObject> mSyncObject;
 
     public:
@@ -95,39 +89,30 @@ namespace engine {
         [[nodiscard]]
         VulkanGraphicsPipeline &getGraphicsPipeline() const;
 
-        void createVertexBuffer(size_t size);
+        VulkanEngine &createVertexBuffer(size_t size);
 
-        void updateVertexBuffer(const void *data, size_t size);
+        VulkanEngine &updateVertexBuffer(const void *data, size_t size);
 
-        void updateVertexBuffer(uint32_t index, const void *data, size_t size);
+        VulkanEngine &updateVertexBuffer(uint32_t index, const void *data, size_t size);
 
         template<typename T>
-        void updateVertexBuffer(const std::vector<T> &data) {
-            updateVertexBuffer(0, data);
+        VulkanEngine &updateVertexBuffer(const std::vector<T> &data) {
+            return updateVertexBuffer(0, data);
         }
 
         template<typename T>
-        void updateVertexBuffer(uint32_t index, const std::vector<T> &data) {
-            if (index >= mVulkanVertexBuffers.size()) {
-                LOG_E("index out of range, index:%d, size:%zu", index, mVulkanVertexBuffers.size());
-
-                // Format the error message using std::to_string
-                std::string errorMessage = "updateVertexBuffer: index out of range, index:" +
-                                           std::to_string(index) +
-                                           ", size:" +
-                                           std::to_string(mVulkanVertexBuffers.size());
-                throw std::runtime_error(errorMessage);
-            }
-            mVulkanVertexBuffers[index]->update(*mVulkanCommandPool, data.data(), data.size() * sizeof(T));
+        VulkanEngine &updateVertexBuffer(uint32_t index, const std::vector<T> &data) {
+            getGraphicsPipeline().updateVertexBuffer(*mVulkanCommandPool, data.data(), data.size() * sizeof(T));
+            return *this;
         }
 
-        void createIndexBuffer(size_t size);
+        VulkanEngine &createIndexBuffer(size_t size);
 
-        void updateIndexBuffer(const std::vector<uint32_t> &indices) const;
+        VulkanEngine &updateIndexBuffer(const std::vector<uint32_t> &indices);
 
-        void updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
+        VulkanEngine &updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
 
-        void updatePushConstant(uint32_t index, const void *data);
+        VulkanEngine &updatePushConstant(uint32_t index, const void *data);
 
         void drawFrame();
 
