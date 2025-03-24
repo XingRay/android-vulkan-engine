@@ -18,14 +18,14 @@ namespace engine {
         return *this;
     }
 
-    std::vector <vk::VertexInputBindingDescription> VulkanVertexConfigures::createVertexInputBindingDescriptions() const {
-        std::vector <vk::VertexInputBindingDescription> vertexInputBindingDescriptions;
+    std::vector<vk::VertexInputBindingDescription> VulkanVertexConfigures::createVertexInputBindingDescriptions() const {
+        std::vector<vk::VertexInputBindingDescription> vertexInputBindingDescriptions;
 
         for (const VulkanVertexConfigure &vertexConfigure: mVulkanVertexConfigures) {
             vk::VertexInputBindingDescription bindingDescription{};
             bindingDescription
                     .setBinding(vertexConfigure.getBinding())
-                    .setStride(vertexConfigure.getSize())
+                    .setStride(vertexConfigure.getStride())
                     .setInputRate(vk::VertexInputRate::eVertex);
             vertexInputBindingDescriptions.push_back(bindingDescription);
         }
@@ -34,9 +34,9 @@ namespace engine {
     }
 
 
-    std::vector <vk::VertexInputAttributeDescription> VulkanVertexConfigures::createVertexInputAttributeDescriptions() const {
+    std::vector<vk::VertexInputAttributeDescription> VulkanVertexConfigures::createVertexInputAttributeDescriptions() const {
 
-        std::vector <vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions;
+        std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
         for (const VulkanVertexConfigure &vertexConfigure: mVulkanVertexConfigures) {
             for (const VulkanVertexAttributeConfigure &attributeConfigure: vertexConfigure.getAttributes()) {
@@ -52,6 +52,16 @@ namespace engine {
         }
 
         return vertexInputAttributeDescriptions;
+    }
+
+    std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> VulkanVertexConfigures::createVertexBuffers(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
+        std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> vertexBuffers{};
+
+        for (const VulkanVertexConfigure &configure: mVulkanVertexConfigures) {
+            vertexBuffers.push_back(configure.createVertexBuffer(vulkanDevice, commandPool));
+        }
+
+        return vertexBuffers;
     }
 
 } // engine

@@ -28,7 +28,17 @@ namespace engine {
 
         void recordCommandUpdate(const vk::CommandBuffer &commandBuffer, const void *data, uint32_t size);
 
+        template<class T>
+        void recordCommandUpdate(const vk::CommandBuffer &commandBuffer, const std::vector<T> &data) {
+            recordCommandUpdate(commandBuffer, data.data(), data.size() * sizeof(T));
+        }
+
         void update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size);
+
+        template<class T>
+        void update(const VulkanCommandPool &vulkanCommandPool, const std::vector<T> &data) {
+            update(vulkanCommandPool, data.data(), data.size() * sizeof(T));
+        }
 
     };
 

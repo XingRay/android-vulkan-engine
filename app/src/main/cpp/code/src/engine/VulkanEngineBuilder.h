@@ -134,18 +134,6 @@ namespace engine {
         // compute pipeline
         VulkanEngineBuilder &computePipeline(const std::function<void(VulkanComputePipelineConfigure &)> &configure);
 
-//        VulkanEngineBuilder &setComputeShaderCode(std::vector<char> &&code);
-//
-//        VulkanEngineBuilder &setVertexShaderCode(std::vector<char> &&code);
-//
-//        VulkanEngineBuilder &setFragmentShaderCode(std::vector<char> &&code);
-//
-//        VulkanEngineBuilder &setVertices(std::vector<VulkanVertex> &&vertices);
-//
-//        VulkanEngineBuilder &setUniformSets(std::vector<VulkanDescriptorSet> &&uniformSets);
-//
-//        VulkanEngineBuilder &setPushConstants(std::vector<VulkanPushConstant> &&pushConstants);
-
         std::unique_ptr<VulkanEngine> build();
 
     private:

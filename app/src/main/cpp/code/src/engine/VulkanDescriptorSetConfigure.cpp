@@ -35,6 +35,14 @@ namespace engine {
         return *this;
     }
 
+    VulkanDescriptorSetConfigure &VulkanDescriptorSetConfigure::addUniform(const std::function<void(VulkanUniformConfigure &)> &configure) {
+        VulkanUniformConfigure config{};
+        configure(config);
+        mVulkanUniformConfigures.push_back(config);
+//        mVulkanDescriptorConfigures.push_back(std::make_unique<VulkanDescriptorConfigure>(binding, vk::DescriptorType::eUniformBuffer, descriptorCount, shaderStageFlagBits));
+        return *this;
+    }
+
     VulkanDescriptorSetConfigure &VulkanDescriptorSetConfigure::addSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount) {
         mVulkanDescriptorConfigures.push_back(std::make_unique<VulkanDescriptorConfigure>(binding, vk::DescriptorType::eCombinedImageSampler, descriptorCount, shaderStageFlagBits));
         return *this;
@@ -80,6 +88,11 @@ namespace engine {
 
         for (const std::unique_ptr<VulkanDescriptorConfigure> &vulkanDescriptorConfigure: mVulkanDescriptorConfigures) {
             vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding = vulkanDescriptorConfigure->createDescriptorSetLayoutBinding();
+            descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
+        }
+
+        for (const VulkanUniformConfigure &vulkanUniformConfigure: mVulkanUniformConfigures) {
+            vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding = vulkanUniformConfigure.createDescriptorSetLayoutBinding();
             descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
         }
 

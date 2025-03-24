@@ -204,7 +204,7 @@ namespace engine {
         std::unique_ptr<VulkanGraphicsPipeline> vulkanGraphicsPipeline = nullptr;
         if (mVulkanGraphicsPipelineConfigure != nullptr) {
             LOG_D("create VulkanGraphicsPipeline");
-            vulkanGraphicsPipeline = mVulkanGraphicsPipelineConfigure->build(*vulkanDevice, *swapchain, *renderPass, mFrameCount);
+            vulkanGraphicsPipeline = mVulkanGraphicsPipelineConfigure->build(*vulkanDevice, *swapchain, *renderPass, *commandPool, mFrameCount);
         }
 
         std::unique_ptr<VulkanComputePipeline> vulkanComputePipeline = nullptr;

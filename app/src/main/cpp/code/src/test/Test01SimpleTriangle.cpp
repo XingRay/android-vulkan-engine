@@ -45,10 +45,10 @@ namespace test01 {
                     graphicsPipelineConfigure
                             .vertexShaderCode(std::move(vertexShaderCode))
                             .fragmentShaderCode(std::move(fragmentShaderCode))
-                            .vertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
                                 vertexConfigure
                                         .binding(0)
-                                        .size(sizeof(Vertex))
+                                        .stride(sizeof(Vertex))
                                         .addAttribute(ShaderFormat::Vec3);
                             });
                 })

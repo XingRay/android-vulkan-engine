@@ -119,7 +119,20 @@ namespace engine {
     }
 
     VulkanEngine &VulkanEngine::createVertexBuffer(size_t size) {
-        getGraphicsPipeline().createVertexBuffer(size);
+        getGraphicsPipeline().createVertexBuffer(0, size);
+        return *this;
+    }
+
+    VulkanEngine &VulkanEngine::createVertexBuffer(uint32_t binding, size_t size) {
+        getGraphicsPipeline().createVertexBuffer(binding, size);
+        return *this;
+    }
+
+    VulkanEngine &VulkanEngine::createVertexBuffer(uint32_t pipelineIndex, uint32_t binding, size_t size) {
+        if (pipelineIndex != 0) {
+            throw std::runtime_error("other pipeline (index > 0) not supported yet !");
+        }
+        getGraphicsPipeline().createVertexBuffer(binding, size);
         return *this;
     }
 

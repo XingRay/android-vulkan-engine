@@ -7,7 +7,12 @@
 namespace engine {
 
     class VulkanSamplerBinding {
+    private:
 
+    public:
+        VulkanSamplerBinding();
+
+        ~VulkanSamplerBinding();
     };
 
 } // engine

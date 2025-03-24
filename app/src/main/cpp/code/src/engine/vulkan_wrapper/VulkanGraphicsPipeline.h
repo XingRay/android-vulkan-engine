@@ -18,6 +18,7 @@
 #include "engine/vulkan_wrapper/buffer/VulkanHostVisibleVertexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/VulkanHostVisibleIndexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalUniformBuffer.h"
 
 namespace engine {
 
@@ -37,11 +38,11 @@ namespace engine {
         std::vector<vk::PushConstantRange> mPushConstantRanges;
         std::vector<std::vector<uint8_t>> mPushConstantDataList;
 
-        std::vector<std::unique_ptr<VulkanDeviceLocalVertexBuffer>> mVulkanVertexBuffers;
+        std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> mVulkanVertexBuffers;
         std::vector<vk::Buffer> mVertexBuffers;
         std::vector<vk::DeviceSize> mVertexBufferOffsets;
 
-        std::unique_ptr<VulkanDeviceLocalIndexBuffer> mIndexBuffer;
+        std::shared_ptr<VulkanDeviceLocalIndexBuffer> mIndexBuffer;
 
     public:
         VulkanGraphicsPipeline(const VulkanDevice &vulkanDevice,
@@ -51,6 +52,8 @@ namespace engine {
                                const VulkanShaderModule &fragmentShaderModule,
                                const std::vector<vk::VertexInputBindingDescription> &vertexInputBindingDescriptions,
                                const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributeDescriptions,
+                               std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> &&vertexBuffers,
+                               std::shared_ptr<VulkanDeviceLocalIndexBuffer> indexBuffer,
                                uint32_t frameCount,
                                std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
                                const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
@@ -74,6 +77,8 @@ namespace engine {
         const std::vector<std::vector<uint8_t>> &getPushConstantDataList() const;
 
         VulkanGraphicsPipeline &createVertexBuffer(size_t size);
+
+        VulkanGraphicsPipeline &createVertexBuffer(uint32_t binding, size_t size);
 
         VulkanGraphicsPipeline &updateVertexBuffer(const VulkanCommandPool &vulkanCommandPool, const void *data, size_t size);
 

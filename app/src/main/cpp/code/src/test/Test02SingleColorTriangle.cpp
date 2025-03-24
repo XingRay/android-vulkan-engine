@@ -34,6 +34,16 @@ namespace test02 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/02_triangle_color.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/02_triangle_color.frag.spv");
 
+        std::vector<Vertex> vertices = {
+                {{1.0f,  -1.0f, 0.0f}},
+                {{-1.0f, -1.0f, 0.0f}},
+                {{0.0f,  1.0f,  0.0f}},
+        };
+
+        std::vector<uint32_t> indices = {0, 1, 2};
+
+        ColorUniformBufferObject colorUniformBufferObject{{0.2f, 0.8f, 0.4f}};
+
         std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
@@ -45,16 +55,30 @@ namespace test02 {
                     graphicsPipelineConfigure
                             .vertexShaderCode(std::move(vertexShaderCode))
                             .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
+                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
                                 vertexConfigure
                                         .binding(0)
-                                        .size(sizeof(Vertex))
-                                        .addAttribute(ShaderFormat::Vec3);
+                                        .stride(sizeof(Vertex))
+                                        .addAttribute(ShaderFormat::Vec3)
+                                        .setVertexBuffer(vertices);
                             })
-                            .uniformSet([](engine::VulkanDescriptorSetConfigure &uniformSetConfigure) {
-                                uniformSetConfigure
+
+//                            .index([&](engine::VulkanIndexConfigure &indexConfigure) {
+//                                indexConfigure
+//                                        .setIndexBuffer(std::move(indices));
+//                            })
+
+                            .index(std::move(indices))
+                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
+                                descriptorSetConfigure
                                         .set(0)
-                                        .addUniform(0, vk::ShaderStageFlagBits::eVertex, sizeof(ColorUniformBufferObject));
+                                        .addUniform([&](engine::VulkanUniformConfigure &uniformConfigure) {
+                                            uniformConfigure
+                                                    .binding(0)
+                                                    .descriptorCount(1)
+                                                    .shaderStageFlags(vk::ShaderStageFlagBits::eVertex)
+                                                    .setUniformBuffer(colorUniformBufferObject);
+                                        });
                             });
                 })
                 .build();
@@ -64,20 +88,10 @@ namespace test02 {
 
     void Test02SingleColorTriangle::init() {
 
-
-        std::vector<Vertex> vertices = {
-                {{1.0f,  -1.0f, 0.0f}},
-                {{-1.0f, -1.0f, 0.0f}},
-                {{0.0f,  1.0f,  0.0f}},
-        };
-
-        std::vector<uint32_t> indices = {0, 1, 2};
-
-        mVulkanEngine->createVertexBuffer(vertices.size() * sizeof(Vertex));
-        mVulkanEngine->updateVertexBuffer(vertices);
-
-        mVulkanEngine->createIndexBuffer(indices.size() * sizeof(uint32_t));
-        mVulkanEngine->updateIndexBuffer(indices);
+//        std::vector<uint32_t> indices = {0, 1, 2};
+//
+//        mVulkanEngine->createIndexBuffer(indices.size() * sizeof(uint32_t));
+//        mVulkanEngine->updateIndexBuffer(indices);
 
         ColorUniformBufferObject colorUniformBufferObject{{0.2f, 0.8f, 0.4f}};
 

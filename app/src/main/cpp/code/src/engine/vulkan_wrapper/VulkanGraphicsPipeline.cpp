@@ -6,6 +6,7 @@
 #include "engine/Log.h"
 
 namespace engine {
+
     VulkanGraphicsPipeline::VulkanGraphicsPipeline(const VulkanDevice &vulkanDevice,
                                                    const VulkanSwapchain &swapchain,
                                                    const VulkanRenderPass &renderPass,
@@ -13,11 +14,18 @@ namespace engine {
                                                    const VulkanShaderModule &fragmentShaderModule,
                                                    const std::vector<vk::VertexInputBindingDescription> &vertexInputBindingDescriptions,
                                                    const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributeDescriptions,
+                                                   std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> &&vertexBuffers,
+                                                   std::shared_ptr<VulkanDeviceLocalIndexBuffer> indexBuffer,
                                                    uint32_t frameCount,
                                                    std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
                                                    const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
                                                    std::vector<vk::PushConstantRange> &&pushConstantRanges)
-            : mVulkanDevice(vulkanDevice), mVulkanDescriptorPool(std::move(vulkanDescriptorPool)), mPushConstantRanges(std::move(pushConstantRanges)) {
+            : mVulkanDevice(vulkanDevice),
+              mVulkanDescriptorPool(std::move(vulkanDescriptorPool)),
+              mPushConstantRanges(std::move(pushConstantRanges)),
+              mVulkanVertexBuffers(std::move(vertexBuffers)),
+              mIndexBuffer(std::move(indexBuffer)) {
+
         vk::Device device = vulkanDevice.getDevice();
 
         // input assembler
@@ -198,8 +206,19 @@ namespace engine {
         }
         mPipeline = pipeline;
 
+
         for (int i = 0; i < frameCount; i++) {
             mDescriptorSets.push_back(mVulkanDescriptorPool->allocateDescriptorSets(descriptorSetLayouts));
+        }
+
+        // create vertex buffers
+        for (const std::shared_ptr<VulkanDeviceLocalVertexBuffer> &vulkanVertexBuffer: mVulkanVertexBuffers) {
+            if (vulkanVertexBuffer != nullptr) {
+                mVertexBuffers.push_back(vulkanVertexBuffer->getBuffer());
+            } else {
+                mVertexBuffers.push_back(nullptr);
+            }
+            mVertexBufferOffsets.push_back(0);
         }
 
         for (const vk::PushConstantRange &pushConstantRange: mPushConstantRanges) {
@@ -241,10 +260,13 @@ namespace engine {
     }
 
     VulkanGraphicsPipeline &VulkanGraphicsPipeline::createVertexBuffer(size_t size) {
-        std::unique_ptr<VulkanDeviceLocalVertexBuffer> vertexBuffer = std::make_unique<VulkanDeviceLocalVertexBuffer>(mVulkanDevice, size);
-        mVulkanVertexBuffers.push_back(std::move(vertexBuffer));
-        mVertexBuffers.push_back(mVulkanVertexBuffers.back()->getBuffer());
-        mVertexBufferOffsets.push_back(0);
+        return createVertexBuffer(0, size);
+    }
+
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::createVertexBuffer(uint32_t binding, size_t size) {
+        mVulkanVertexBuffers[binding] = std::make_shared<VulkanDeviceLocalVertexBuffer>(mVulkanDevice, size);
+        mVertexBuffers[binding] = mVulkanVertexBuffers.back()->getBuffer();
+        mVertexBufferOffsets[binding] = 0;
 
         return *this;
     }
@@ -305,6 +327,14 @@ namespace engine {
         commandBuffer.setViewport(0, mViewports);
         commandBuffer.setScissor(0, mScissors);
 
+        /**
+         * offsets 参数仅指定顶点数据的起始位置，
+         * 读取的数据量由绘制命令（如 vkCmdDraw 或 vkCmdDrawIndexed）的顶点数量决定，结合顶点输入绑定描述中的 stride 参数隐式计算总字节数
+         * 总字节数 = vertexCount × stride
+         * 示例:
+         * 起始位置：offsets[0]（如 256 字节）
+         * 结束位置：offsets[0] + vertexCount × stride（如 256 + 3×20 = 316 字节）
+         */
         commandBuffer.bindVertexBuffers(0, mVertexBuffers, mVertexBufferOffsets);
         commandBuffer.bindIndexBuffer(mIndexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
         commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout, 0, mDescriptorSets[frameIndex], nullptr);
@@ -323,6 +353,13 @@ namespace engine {
         }
 
         // draw call
+        /**
+         * uint32_t           indexCount,
+         * uint32_t           instanceCount,
+         * uint32_t           firstIndex,
+         * int32_t            vertexOffset,
+         * uint32_t           firstInstance,
+         */
         commandBuffer.drawIndexed(mIndexBuffer->getIndicesCount(), 1, 0, 0, 0);
 
     }

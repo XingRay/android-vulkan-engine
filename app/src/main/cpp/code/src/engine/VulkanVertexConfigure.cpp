@@ -8,7 +8,7 @@
 namespace engine {
 
     VulkanVertexConfigure::VulkanVertexConfigure()
-            : mSize(0), mBinding(0), mAttributes({}) {
+            : mStride(0), mBinding(0), mAttributes({}), mCreateBufferCapacity(0) {
 
     }
 
@@ -18,16 +18,16 @@ namespace engine {
         return mBinding;
     }
 
-    uint32_t VulkanVertexConfigure::getSize() const {
-        return mSize;
+    uint32_t VulkanVertexConfigure::getStride() const {
+        return mStride;
     }
 
     const std::vector<VulkanVertexAttributeConfigure> &VulkanVertexConfigure::getAttributes() const {
         return mAttributes;
     }
 
-    VulkanVertexConfigure &VulkanVertexConfigure::size(uint32_t size) {
-        mSize = size;
+    VulkanVertexConfigure &VulkanVertexConfigure::stride(uint32_t stride) {
+        mStride = stride;
         return *this;
     }
 
@@ -55,6 +55,49 @@ namespace engine {
         mCurrentAttributeOffset += VulkanUtil::getFormatSize(format);
 
         return *this;
+    }
+
+    VulkanVertexConfigure &VulkanVertexConfigure::setVertexBuffer(uint32_t capacity) {
+        mCreateBufferCapacity = capacity;
+        return *this;
+    }
+
+    VulkanVertexConfigure &VulkanVertexConfigure::setVertexBuffer(uint32_t capacity, const void *data, uint32_t size) {
+        mCreateBufferCapacity = capacity;
+
+        // 预分配内存
+        mCreateBufferData.reserve(size);
+        const uint8_t *byteData = static_cast<const uint8_t *>(data);
+        // 深拷贝数据
+        mCreateBufferData.assign(byteData, byteData + size);
+
+        return *this;
+    }
+
+    VulkanVertexConfigure &VulkanVertexConfigure::setVertexBuffer(const void *data, uint32_t size) {
+        return setVertexBuffer(size, data, size);
+    }
+
+    VulkanVertexConfigure &VulkanVertexConfigure::setVertexBuffer(const std::shared_ptr<VulkanDeviceLocalVertexBuffer> &buffer) {
+        mBuffer = buffer;
+        return *this;
+    }
+
+    std::shared_ptr<VulkanDeviceLocalVertexBuffer> VulkanVertexConfigure::createVertexBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
+        if (mBuffer != nullptr) {
+            return mBuffer;
+        }
+
+        if (mCreateBufferCapacity == 0) {
+            return nullptr;
+        }
+
+        std::shared_ptr<VulkanDeviceLocalVertexBuffer> buffer = std::make_shared<VulkanDeviceLocalVertexBuffer>(vulkanDevice, mCreateBufferCapacity);
+        if (!mCreateBufferData.empty()) {
+            buffer->update(commandPool, mCreateBufferData);
+        }
+
+        return buffer;
     }
 
 } // engine

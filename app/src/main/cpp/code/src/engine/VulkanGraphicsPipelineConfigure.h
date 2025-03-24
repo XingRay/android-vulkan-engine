@@ -5,6 +5,7 @@
 #pragma once
 
 #include "engine/VulkanVertexConfigures.h"
+#include "engine/VulkanIndexConfigure.h"
 #include "engine/VulkanDescriptorSetConfigures.h"
 #include "engine/VulkanPushConstantConfigures.h"
 #include "engine/vulkan_wrapper/VulkanGraphicsPipeline.h"
@@ -27,6 +28,11 @@ namespace engine {
          * vertex
          */
         VulkanVertexConfigures mVulkanVertexConfigures;
+
+        /**
+         * index
+         */
+        VulkanIndexConfigure mVulkanIndexConfigure;
 
         /**
          * descriptor sets
@@ -56,10 +62,20 @@ namespace engine {
         /**
          * vertex
          */
-        VulkanGraphicsPipelineConfigure &vertex(const std::function<void(VulkanVertexConfigure &)> &configure);
+        VulkanGraphicsPipelineConfigure &addVertex(const std::function<void(VulkanVertexConfigure &)> &configure);
 
-//        VulkanGraphicsPipelineConfigure &addVertex(const VulkanVertex &vertex);
+        /**
+         * index
+         */
+        VulkanGraphicsPipelineConfigure &index(const std::function<void(VulkanIndexConfigure &)> &configure);
 
+        VulkanGraphicsPipelineConfigure &index(uint32_t capacity);
+
+        VulkanGraphicsPipelineConfigure &index(uint32_t capacity, std::vector<uint32_t> &&indices);
+
+        VulkanGraphicsPipelineConfigure &index(std::vector<uint32_t> &&indices);
+
+        VulkanGraphicsPipelineConfigure &index(const std::shared_ptr<VulkanDeviceLocalIndexBuffer> &indexBuffer);
 
         /**
          *
@@ -68,7 +84,7 @@ namespace engine {
          */
 //        VulkanGraphicsPipelineConfigure &addUniformSet(const VulkanDescriptorSet &uniformSet);
 
-        VulkanGraphicsPipelineConfigure &uniformSet(const std::function<void(VulkanDescriptorSetConfigure &)> &configure);
+        VulkanGraphicsPipelineConfigure &addDescriptorSet(const std::function<void(VulkanDescriptorSetConfigure &)> &configure);
 
 
         /**
@@ -81,6 +97,7 @@ namespace engine {
         std::unique_ptr<VulkanGraphicsPipeline> build(const VulkanDevice &vulkanDevice,
                                                       const VulkanSwapchain &swapchain,
                                                       const VulkanRenderPass &renderPass,
+                                                      const VulkanCommandPool &commandPool,
                                                       uint32_t frameCount) const;
     };
 

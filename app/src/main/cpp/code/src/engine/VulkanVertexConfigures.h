@@ -29,6 +29,9 @@ namespace engine {
 
         [[nodiscard]]
         std::vector<vk::VertexInputAttributeDescription> createVertexInputAttributeDescriptions() const;
+
+        [[nodiscard]]
+        std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> createVertexBuffers(const VulkanDevice& vulkanDevice, const VulkanCommandPool &commandPool) const;
     };
 
 } // engine

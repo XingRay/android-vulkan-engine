@@ -6,4 +6,11 @@
 
 namespace engine {
 
+    VulkanSamplerBinding::VulkanSamplerBinding() {
+
+    }
+
+    VulkanSamplerBinding::~VulkanSamplerBinding() {
+
+    }
 } // engine

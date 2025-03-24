@@ -91,6 +91,10 @@ namespace engine {
 
         VulkanEngine &createVertexBuffer(size_t size);
 
+        VulkanEngine &createVertexBuffer(uint32_t binding, size_t size);
+
+        VulkanEngine &createVertexBuffer(uint32_t pipelineIndex, uint32_t binding, size_t size);
+
         VulkanEngine &updateVertexBuffer(const void *data, size_t size);
 
         VulkanEngine &updateVertexBuffer(uint32_t index, const void *data, size_t size);
