@@ -4,21 +4,21 @@
 
 #pragma once
 
-#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalBuffer.h"
+#include "VulkanDeviceLocalBuffer.h"
 #include "engine/vulkan_wrapper/buffer/VulkanStagingBuffer.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
 namespace engine {
 
-    class VulkanDeviceLocalVertexBuffer {
+    class VulkanDeviceLocalUniformBuffer {
     private:
-        VulkanDeviceLocalBuffer mVertexBuffer;
+        VulkanDeviceLocalBuffer mUniformBuffer;
         VulkanStagingBuffer mStagingBuffer;
 
     public:
-        VulkanDeviceLocalVertexBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize);
+        VulkanDeviceLocalUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize);
 
-        ~VulkanDeviceLocalVertexBuffer();
+        ~VulkanDeviceLocalUniformBuffer();
 
         [[nodiscard]]
         const vk::Buffer &getBuffer() const;
@@ -40,6 +40,7 @@ namespace engine {
             update(vulkanCommandPool, data.data(), data.size() * sizeof(T));
         }
 
+        std::vector<vk::DescriptorBufferInfo> createDescriptorBufferInfos();
     };
 
 } // engine

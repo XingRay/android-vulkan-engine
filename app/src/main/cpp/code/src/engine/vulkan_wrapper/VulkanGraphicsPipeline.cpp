@@ -19,6 +19,7 @@ namespace engine {
                                                    uint32_t frameCount,
                                                    std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
                                                    const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
+                                                   std::vector<std::vector<std::vector<std::unique_ptr<VulkanDescriptorBinding>>>> &&vulkanDescriptorBindings,
                                                    std::vector<vk::PushConstantRange> &&pushConstantRanges)
             : mVulkanDevice(vulkanDevice),
               mVulkanDescriptorPool(std::move(vulkanDescriptorPool)),
@@ -206,12 +207,7 @@ namespace engine {
         }
         mPipeline = pipeline;
 
-
-        for (int i = 0; i < frameCount; i++) {
-            mDescriptorSets.push_back(mVulkanDescriptorPool->allocateDescriptorSets(descriptorSetLayouts));
-        }
-
-        // create vertex buffers
+        // vertex buffers
         for (const std::shared_ptr<VulkanDeviceLocalVertexBuffer> &vulkanVertexBuffer: mVulkanVertexBuffers) {
             if (vulkanVertexBuffer != nullptr) {
                 mVertexBuffers.push_back(vulkanVertexBuffer->getBuffer());
@@ -221,11 +217,96 @@ namespace engine {
             mVertexBufferOffsets.push_back(0);
         }
 
+        // descriptors
+        for (int i = 0; i < frameCount; i++) {
+            mDescriptorSets.push_back(mVulkanDescriptorPool->allocateDescriptorSets(descriptorSetLayouts));
+        }
+
+        // updateDescriptorSets
+        std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
+        for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
+            const std::vector<std::vector<std::unique_ptr<VulkanDescriptorBinding>>> &vulkanDescriptorBindingsOfFrame = mVulkanDescriptorBindings[frameIndex];
+            for (int setIndex = 0; setIndex < vulkanDescriptorBindingsOfFrame.size(); setIndex++) {
+                const std::vector<std::unique_ptr<VulkanDescriptorBinding>> &vulkanDescriptorBindingsOfSet = vulkanDescriptorBindingsOfFrame[setIndex];
+                for (int bindingIndex = 0; bindingIndex < vulkanDescriptorBindingsOfSet.size(); bindingIndex++) {
+                    const std::unique_ptr<VulkanDescriptorBinding> &vulkanDescriptorBinding = vulkanDescriptorBindingsOfSet[bindingIndex];
+                    if (vulkanDescriptorBinding != nullptr) {
+                        writeDescriptorSets.push_back(vulkanDescriptorBinding->createWriteDescriptorSet());
+                    }
+//                    VulkanDescriptorType type = descriptor.getVulkanDescriptorType();
+//                    vk::WriteDescriptorSet writeDescriptorSet{};
+//
+//                    if (type == VulkanDescriptorType::uniform) {
+//                        VulkanUniformBuffer *pUniformBuffer = dynamic_cast<VulkanUniformBuffer *>(mBuffers[frameIndex][setIndex][bindingIndex].get());
+//                        vk::DescriptorBufferInfo descriptorBufferInfo{};
+//                        descriptorBufferInfo
+//                                .setBuffer(pUniformBuffer->getUniformBuffer())
+//                                .setOffset(pUniformBuffer->getOffset())
+//                                .setRange(pUniformBuffer->getBufferSize());
+//
+//                        std::array<vk::DescriptorBufferInfo, 1> descriptorBufferInfos = {descriptorBufferInfo};
+//
+//                        writeDescriptorSet
+//                                .setDstSet(mDescriptorSets[frameIndex][setIndex])
+//                                .setDstBinding(pUniformBuffer->getBinding())
+//                                .setDstArrayElement(pUniformBuffer->getIndex())
+//                                .setDescriptorCount(1)
+//                                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+//                                .setBufferInfo(descriptorBufferInfos);
+//
+//                    } else if (type == VulkanDescriptorType::sampler) {
+//                        VulkanSamplerBuffer *pSamplerBuffer = dynamic_cast<VulkanSamplerBuffer *>(mBuffers[frameIndex][setIndex][bindingIndex].get());
+//                        vk::DescriptorImageInfo samplerDescriptorImageInfo;
+//                        samplerDescriptorImageInfo
+//                                .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+//                                .setImageView(pSamplerBuffer->getImageView())
+//                                        //可变采样器：
+//                                        //在描述符集更新时指定，可以在运行时动态修改。
+//                                        //适用于动态纹理采样器（例如，需要动态切换纹理过滤模式或寻址模式）。
+//                                .setSampler(pSamplerBuffer->getSampler());
+//
+//                        std::array<vk::DescriptorImageInfo, 1> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};
+//
+//                        writeDescriptorSet
+//                                .setDstSet(mDescriptorSets[frameIndex][setIndex])
+//                                .setDstBinding(pSamplerBuffer->getBinding())
+//                                .setDstArrayElement(pSamplerBuffer->getIndex())
+//                                .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+//                                .setImageInfo(samplerDescriptorImageInfos);
+//
+//                    } else if (type == VulkanDescriptorType::androidHardwareBufferSampler) {
+//                        VulkanHardwareBuffer *pVulkanHardwareBuffer = dynamic_cast<VulkanHardwareBuffer *>(mBuffers[frameIndex][setIndex][bindingIndex].get());
+//                        vk::DescriptorImageInfo samplerDescriptorImageInfo;
+//                        samplerDescriptorImageInfo
+//                                .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+//                                .setImageView(pVulkanHardwareBuffer->getImageView())
+//                                .setSampler(pVulkanHardwareBuffer->getSampler());
+//
+//                        std::array<vk::DescriptorImageInfo, 1> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};
+//
+//                        writeDescriptorSet
+//                                .setDstSet(mDescriptorSets[frameIndex][setIndex])
+//                                .setDstBinding(pVulkanHardwareBuffer->getBinding())
+//                                .setDstArrayElement(pVulkanHardwareBuffer->getIndex())
+//                                .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+//                                .setImageInfo(samplerDescriptorImageInfos);
+//
+//                    } else {
+//                        throw std::runtime_error("unsupported type of descriptor");
+//                    }
+//
+//                    writeDescriptorSets.push_back(writeDescriptorSet);
+                }
+            }
+        }
+        vulkanDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
+
         for (const vk::PushConstantRange &pushConstantRange: mPushConstantRanges) {
             // 创建数据缓冲区
             std::vector<uint8_t> data(pushConstantRange.size);
             mPushConstantDataList.push_back(std::move(data));
         }
+
 
     }
 
@@ -300,19 +381,16 @@ namespace engine {
 
     VulkanGraphicsPipeline &VulkanGraphicsPipeline::updateIndexBuffer(const VulkanCommandPool &vulkanCommandPool, const std::vector<uint32_t> &indices) {
         mIndexBuffer->update(vulkanCommandPool, indices);
-
         return *this;
     }
 
     VulkanGraphicsPipeline &VulkanGraphicsPipeline::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
 //        mGraphicsPipeline->updateBuffer(frameIndex, set, binding, data, size);
-
         return *this;
     }
 
     VulkanGraphicsPipeline &VulkanGraphicsPipeline::updatePushConstant(uint32_t index, const void *data) {
-//        mGraphicsPipeline->updatePushConstant(index, data);
-
+        //
         return *this;
     }
 

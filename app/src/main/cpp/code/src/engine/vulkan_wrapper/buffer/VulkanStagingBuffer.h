@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleBuffer.h"
+#include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleBuffer.h"
 
 namespace engine {
 

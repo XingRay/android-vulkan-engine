@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalBuffer.h"
+#include "VulkanDeviceLocalBuffer.h"
 #include "engine/vulkan_wrapper/buffer/VulkanStagingBuffer.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 

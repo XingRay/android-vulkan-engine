@@ -10,7 +10,7 @@
 
 #include "engine/VulkanVertexAttributeConfigure.h"
 #include "engine/ShaderFormat.h"
-#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalVertexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalVertexBuffer.h"
 
 namespace engine {
 

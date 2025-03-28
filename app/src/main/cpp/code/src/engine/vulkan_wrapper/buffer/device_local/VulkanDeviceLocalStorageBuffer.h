@@ -1,24 +1,30 @@
 //
-// Created by leixing on 2025/3/13.
+// Created by leixing on 2024/12/31.
 //
 
 #pragma once
 
-#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanStagingBuffer.h"
+#include "vulkan/vulkan.hpp"
+#include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
+
+
+#include "VulkanDeviceLocalBuffer.h"
+#include "engine/vulkan_wrapper/buffer/VulkanStagingBuffer.h"
 
 namespace engine {
 
-    class VulkanDeviceLocalUniformBuffer {
+    class VulkanDeviceLocalStorageBuffer {
     private:
-        VulkanDeviceLocalBuffer mUniformBuffer;
+        const VulkanDevice &mVulkanDevice;
+
         VulkanStagingBuffer mStagingBuffer;
+        VulkanDeviceLocalBuffer mStorageBuffer;
 
     public:
-        VulkanDeviceLocalUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize);
+        VulkanDeviceLocalStorageBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize, vk::BufferUsageFlags additionalUsageFlags = vk::BufferUsageFlags{});
 
-        ~VulkanDeviceLocalUniformBuffer();
+        ~VulkanDeviceLocalStorageBuffer();
 
         [[nodiscard]]
         const vk::Buffer &getBuffer() const;
@@ -40,6 +46,7 @@ namespace engine {
             update(vulkanCommandPool, data.data(), data.size() * sizeof(T));
         }
 
+        [[nodiscard]]
         std::vector<vk::DescriptorBufferInfo> createDescriptorBufferInfos();
     };
 

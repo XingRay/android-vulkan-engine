@@ -5,7 +5,7 @@
 #pragma once
 
 #include <vector>
-#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleBuffer.h"
+#include "VulkanHostVisibleBuffer.h"
 
 namespace engine {
 

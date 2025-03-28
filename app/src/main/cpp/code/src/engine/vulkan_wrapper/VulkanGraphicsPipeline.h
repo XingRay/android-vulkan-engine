@@ -14,11 +14,12 @@
 #include "engine/vulkan_wrapper/VulkanShaderModule.h"
 #include "engine/vulkan_wrapper/VulkanDescriptorPool.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
-#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalVertexBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleVertexBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalIndexBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleIndexBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalUniformBuffer.h"
+#include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalVertexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleVertexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalIndexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleIndexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
+#include "engine/vulkan_wrapper/VulkanDescriptorBinding/VulkanDescriptorBinding.h"
 
 namespace engine {
 
@@ -32,17 +33,19 @@ namespace engine {
         vk::Pipeline mPipeline;
         vk::PipelineLayout mPipelineLayout;
 
-        std::unique_ptr<VulkanDescriptorPool> mVulkanDescriptorPool;
-        std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
-
-        std::vector<vk::PushConstantRange> mPushConstantRanges;
-        std::vector<std::vector<uint8_t>> mPushConstantDataList;
-
         std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> mVulkanVertexBuffers;
         std::vector<vk::Buffer> mVertexBuffers;
         std::vector<vk::DeviceSize> mVertexBufferOffsets;
 
         std::shared_ptr<VulkanDeviceLocalIndexBuffer> mIndexBuffer;
+
+        std::unique_ptr<VulkanDescriptorPool> mVulkanDescriptorPool;
+        std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
+        // frame -> set -> binding
+        std::vector<std::vector<std::vector<std::unique_ptr<VulkanDescriptorBinding>>>> mVulkanDescriptorBindings;
+
+        std::vector<vk::PushConstantRange> mPushConstantRanges;
+        std::vector<std::vector<uint8_t>> mPushConstantDataList;
 
     public:
         VulkanGraphicsPipeline(const VulkanDevice &vulkanDevice,

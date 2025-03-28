@@ -6,7 +6,7 @@
 
 #include "vulkan/vulkan.hpp"
 
-#include "engine/vulkan_wrapper/buffer/VulkanBufferView.h"
+#include "engine/vulkan_wrapper/VulkanBufferView.h"
 #include "engine/VulkanDescriptorConfigure.h"
 
 namespace engine {
@@ -20,7 +20,8 @@ namespace engine {
 
         ~VulkanDescriptorBinding();
 
-        virtual vk::WriteDescriptorSet createWriteDescriptorSet() const = 0;
+        [[nodiscard]]
+        virtual vk::WriteDescriptorSet createWriteDescriptorSet(const vk::DescriptorSet& descriptorSet) const = 0;
     };
 
 } // engine

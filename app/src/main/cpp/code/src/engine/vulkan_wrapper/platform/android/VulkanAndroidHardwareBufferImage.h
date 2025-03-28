@@ -11,7 +11,7 @@
 #include "engine/vulkan_wrapper/VulkanInstance.h"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
-#include "engine/vulkan_wrapper/buffer/VulkanHostVisibleBuffer.h"
+#include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleBuffer.h"
 #include "engine/vulkan_wrapper/buffer/VulkanImage.h"
 
 #include "engine/vulkan_wrapper/platform/android/AndroidHardwareBuffer.h"

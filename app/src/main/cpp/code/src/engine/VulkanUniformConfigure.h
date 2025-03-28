@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <memory>
 
-#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalUniformBuffer.h"
+#include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
 
 namespace engine {
 

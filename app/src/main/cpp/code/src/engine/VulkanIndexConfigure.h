@@ -6,7 +6,7 @@
 
 #include <vector>
 
-#include "engine/vulkan_wrapper/buffer/VulkanDeviceLocalIndexBuffer.h"
+#include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalIndexBuffer.h"
 
 namespace engine {
 

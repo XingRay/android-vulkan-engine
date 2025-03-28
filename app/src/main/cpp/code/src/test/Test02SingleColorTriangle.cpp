@@ -42,7 +42,7 @@ namespace test02 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-        ColorUniformBufferObject colorUniformBufferObject{{0.2f, 0.8f, 0.4f}};
+        ColorUniformBufferObject colorUniformBufferObject{{0.8f, 0.2f, 0.4f}};
 
         std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
                 .layers({}, std::move(layers))
