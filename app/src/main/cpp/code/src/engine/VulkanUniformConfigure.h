@@ -7,9 +7,13 @@
 #include <cstdint>
 #include <memory>
 
-#include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
+#include "vulkan/vulkan.hpp"
+
+#include "engine/VulkanBufferViewConfigure.h"
 
 namespace engine {
+
+    class VulkanDescriptorBindingConfigure;
 
     class VulkanUniformConfigure {
     private:
@@ -17,12 +21,7 @@ namespace engine {
         uint32_t mDescriptorCount;
         vk::ShaderStageFlags mShaderStageFlags;
 
-        // set buffer
-        std::shared_ptr<VulkanDeviceLocalUniformBuffer> mBuffer;
-
-        // create buffer
-        uint32_t mCreateBufferCapacity;
-        std::vector<uint8_t> mCreateBufferData;
+        std::unique_ptr<VulkanBufferConfigure> mVulkanBufferConfigure;
 
     public:
         VulkanUniformConfigure();
@@ -37,7 +36,7 @@ namespace engine {
 
         VulkanUniformConfigure &setUniformBuffer(uint32_t capacity, const void *data, uint32_t size);
 
-        VulkanUniformConfigure &setUniformBuffer(const std::shared_ptr<VulkanDeviceLocalUniformBuffer> &buffer);
+        VulkanUniformConfigure &setUniformBuffer(const std::shared_ptr<VulkanBufferView> &bufferView);
 
         template<class T>
         VulkanUniformConfigure &setUniformBuffer(uint32_t capacity, const std::vector<T> &data) {
@@ -61,6 +60,9 @@ namespace engine {
 
         [[nodiscard]]
         std::shared_ptr<VulkanDeviceLocalUniformBuffer> createUniformBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const;
+
+        [[nodiscard]]
+        std::unique_ptr<VulkanDescriptorBindingConfigure> createVulkanDescriptorSetConfigure();
     };
 
 } // engine

@@ -8,7 +8,7 @@
 #include <memory>
 
 #include "engine/vulkan_wrapper/VulkanDevice.h"
-#include "engine/VulkanDescriptorConfigure.h"
+#include "engine/VulkanDescriptorBindingConfigure.h"
 #include "engine/VulkanUniformConfigure.h"
 
 namespace engine {
@@ -16,8 +16,7 @@ namespace engine {
     class VulkanDescriptorSetConfigure {
     private:
         uint32_t mSet;
-        std::vector<std::unique_ptr<VulkanDescriptorConfigure>> mVulkanDescriptorConfigures;
-        std::vector<VulkanUniformConfigure> mVulkanUniformConfigures;
+        std::vector<std::unique_ptr<VulkanDescriptorBindingConfigure>> mVulkanDescriptorBindingConfigures;
 
     public:
 
@@ -27,11 +26,11 @@ namespace engine {
 
         uint32_t getSet() const;
 
-        const std::vector<std::unique_ptr<VulkanDescriptorConfigure>> &getVulkanDescriptorConfigures();
+        const std::vector<std::unique_ptr<VulkanDescriptorBindingConfigure>> &getVulkanDescriptorConfigures();
 
         VulkanDescriptorSetConfigure &set(uint32_t set);
 
-        VulkanDescriptorSetConfigure &addVulkanDescriptor(std::unique_ptr<VulkanDescriptorConfigure> &&vulkanDescriptor);
+        VulkanDescriptorSetConfigure &addVulkanDescriptor(std::unique_ptr<VulkanDescriptorBindingConfigure> &&vulkanDescriptor);
 
         VulkanDescriptorSetConfigure &addUniform(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
 

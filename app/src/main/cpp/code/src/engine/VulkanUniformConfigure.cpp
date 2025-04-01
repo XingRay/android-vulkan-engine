@@ -2,16 +2,14 @@
 // Created by leixing on 2025/3/24.
 //
 
-#include "VulkanUniformConfigure.h"
+#include "engine/VulkanUniformConfigure.h"
+#include "engine/VulkanDescriptorBindingConfigure.h"
 
 namespace engine {
-    VulkanUniformConfigure::VulkanUniformConfigure() {
 
-    }
+    VulkanUniformConfigure::VulkanUniformConfigure() = default;
 
-    VulkanUniformConfigure::~VulkanUniformConfigure() {
-
-    }
+    VulkanUniformConfigure::~VulkanUniformConfigure() = default;
 
     VulkanUniformConfigure &VulkanUniformConfigure::binding(uint32_t binding) {
         mBinding = binding;
@@ -29,19 +27,14 @@ namespace engine {
     }
 
     VulkanUniformConfigure &VulkanUniformConfigure::setUniformBuffer(uint32_t capacity, const void *data, uint32_t size) {
-        mCreateBufferCapacity = capacity;
-
-        // 预分配内存
-        mCreateBufferData.reserve(size);
-        const uint8_t *byteData = static_cast<const uint8_t *>(data);
-        // 深拷贝数据
-        mCreateBufferData.assign(byteData, byteData + size);
+        mVulkanBufferConfigure = std::make_unique<VulkanBufferConfigure>(capacity, data, size);
 
         return *this;
     }
 
-    VulkanUniformConfigure &VulkanUniformConfigure::setUniformBuffer(const std::shared_ptr<VulkanDeviceLocalUniformBuffer> &buffer) {
-        mBuffer = buffer;
+    VulkanUniformConfigure &VulkanUniformConfigure::setUniformBuffer(const std::shared_ptr<VulkanBufferView> &bufferView) {
+        mVulkanBufferConfigure = std::make_unique<VulkanBufferConfigure>(bufferView);
+
         return *this;
     }
 
@@ -57,21 +50,28 @@ namespace engine {
         return descriptorSetLayoutBinding;
     }
 
-    std::shared_ptr<VulkanDeviceLocalUniformBuffer> VulkanUniformConfigure::createUniformBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
-        if (mBuffer != nullptr) {
-            return mBuffer;
-        }
+//    std::shared_ptr<VulkanDeviceLocalUniformBuffer> VulkanUniformConfigure::createUniformBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
+//        if (mBuffer != nullptr) {
+//            return mBuffer;
+//        }
+//
+//        if (mCreateBufferCapacity == 0) {
+//            return nullptr;
+//        }
+//
+//        std::shared_ptr<VulkanDeviceLocalUniformBuffer> buffer = std::make_shared<VulkanDeviceLocalUniformBuffer>(vulkanDevice, mCreateBufferCapacity);
+//        if (!mCreateBufferData.empty()) {
+//            buffer->update(commandPool, mCreateBufferData);
+//        }
+//
+//        return buffer;
+//    }
 
-        if (mCreateBufferCapacity == 0) {
-            return nullptr;
-        }
-
-        std::shared_ptr<VulkanDeviceLocalUniformBuffer> buffer = std::make_shared<VulkanDeviceLocalUniformBuffer>(vulkanDevice, mCreateBufferCapacity);
-        if (!mCreateBufferData.empty()) {
-            buffer->update(commandPool, mCreateBufferData);
-        }
-
-        return buffer;
+    std::unique_ptr<VulkanDescriptorBindingConfigure> VulkanUniformConfigure::createVulkanDescriptorSetConfigure() {
+        std::shared_ptr<VulkanBufferInterface> buffer = createUniformBuffer();
+        std::unique_ptr<VulkanBufferView> bufferView = std::make_unique<VulkanBufferView>();
+        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eUniformBuffer,
+                                                                  mDescriptorCount, mShaderStageFlags, );
     }
 
 } // engine

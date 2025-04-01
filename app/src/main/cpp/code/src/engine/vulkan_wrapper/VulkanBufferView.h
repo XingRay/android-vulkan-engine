@@ -5,26 +5,30 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 
 #include "vulkan/vulkan.hpp"
+#include "engine/vulkan_wrapper/VulkanBufferInterface.h"
 
 namespace engine {
 
     class VulkanBufferView {
     private:
-        const vk::Buffer &mBuffer;
+        std::shared_ptr<VulkanBufferInterface> mBuffer;
         uint32_t mOffset;
         uint32_t mRange;
 
     public:
-        VulkanBufferView(const vk::Buffer &buffer, uint32_t offset, uint32_t range);
+        VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &buffer, uint32_t offset, uint32_t range);
 
-        VulkanBufferView(const vk::Buffer &buffer, uint32_t range);
+        VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &buffer, uint32_t range);
+
+        explicit VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &buffer);
 
         ~VulkanBufferView();
 
         [[nodiscard]]
-        const vk::Buffer &getBuffer() const;
+        const std::shared_ptr<VulkanBufferInterface> &getBuffer() const;
 
         [[nodiscard]]
         uint32_t getOffset() const;

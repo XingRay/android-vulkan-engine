@@ -76,8 +76,8 @@ namespace engine {
                                                                                    uint32_t frameCount) const {
 
         // shader code
-        std::unique_ptr<VulkanShaderModule> vertexShaderModule = std::make_unique<VulkanShaderModule>(vulkanDevice, mVertexShaderCode);
-        std::unique_ptr<VulkanShaderModule> fragmentShaderModule = std::make_unique<VulkanShaderModule>(vulkanDevice, mFragmentShaderCode);
+        VulkanShaderModule vertexShaderModule = VulkanShaderModule(vulkanDevice, mVertexShaderCode);
+        VulkanShaderModule fragmentShaderModule = VulkanShaderModule(vulkanDevice, mFragmentShaderCode);
 
         // vertex buffer
         std::vector<vk::VertexInputBindingDescription> vertexInputBindingDescriptions = mVulkanVertexConfigures.createVertexInputBindingDescriptions();
@@ -93,6 +93,17 @@ namespace engine {
         std::unique_ptr<VulkanDescriptorPool> vulkanDescriptorPool = std::make_unique<VulkanDescriptorPool>(vulkanDevice, mVulkanDescriptorSetConfigures.createDescriptorPoolSizes(frameCount),
                                                                                                             mVulkanDescriptorSetConfigures.getSetCount(frameCount));
 
+        // frame -> set -> binding
+        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>> mVulkanBufferDescriptorBindings;
+        for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
+            std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>> bufferBindingOfFrame;
+
+        }
+
+        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> mVulkanImageDescriptorBindings;
+        for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
+            std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>> imageBindingOfFrame;
+        }
 
         // push constant
         std::vector<vk::PushConstantRange> pushConstantRanges = mVulkanPushConstantConfigures.createPushConstantRanges();
@@ -107,7 +118,7 @@ namespace engine {
         }
 
         return std::make_unique<VulkanGraphicsPipeline>(vulkanDevice, swapchain, renderPass,
-                                                        *vertexShaderModule, *fragmentShaderModule,
+                                                        vertexShaderModule, fragmentShaderModule,
                                                         vertexInputBindingDescriptions,
                                                         vertexInputAttributeDescriptions,
                                                         std::move(vertexBuffers),
@@ -115,6 +126,8 @@ namespace engine {
                                                         frameCount,
                                                         std::move(vulkanDescriptorPool),
                                                         descriptorSetLayouts,
+                                                        std::move(mVulkanBufferDescriptorBindings),
+                                                        std::move(mVulkanImageDescriptorBindings),
                                                         std::move(pushConstantRanges));
     }
 

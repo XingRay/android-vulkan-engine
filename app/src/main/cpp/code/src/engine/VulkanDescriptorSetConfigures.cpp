@@ -83,4 +83,8 @@ namespace engine {
         return mVulkanDescriptorSetConfigures.size() * frameCount;
     }
 
+    vk::DescriptorSetLayoutBinding VulkanDescriptorSetConfigures::createDescriptorSetLayoutBinding(){
+
+    }
+
 } // engine

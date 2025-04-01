@@ -5,15 +5,21 @@
 #include "VulkanBufferDescriptorBinding.h"
 
 namespace engine {
-    VulkanBufferDescriptorBinding::VulkanBufferDescriptorBinding() {
 
+    VulkanBufferDescriptorBinding::VulkanBufferDescriptorBinding() = default;
+
+    VulkanBufferDescriptorBinding::~VulkanBufferDescriptorBinding() = default;
+
+    const std::unique_ptr<VulkanBufferView> &VulkanBufferDescriptorBinding::getVulkanBufferView() const {
+        return mVulkanBufferView;
     }
 
-    VulkanBufferDescriptorBinding::~VulkanBufferDescriptorBinding() {
-
+    VulkanBufferDescriptorBinding &VulkanBufferDescriptorBinding::setBufferView(std::unique_ptr<VulkanBufferView> &&vulkanBufferView) {
+        mVulkanBufferView = std::move(vulkanBufferView);
+        return *this;
     }
 
-    vk::WriteDescriptorSet VulkanBufferDescriptorBinding::createWriteDescriptorSet(const vk::DescriptorSet &descriptorSet) const {
+    vk::WriteDescriptorSet VulkanBufferDescriptorBinding::createWriteDescriptorSet(const vk::DescriptorSet &descriptorSet, uint32_t binding) const {
         vk::WriteDescriptorSet writeDescriptorSet{};
 
         vk::DescriptorBufferInfo descriptorBufferInfo{};
@@ -26,7 +32,7 @@ namespace engine {
 
         writeDescriptorSet
                 .setDstSet(descriptorSet)
-                .setDstBinding(mBinding)
+                .setDstBinding(binding)
                 .setDstArrayElement(mDescriptorOffset)
                 .setDescriptorCount(mDescriptorRange)
                 .setDescriptorType(mDescriptorType)
@@ -34,4 +40,5 @@ namespace engine {
 
         return writeDescriptorSet;
     }
+
 } // engine

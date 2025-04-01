@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
@@ -19,7 +20,8 @@
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
-#include "engine/vulkan_wrapper/VulkanDescriptorBinding/VulkanDescriptorBinding.h"
+#include "engine/vulkan_wrapper/VulkanBufferDescriptorBinding.h"
+#include "engine/vulkan_wrapper/VulkanImageDescriptorBinding.h"
 
 namespace engine {
 
@@ -42,12 +44,14 @@ namespace engine {
         std::unique_ptr<VulkanDescriptorPool> mVulkanDescriptorPool;
         std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
         // frame -> set -> binding
-        std::vector<std::vector<std::vector<std::unique_ptr<VulkanDescriptorBinding>>>> mVulkanDescriptorBindings;
+        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>> mVulkanBufferDescriptorBindings;
+        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> mVulkanImageDescriptorBindings;
 
         std::vector<vk::PushConstantRange> mPushConstantRanges;
         std::vector<std::vector<uint8_t>> mPushConstantDataList;
 
     public:
+
         VulkanGraphicsPipeline(const VulkanDevice &vulkanDevice,
                                const VulkanSwapchain &swapchain,
                                const VulkanRenderPass &renderPass,
@@ -60,6 +64,8 @@ namespace engine {
                                uint32_t frameCount,
                                std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
                                const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
+                               std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>> &&vulkanBufferDescriptorBindings,
+                               std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> &&vulkanImageDescriptorBindings,
                                std::vector<vk::PushConstantRange> &&pushConstantRanges);
 
         ~VulkanGraphicsPipeline();
@@ -109,12 +115,15 @@ namespace engine {
             return *this;
         }
 
-
         VulkanGraphicsPipeline &createIndexBuffer(size_t size);
 
         VulkanGraphicsPipeline &updateIndexBuffer(const VulkanCommandPool &vulkanCommandPool, const std::vector<uint32_t> &indices);
 
         VulkanGraphicsPipeline &updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
+
+        VulkanGraphicsPipeline &setDescriptorBindingBufferView(uint32_t frameIndex, uint32_t set, uint32_t binding, std::unique_ptr<VulkanBufferView> &&vulkanBufferView);
+
+        VulkanGraphicsPipeline &setDescriptorBindingImageView(uint32_t frameIndex, uint32_t set, uint32_t binding, std::unique_ptr<VulkanImageView> &&vulkanImageView);
 
         VulkanGraphicsPipeline &updatePushConstant(uint32_t index, const void *data);
 

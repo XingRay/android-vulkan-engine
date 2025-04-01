@@ -6,21 +6,27 @@
 
 #include "vulkan/vulkan.hpp"
 
+#include "engine/vulkan_wrapper/VulkanImageInterface.h"
+#include "engine/vulkan_wrapper/VulkanSamplerInterface.h"
+
 namespace engine {
 
+    // interface
     class VulkanImageView {
     private:
+        std::shared_ptr<VulkanImageInterface> mImage;
+        std::shared_ptr<VulkanSamplerInterface> mSampler;
 
     public:
         VulkanImageView();
 
-        ~VulkanImageView();
+        virtual ~VulkanImageView();
 
         [[nodiscard]]
-        virtual vk::ImageView getImageView() const = 0;
+        const std::shared_ptr<VulkanImageInterface> &getImage() const;
 
         [[nodiscard]]
-        virtual vk::Sampler getSampler() const = 0;
+        const std::shared_ptr<VulkanSamplerInterface> &getSampler() const;
     };
 
 } // engine

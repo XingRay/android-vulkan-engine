@@ -6,20 +6,17 @@
 
 #include <memory>
 
-#include "engine/vulkan_wrapper/VulkanDescriptorBinding/VulkanDescriptorBinding.h"
 #include "engine/vulkan_wrapper/VulkanBufferView.h"
 
 namespace engine {
 
-    class VulkanBufferDescriptorBinding : public VulkanDescriptorBinding {
+    class VulkanBufferDescriptorBinding {
     private:
         // buffer view
         std::unique_ptr<VulkanBufferView> mVulkanBufferView;
 
         //descriptor view
         vk::DescriptorType mDescriptorType;
-        uint32_t mSet;
-        uint32_t mBinding;
         uint32_t mDescriptorOffset;
         uint32_t mDescriptorRange;
 
@@ -29,7 +26,12 @@ namespace engine {
         ~VulkanBufferDescriptorBinding();
 
         [[nodiscard]]
-        vk::WriteDescriptorSet createWriteDescriptorSet(const vk::DescriptorSet &descriptorSet) const override;
+        const std::unique_ptr<VulkanBufferView> &getVulkanBufferView() const;
+
+        VulkanBufferDescriptorBinding &setBufferView(std::unique_ptr<VulkanBufferView> &&vulkanBufferView);
+
+        [[nodiscard]]
+        vk::WriteDescriptorSet createWriteDescriptorSet(const vk::DescriptorSet &descriptorSet, uint32_t binding) const;
     };
 
 } // engine
