@@ -7,53 +7,39 @@
 
 namespace engine {
 
-    VulkanDescriptorBindingConfigure::VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
-                                                                       std::vector<std::unique_ptr<VulkanSampler>> &&immutableSamplers)
-            : mBinding(binding), mDescriptorType(descriptorType), mDescriptorCount(descriptorCount), mShaderStageFlags(shaderStageFlags), mImmutableSamplers(std::move(immutableSamplers)) {
-    }
+//    VulkanDescriptorBindingConfigure::VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
+//                                                                       std::vector<std::unique_ptr<VulkanSampler>> &&immutableSamplers)
+//            : mBinding(binding), mDescriptorType(descriptorType), mDescriptorCount(descriptorCount), mShaderStageFlags(shaderStageFlags), mImmutableSamplers(std::move(immutableSamplers)) {}
 
     VulkanDescriptorBindingConfigure::VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
-                                                                       std::unique_ptr<VulkanBufferView> &&vulkanBufferView)
-            : mBinding(binding), mDescriptorType(descriptorType), mDescriptorCount(descriptorCount), mShaderStageFlags(shaderStageFlags), mVulkanBufferView(std::move(vulkanBufferView)) {
+                                                                       std::unique_ptr<VulkanBufferViewConfigure> &&vulkanBufferViewConfigure)
+            : mBinding(binding), mDescriptorType(descriptorType), mDescriptorCount(descriptorCount), mShaderStageFlags(shaderStageFlags),
+              mVulkanBufferViewConfigure(std::move(vulkanBufferViewConfigure)) {}
 
-    }
-
-    VulkanDescriptorBindingConfigure::VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
-                                                                       std::unique_ptr<VulkanImageView> &&vulkanImageView)
-            : mBinding(binding), mDescriptorType(descriptorType), mDescriptorCount(descriptorCount), mShaderStageFlags(shaderStageFlags), mVulkanImageView(std::move(vulkanImageView)) {
-
-    }
+//    VulkanDescriptorBindingConfigure::VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
+//                                                                       std::unique_ptr<VulkanImageView> &&vulkanImageView)
+//            : mBinding(binding), mDescriptorType(descriptorType), mDescriptorCount(descriptorCount), mShaderStageFlags(shaderStageFlags), mVulkanImageView(std::move(vulkanImageView)) {}
 
 //    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, VulkanUniformData data)
-//            : VulkanDescriptor(binding, shaderStageFlagBits, 0, 1, data) {
-//
-//    }
-//
+//            : VulkanDescriptor(binding, shaderStageFlagBits, 0, 1, data) {}
+
 //    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t index, uint32_t descriptorCount, VulkanUniformData data)
 //            : mVulkanDescriptorType(VulkanDescriptorType::uniform), mBinding(binding), mDescriptorType(vk::DescriptorType::eUniformBuffer), mShaderStageFlagBits(shaderStageFlagBits), mIndex(index),
-//              mDescriptorCount(descriptorCount), mData(data) {
-//
-//    }
-//
+//              mDescriptorCount(descriptorCount), mData(data) {}
+
 //    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, VulkanSamplerData data)
-//            : VulkanDescriptor(binding, shaderStageFlagBits, 0, 1, data) {
-//
-//    }
-//
+//            : VulkanDescriptor(binding, shaderStageFlagBits, 0, 1, data) {}
+
 //    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t index, uint32_t descriptorCount, VulkanSamplerData data)
 //            : mVulkanDescriptorType(VulkanDescriptorType::sampler), mBinding(binding), mDescriptorType(vk::DescriptorType::eCombinedImageSampler), mShaderStageFlagBits(shaderStageFlagBits),
-//              mIndex(index), mDescriptorCount(descriptorCount), mData(data) {
-//
-//    }
-//
+//              mIndex(index), mDescriptorCount(descriptorCount), mData(data) {}
+
 //    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, VulkanAndroidHardwareBufferSamplerData data)
-//            : VulkanDescriptor(binding, shaderStageFlagBits, 0, 1, data) {
-//    }
-//
+//            : VulkanDescriptor(binding, shaderStageFlagBits, 0, 1, data) {}
+
 //    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t index, uint32_t descriptorCount, VulkanAndroidHardwareBufferSamplerData data)
 //            : mVulkanDescriptorType(VulkanDescriptorType::androidHardwareBufferSampler), mBinding(binding), mDescriptorType(vk::DescriptorType::eCombinedImageSampler),
-//              mShaderStageFlagBits(shaderStageFlagBits), mIndex(index), mDescriptorCount(descriptorCount), mData(data) {
-//    }
+//              mShaderStageFlagBits(shaderStageFlagBits), mIndex(index), mDescriptorCount(descriptorCount), mData(data) {}
 
     VulkanDescriptorBindingConfigure::~VulkanDescriptorBindingConfigure() = default;
 

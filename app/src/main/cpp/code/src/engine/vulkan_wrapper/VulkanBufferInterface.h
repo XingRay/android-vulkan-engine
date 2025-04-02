@@ -4,6 +4,10 @@
 
 #pragma once
 
+#include <cstdint>
+
+#include "vulkan/vulkan.hpp"
+
 namespace engine {
 
     class VulkanBufferInterface {
@@ -16,6 +20,9 @@ namespace engine {
 
         [[nodiscard]]
         virtual uint32_t getSize() const = 0;
+
+        [[nodiscard]]
+        virtual vk::Buffer getBuffer() const = 0;
     };
 
 } // engine

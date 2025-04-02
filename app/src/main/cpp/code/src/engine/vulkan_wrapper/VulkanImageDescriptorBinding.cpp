@@ -34,8 +34,8 @@ namespace engine {
         vk::DescriptorImageInfo samplerDescriptorImageInfo;
         samplerDescriptorImageInfo
                 .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                .setImageView(mVulkanImageView->getImageView())
-                .setSampler(mVulkanImageView->getSampler());
+                .setImageView(mVulkanImageView->getVulkanImage()->getImageView())
+                .setSampler(mVulkanImageView->getVulkanSampler()->getSampler());
 
         std::array<vk::DescriptorImageInfo, 1> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};
 

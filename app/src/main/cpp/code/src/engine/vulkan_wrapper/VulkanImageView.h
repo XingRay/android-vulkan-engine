@@ -14,8 +14,8 @@ namespace engine {
     // interface
     class VulkanImageView {
     private:
-        std::shared_ptr<VulkanImageInterface> mImage;
-        std::shared_ptr<VulkanSamplerInterface> mSampler;
+        std::shared_ptr<VulkanImageInterface> mVulkanImage;
+        std::shared_ptr<VulkanSamplerInterface> mVulkanSampler;
 
     public:
         VulkanImageView();
@@ -23,10 +23,10 @@ namespace engine {
         virtual ~VulkanImageView();
 
         [[nodiscard]]
-        const std::shared_ptr<VulkanImageInterface> &getImage() const;
+        const std::shared_ptr<VulkanImageInterface> &getVulkanImage() const;
 
         [[nodiscard]]
-        const std::shared_ptr<VulkanSamplerInterface> &getSampler() const;
+        const std::shared_ptr<VulkanSamplerInterface> &getVulkanSampler() const;
     };
 
 } // engine

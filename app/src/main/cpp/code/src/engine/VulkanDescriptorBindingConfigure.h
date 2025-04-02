@@ -23,18 +23,18 @@ namespace engine {
         vk::ShaderStageFlags mShaderStageFlags;
         std::vector<std::unique_ptr<VulkanSampler>> mImmutableSamplers;
 
-        std::unique_ptr<VulkanBufferConfigure> mVulkanBufferConfigure;
+        std::unique_ptr<VulkanBufferViewConfigure> mVulkanBufferViewConfigure;
 
     public:
 
-        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
-                                         std::vector<std::unique_ptr<VulkanSampler>> &&immutableSamplers);
+//        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
+//                                         std::vector<std::unique_ptr<VulkanSampler>> &&immutableSamplers);
 
         VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
-                                         std::unique_ptr<VulkanBufferView> &&vulkanBufferView);
+                                         std::unique_ptr<VulkanBufferViewConfigure> &&vulkanBufferViewConfigure);
 
-        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
-                                         std::unique_ptr<VulkanImageView> &&vulkanImageView);
+//        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
+//                                         std::unique_ptr<VulkanImageViewConfigure> &&VulkanBufferViewConfigure);
 
         ~VulkanDescriptorBindingConfigure();
 

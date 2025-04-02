@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "vulkan/vulkan.hpp"
+
 namespace engine {
 
     class VulkanSamplerInterface {
@@ -13,6 +15,9 @@ namespace engine {
         VulkanSamplerInterface();
 
         ~VulkanSamplerInterface();
+
+        [[nodiscard]]
+        virtual const vk::Sampler &getSampler() const = 0;
     };
 
 } // engine

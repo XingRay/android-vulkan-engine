@@ -10,12 +10,12 @@ namespace engine {
 
     VulkanImageView::~VulkanImageView() = default;
 
-    const std::shared_ptr<VulkanImageInterface> &VulkanImageView::getImage() const {
-        return mImage;
+    const std::shared_ptr<VulkanImageInterface> &VulkanImageView::getVulkanImage() const {
+        return mVulkanImage;
     }
 
-    const std::shared_ptr<VulkanSamplerInterface> &VulkanImageView::getSampler() const {
-        return mSampler;
+    const std::shared_ptr<VulkanSamplerInterface> &VulkanImageView::getVulkanSampler() const {
+        return mVulkanSampler;
     }
 
 } // engine

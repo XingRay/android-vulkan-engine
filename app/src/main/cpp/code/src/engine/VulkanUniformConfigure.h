@@ -14,14 +14,17 @@
 namespace engine {
 
     class VulkanDescriptorBindingConfigure;
+    class VulkanDescriptorSetConfigure;
 
     class VulkanUniformConfigure {
+        friend VulkanDescriptorSetConfigure;
+
     private:
         uint32_t mBinding;
         uint32_t mDescriptorCount;
         vk::ShaderStageFlags mShaderStageFlags;
 
-        std::unique_ptr<VulkanBufferConfigure> mVulkanBufferConfigure;
+        std::unique_ptr<VulkanBufferViewConfigure> mVulkanBufferViewConfigure;
 
     public:
         VulkanUniformConfigure();
@@ -55,14 +58,15 @@ namespace engine {
             return setUniformBuffer(size, &data, size);
         }
 
-        [[nodiscard]]
-        vk::DescriptorSetLayoutBinding createDescriptorSetLayoutBinding() const;
+    private:
+//        [[nodiscard]]
+//        vk::DescriptorSetLayoutBinding createDescriptorSetLayoutBinding() const;
+//
+//        [[nodiscard]]
+//        std::shared_ptr<VulkanDeviceLocalUniformBuffer> createUniformBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const;
 
         [[nodiscard]]
-        std::shared_ptr<VulkanDeviceLocalUniformBuffer> createUniformBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const;
-
-        [[nodiscard]]
-        std::unique_ptr<VulkanDescriptorBindingConfigure> createVulkanDescriptorSetConfigure();
+        std::unique_ptr<VulkanDescriptorBindingConfigure> createVulkanDescriptorBindingConfigure();
     };
 
 } // engine

@@ -14,25 +14,32 @@ namespace engine {
     VulkanDescriptorSetConfigures::~VulkanDescriptorSetConfigures() = default;
 
     VulkanDescriptorSetConfigures &VulkanDescriptorSetConfigures::addVulkanDescriptorSetConfigure(std::unique_ptr<VulkanDescriptorSetConfigure> &&vulkanDescriptorSetConfigure) {
-        mVulkanDescriptorSetConfigures.push_back(std::move(vulkanDescriptorSetConfigure));
+        mVulkanDescriptorSetConfigures[vulkanDescriptorSetConfigure->getSet()] = std::move(vulkanDescriptorSetConfigure);
         return *this;
     }
 
     std::vector<vk::DescriptorSetLayout> VulkanDescriptorSetConfigures::createDescriptorSetLayouts(const VulkanDevice &vulkanDevice) const {
         std::vector<vk::DescriptorSetLayout> descriptorSetLayouts;
 
-        for (const std::unique_ptr<VulkanDescriptorSetConfigure> &descriptorSetConfigure: mVulkanDescriptorSetConfigures) {
-            std::vector<vk::DescriptorSetLayoutBinding> descriptorSetLayoutBindings;
-            descriptorSetLayoutBindings.reserve(descriptorSetConfigure->getVulkanDescriptorConfigures().size());
+        for (const auto &entry: mVulkanDescriptorSetConfigures) {
+            uint32_t set = entry.first;
+            const std::unique_ptr<VulkanDescriptorSetConfigure> &descriptorSetConfigure = entry.second;
 
-            for (const std::unique_ptr<VulkanDescriptorConfigure> &vulkanDescriptorConfigure: descriptorSetConfigure->getVulkanDescriptorConfigures()) {
+            std::vector<vk::DescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+            const std::unordered_map<uint32_t, std::unique_ptr<VulkanDescriptorBindingConfigure>> &vulkanDescriptorBindingConfigures = descriptorSetConfigure->getVulkanDescriptorBindingConfigures();
+            descriptorSetLayoutBindings.reserve(vulkanDescriptorBindingConfigures.size());
+
+            for (const auto &vulkanDescriptorBindingConfiguresEntry: vulkanDescriptorBindingConfigures) {
+                uint32_t binding = vulkanDescriptorBindingConfiguresEntry.first;
+                const std::unique_ptr<VulkanDescriptorBindingConfigure> &vulkanDescriptorConfigure = vulkanDescriptorBindingConfiguresEntry.second;
+
                 vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding{};
 
                 descriptorSetLayoutBinding
                         .setBinding(vulkanDescriptorConfigure->getBinding())
                         .setDescriptorType(vulkanDescriptorConfigure->getDescriptorType())
                         .setDescriptorCount(vulkanDescriptorConfigure->getDescriptorCount())
-                        .setStageFlags(vulkanDescriptorConfigure->getStageFlags());
+                        .setStageFlags(vulkanDescriptorConfigure->getShaderStageFlags());
 
                 const std::vector<std::unique_ptr<VulkanSampler>> &immutableSamplers = vulkanDescriptorConfigure->getImmutableSamplers();
                 if (!immutableSamplers.empty()) {
@@ -63,10 +70,17 @@ namespace engine {
     std::vector<vk::DescriptorPoolSize> VulkanDescriptorSetConfigures::createDescriptorPoolSizes(uint32_t frameCount) const {
         std::vector<vk::DescriptorPoolSize> descriptorPoolSizes;
         std::unordered_map<vk::DescriptorType, size_t> descriptorTypeToIndexMap;
-        for (const std::unique_ptr<VulkanDescriptorSetConfigure> &vulkanDescriptorSetConfigure: mVulkanDescriptorSetConfigures) {
-            for (const std::unique_ptr<VulkanDescriptorConfigure> &vulkanDescriptorConfigures: vulkanDescriptorSetConfigure->getVulkanDescriptorConfigures()) {
-                const vk::DescriptorType type = vulkanDescriptorConfigures->getDescriptorType();
-                const uint32_t count = vulkanDescriptorConfigures->getDescriptorCount() * frameCount;
+
+        for (const auto &vulkanDescriptorSetConfigureEntry: mVulkanDescriptorSetConfigures) {
+            uint32_t set = vulkanDescriptorSetConfigureEntry.first;
+            const std::unique_ptr<VulkanDescriptorSetConfigure> &vulkanDescriptorSetConfigure = vulkanDescriptorSetConfigureEntry.second;
+
+            for (const auto &vulkanDescriptorBindingConfigureEntry: vulkanDescriptorSetConfigure->getVulkanDescriptorBindingConfigures()) {
+                uint32_t binding = vulkanDescriptorBindingConfigureEntry.first;
+                const std::unique_ptr<VulkanDescriptorBindingConfigure> &vulkanDescriptorBindingConfigure = vulkanDescriptorBindingConfigureEntry.second;
+
+                const vk::DescriptorType type = vulkanDescriptorBindingConfigure->getDescriptorType();
+                const uint32_t count = vulkanDescriptorBindingConfigure->getDescriptorCount() * frameCount;
                 if (descriptorTypeToIndexMap.contains(type)) {
                     descriptorPoolSizes[descriptorTypeToIndexMap[type]].descriptorCount += count;
                 } else {
@@ -83,8 +97,13 @@ namespace engine {
         return mVulkanDescriptorSetConfigures.size() * frameCount;
     }
 
-    vk::DescriptorSetLayoutBinding VulkanDescriptorSetConfigures::createDescriptorSetLayoutBinding(){
+//    vk::DescriptorSetLayoutBinding VulkanDescriptorSetConfigures::createDescriptorSetLayoutBinding() {
+//
+//    }
 
+    std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>> VulkanDescriptorSetConfigures::createBufferBindings() const {
+        std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>> map{};
+        return map;
     }
 
 } // engine

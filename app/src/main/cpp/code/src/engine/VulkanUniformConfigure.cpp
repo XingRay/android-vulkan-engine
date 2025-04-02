@@ -27,28 +27,28 @@ namespace engine {
     }
 
     VulkanUniformConfigure &VulkanUniformConfigure::setUniformBuffer(uint32_t capacity, const void *data, uint32_t size) {
-        mVulkanBufferConfigure = std::make_unique<VulkanBufferConfigure>(capacity, data, size);
+        mVulkanBufferViewConfigure = std::make_unique<VulkanBufferViewConfigure>(capacity, data, size);
 
         return *this;
     }
 
     VulkanUniformConfigure &VulkanUniformConfigure::setUniformBuffer(const std::shared_ptr<VulkanBufferView> &bufferView) {
-        mVulkanBufferConfigure = std::make_unique<VulkanBufferConfigure>(bufferView);
+        mVulkanBufferViewConfigure = std::make_unique<VulkanBufferViewConfigure>(bufferView);
 
         return *this;
     }
 
-    vk::DescriptorSetLayoutBinding VulkanUniformConfigure::createDescriptorSetLayoutBinding() const {
-        vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding{};
-
-        descriptorSetLayoutBinding
-                .setBinding(mBinding)
-                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
-                .setDescriptorCount(mDescriptorCount)
-                .setStageFlags(mShaderStageFlags);
-
-        return descriptorSetLayoutBinding;
-    }
+//    vk::DescriptorSetLayoutBinding VulkanUniformConfigure::createDescriptorSetLayoutBinding() const {
+//        vk::DescriptorSetLayoutBinding descriptorSetLayoutBinding{};
+//
+//        descriptorSetLayoutBinding
+//                .setBinding(mBinding)
+//                .setDescriptorType(vk::DescriptorType::eUniformBuffer)
+//                .setDescriptorCount(mDescriptorCount)
+//                .setStageFlags(mShaderStageFlags);
+//
+//        return descriptorSetLayoutBinding;
+//    }
 
 //    std::shared_ptr<VulkanDeviceLocalUniformBuffer> VulkanUniformConfigure::createUniformBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
 //        if (mBuffer != nullptr) {
@@ -67,11 +67,14 @@ namespace engine {
 //        return buffer;
 //    }
 
-    std::unique_ptr<VulkanDescriptorBindingConfigure> VulkanUniformConfigure::createVulkanDescriptorSetConfigure() {
-        std::shared_ptr<VulkanBufferInterface> buffer = createUniformBuffer();
-        std::unique_ptr<VulkanBufferView> bufferView = std::make_unique<VulkanBufferView>();
-        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eUniformBuffer,
-                                                                  mDescriptorCount, mShaderStageFlags, );
+//    std::unique_ptr<VulkanDescriptorBindingConfigure> VulkanUniformConfigure::createVulkanDescriptorSetConfigure() {
+//        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eUniformBuffer,
+//                                                                  mDescriptorCount, mShaderStageFlags, );
+//    }
+
+    std::unique_ptr<VulkanDescriptorBindingConfigure> VulkanUniformConfigure::createVulkanDescriptorBindingConfigure() {
+        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eUniformBuffer,mDescriptorCount,
+                                                                  mShaderStageFlags, std::move(mVulkanBufferViewConfigure));
     }
 
 } // engine

@@ -6,25 +6,19 @@
 
 namespace engine {
 
-    VulkanBufferView::VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &buffer, uint32_t offset, uint32_t range)
-            : mBuffer(buffer), mOffset(offset), mRange(range) {
-
-    }
+    VulkanBufferView::VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &vulkanBuffer, uint32_t offset, uint32_t range)
+            : mVulkanBuffer(vulkanBuffer), mOffset(offset), mRange(range) {}
 
     VulkanBufferView::VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &buffer, uint32_t range)
-            : VulkanBufferView(buffer, 0, range) {
-
-    }
+            : VulkanBufferView(buffer, 0, range) {}
 
     VulkanBufferView::VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &buffer)
-            : VulkanBufferView(buffer, 0, buffer->getSize()) {
-
-    }
+            : VulkanBufferView(buffer, 0, buffer->getSize()) {}
 
     VulkanBufferView::~VulkanBufferView() = default;
 
-    const std::shared_ptr<VulkanBufferInterface> &VulkanBufferView::getBuffer() const {
-        return mBuffer;
+    const std::shared_ptr<VulkanBufferInterface> &VulkanBufferView::getVulkanBuffer() const {
+        return mVulkanBuffer;
     }
 
     uint32_t VulkanBufferView::getOffset() const {

@@ -14,7 +14,7 @@ namespace engine {
 
     class VulkanBufferView {
     private:
-        std::shared_ptr<VulkanBufferInterface> mBuffer;
+        std::shared_ptr<VulkanBufferInterface> mVulkanBuffer;
         uint32_t mOffset;
         uint32_t mRange;
 
@@ -28,7 +28,7 @@ namespace engine {
         ~VulkanBufferView();
 
         [[nodiscard]]
-        const std::shared_ptr<VulkanBufferInterface> &getBuffer() const;
+        const std::shared_ptr<VulkanBufferInterface> &getVulkanBuffer() const;
 
         [[nodiscard]]
         uint32_t getOffset() const;

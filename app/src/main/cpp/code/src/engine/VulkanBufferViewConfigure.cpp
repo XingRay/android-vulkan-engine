@@ -20,18 +20,6 @@ namespace engine {
 
     }
 
-    template<class T>
-    VulkanBufferViewConfigure::VulkanBufferViewConfigure(uint32_t capacity, std::vector<T> data)
-            :VulkanBufferViewConfigure(capacity, data.data(), data.size() * sizeof(T)) {
-
-    }
-
-    template<class T>
-    VulkanBufferViewConfigure::VulkanBufferViewConfigure(std::vector<T> data)
-            :VulkanBufferViewConfigure(data.size() * sizeof(T), data.data(), data.size() * sizeof(T)) {
-
-    }
-
     VulkanBufferViewConfigure::~VulkanBufferViewConfigure() = default;
 
 } // engine

@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
 
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/VulkanDescriptorBindingConfigure.h"
@@ -16,7 +17,8 @@ namespace engine {
     class VulkanDescriptorSetConfigure {
     private:
         uint32_t mSet;
-        std::vector<std::unique_ptr<VulkanDescriptorBindingConfigure>> mVulkanDescriptorBindingConfigures;
+        // binding -> BindingConfigure
+        std::unordered_map<uint32_t, std::unique_ptr<VulkanDescriptorBindingConfigure>> mVulkanDescriptorBindingConfigures;
 
     public:
 
@@ -26,22 +28,24 @@ namespace engine {
 
         uint32_t getSet() const;
 
-        const std::vector<std::unique_ptr<VulkanDescriptorBindingConfigure>> &getVulkanDescriptorConfigures();
+        const std::unordered_map<uint32_t, std::unique_ptr<VulkanDescriptorBindingConfigure>> &getVulkanDescriptorBindingConfigures();
 
         VulkanDescriptorSetConfigure &set(uint32_t set);
 
-        VulkanDescriptorSetConfigure &addVulkanDescriptor(std::unique_ptr<VulkanDescriptorBindingConfigure> &&vulkanDescriptor);
+        //todo [functional configure]
+//        VulkanDescriptorSetConfigure &addVulkanDescriptor(std::unique_ptr<VulkanDescriptorBindingConfigure> &&vulkanDescriptor);
 
-        VulkanDescriptorSetConfigure &addUniform(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
+//        VulkanDescriptorSetConfigure &addUniform(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
 
         VulkanDescriptorSetConfigure &addUniform(const std::function<void(VulkanUniformConfigure &)> &configure);
 
-        VulkanDescriptorSetConfigure &addSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
+//        VulkanDescriptorSetConfigure &addSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
+//
+//        VulkanDescriptorSetConfigure &addImmutableSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
+//
+//        VulkanDescriptorSetConfigure &addStorage(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
 
-        VulkanDescriptorSetConfigure &addImmutableSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
-
-        VulkanDescriptorSetConfigure &addStorage(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
-
+    private:
         std::vector<vk::DescriptorSetLayoutBinding> createDescriptorSetLayoutBindings();
 
         vk::DescriptorSetLayout createDescriptorSetLayout(const VulkanDevice &vulkanDevice);

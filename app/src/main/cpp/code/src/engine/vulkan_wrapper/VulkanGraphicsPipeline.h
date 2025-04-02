@@ -43,9 +43,10 @@ namespace engine {
 
         std::unique_ptr<VulkanDescriptorPool> mVulkanDescriptorPool;
         std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
+
         // frame -> set -> binding
-        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>> mVulkanBufferDescriptorBindings;
-        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> mVulkanImageDescriptorBindings;
+        std::vector<std::unique_ptr<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>>> mVulkanBufferDescriptorBindings;
+//        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> mVulkanImageDescriptorBindings;
 
         std::vector<vk::PushConstantRange> mPushConstantRanges;
         std::vector<std::vector<uint8_t>> mPushConstantDataList;
@@ -64,8 +65,8 @@ namespace engine {
                                uint32_t frameCount,
                                std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
                                const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
-                               std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>> &&vulkanBufferDescriptorBindings,
-                               std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> &&vulkanImageDescriptorBindings,
+//                               std::vector<std::unique_ptr<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>>> &&vulkanBufferDescriptorBindings,
+//                               std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> &&vulkanImageDescriptorBindings,
                                std::vector<vk::PushConstantRange> &&pushConstantRanges);
 
         ~VulkanGraphicsPipeline();

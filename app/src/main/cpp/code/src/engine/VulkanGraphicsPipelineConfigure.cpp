@@ -2,7 +2,7 @@
 // Created by leixing on 2025/3/7.
 //
 
-#include "VulkanGraphicsPipelineConfigure.h"
+#include "engine/VulkanGraphicsPipelineConfigure.h"
 #include "engine/vulkan_wrapper/VulkanShaderModule.h"
 #include "engine/vulkan_wrapper/VulkanDescriptorPool.h"
 
@@ -85,25 +85,28 @@ namespace engine {
         std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> vertexBuffers = mVulkanVertexConfigures.createVertexBuffers(vulkanDevice, commandPool);
 
         // index buffer
-        // todo index buffers
+        // todo support index buffers
         std::shared_ptr<VulkanDeviceLocalIndexBuffer> indexBuffer = mVulkanIndexConfigure.createVertexBuffer(vulkanDevice, commandPool);
 
         // descriptor -> uniform / sampler ...
         std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = mVulkanDescriptorSetConfigures.createDescriptorSetLayouts(vulkanDevice);
-        std::unique_ptr<VulkanDescriptorPool> vulkanDescriptorPool = std::make_unique<VulkanDescriptorPool>(vulkanDevice, mVulkanDescriptorSetConfigures.createDescriptorPoolSizes(frameCount),
+        std::unique_ptr<VulkanDescriptorPool> vulkanDescriptorPool = std::make_unique<VulkanDescriptorPool>(vulkanDevice,
+                                                                                                            mVulkanDescriptorSetConfigures.createDescriptorPoolSizes(frameCount),
                                                                                                             mVulkanDescriptorSetConfigures.getSetCount(frameCount));
 
         // frame -> set -> binding
-        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>> mVulkanBufferDescriptorBindings;
+        std::vector<std::unique_ptr<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>>> vulkanBufferDescriptorBindings;
         for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-            std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>> bufferBindingOfFrame;
-
+            std::unique_ptr<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>> bufferBindingOfFrame;// = mVulkanDescriptorSetConfigures.createBufferBindings();
+            vulkanBufferDescriptorBindings.push_back(std::move(bufferBindingOfFrame));
         }
 
-        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> mVulkanImageDescriptorBindings;
-        for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-            std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>> imageBindingOfFrame;
-        }
+//        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> vulkanImageDescriptorBindings;
+//        for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
+//            std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>> imageBindingOfFrame;
+//
+//            vulkanImageDescriptorBindings.push_back(imageBindingOfFrame);
+//        }
 
         // push constant
         std::vector<vk::PushConstantRange> pushConstantRanges = mVulkanPushConstantConfigures.createPushConstantRanges();
@@ -126,8 +129,8 @@ namespace engine {
                                                         frameCount,
                                                         std::move(vulkanDescriptorPool),
                                                         descriptorSetLayouts,
-                                                        std::move(mVulkanBufferDescriptorBindings),
-                                                        std::move(mVulkanImageDescriptorBindings),
+//                                                        std::move(vulkanBufferDescriptorBindings),
+//                                                        {}/*std::move(vulkanImageDescriptorBindings)*/,
                                                         std::move(pushConstantRanges));
     }
 

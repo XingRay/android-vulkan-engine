@@ -6,6 +6,8 @@
 
 #include <memory>
 
+#include "vulkan/vulkan.hpp"
+
 #include "engine/vulkan_wrapper/VulkanBufferView.h"
 
 namespace engine {
@@ -21,7 +23,7 @@ namespace engine {
         uint32_t mDescriptorRange;
 
     public:
-        VulkanBufferDescriptorBinding();
+        VulkanBufferDescriptorBinding(vk::DescriptorType descriptorType, uint32_t descriptorOffset, uint32_t descriptorRange);
 
         ~VulkanBufferDescriptorBinding();
 

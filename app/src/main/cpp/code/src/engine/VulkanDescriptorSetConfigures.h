@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 #include "engine/VulkanDescriptorSetConfigure.h"
 
@@ -13,7 +13,8 @@ namespace engine {
 
     class VulkanDescriptorSetConfigures {
     private:
-        std::vector<std::unique_ptr<VulkanDescriptorSetConfigure>> mVulkanDescriptorSetConfigures;
+        // set -> setConfigure
+        std::unordered_map<uint32_t, std::unique_ptr<VulkanDescriptorSetConfigure>> mVulkanDescriptorSetConfigures;
 
     public:
         VulkanDescriptorSetConfigures();
@@ -30,6 +31,9 @@ namespace engine {
 
         [[nodiscard]]
         uint32_t getSetCount(uint32_t frameCount = 1) const;
+
+        [[nodiscard]]
+        std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>> createBufferBindings() const;
     };
 
 } // engine

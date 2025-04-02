@@ -2,11 +2,12 @@
 // Created by leixing on 2025/3/28.
 //
 
-#include "VulkanBufferDescriptorBinding.h"
+#include "engine/vulkan_wrapper/VulkanBufferDescriptorBinding.h"
 
 namespace engine {
 
-    VulkanBufferDescriptorBinding::VulkanBufferDescriptorBinding() = default;
+    VulkanBufferDescriptorBinding::VulkanBufferDescriptorBinding(vk::DescriptorType descriptorType, uint32_t descriptorOffset, uint32_t descriptorRange)
+            : mDescriptorType(descriptorType), mDescriptorOffset(descriptorOffset), mDescriptorRange(descriptorRange) {}
 
     VulkanBufferDescriptorBinding::~VulkanBufferDescriptorBinding() = default;
 
@@ -24,7 +25,7 @@ namespace engine {
 
         vk::DescriptorBufferInfo descriptorBufferInfo{};
         descriptorBufferInfo
-                .setBuffer(mVulkanBufferView->getBuffer())
+                .setBuffer(mVulkanBufferView->getVulkanBuffer()->getBuffer())
                 .setOffset(mVulkanBufferView->getOffset())
                 .setRange(mVulkanBufferView->getRange());
 

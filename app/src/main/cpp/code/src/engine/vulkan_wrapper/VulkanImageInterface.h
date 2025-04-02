@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include "vulkan/vulkan.hpp"
+
 namespace engine {
 
     class VulkanImageInterface {
@@ -13,6 +15,12 @@ namespace engine {
         VulkanImageInterface();
 
         ~VulkanImageInterface();
+
+        [[nodiscard]]
+        virtual const vk::Image &getImage() const = 0;
+
+        [[nodiscard]]
+        virtual const vk::ImageView &getImageView() const = 0;
     };
 
 } // engine
