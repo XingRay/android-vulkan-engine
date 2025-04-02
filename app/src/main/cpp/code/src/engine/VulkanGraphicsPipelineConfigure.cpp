@@ -95,10 +95,10 @@ namespace engine {
                                                                                                             mVulkanDescriptorSetConfigures.getSetCount(frameCount));
 
         // frame -> set -> binding
-        std::vector<std::unique_ptr<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>>> vulkanBufferDescriptorBindings;
+        std::vector<std::unique_ptr<VulkanBufferDescriptorBindingSets>> vulkanBufferDescriptorBindingSets;
         for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-            std::unique_ptr<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>> bufferBindingOfFrame;// = mVulkanDescriptorSetConfigures.createBufferBindings();
-            vulkanBufferDescriptorBindings.push_back(std::move(bufferBindingOfFrame));
+            std::unique_ptr<VulkanBufferDescriptorBindingSets> bufferBindingOfFrame = mVulkanDescriptorSetConfigures.createVulkanBufferDescriptorBindingSets();
+            vulkanBufferDescriptorBindingSets.push_back(std::move(bufferBindingOfFrame));
         }
 
 //        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> vulkanImageDescriptorBindings;
@@ -129,7 +129,7 @@ namespace engine {
                                                         frameCount,
                                                         std::move(vulkanDescriptorPool),
                                                         descriptorSetLayouts,
-//                                                        std::move(vulkanBufferDescriptorBindings),
+                                                        std::move(vulkanBufferDescriptorBindings),
 //                                                        {}/*std::move(vulkanImageDescriptorBindings)*/,
                                                         std::move(pushConstantRanges));
     }

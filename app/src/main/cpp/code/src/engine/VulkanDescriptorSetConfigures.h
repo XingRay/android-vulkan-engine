@@ -8,6 +8,7 @@
 #include <unordered_map>
 
 #include "engine/VulkanDescriptorSetConfigure.h"
+#include "engine/vulkan_wrapper/VulkanBufferDescriptorBindingSets.h"
 
 namespace engine {
 
@@ -33,7 +34,7 @@ namespace engine {
         uint32_t getSetCount(uint32_t frameCount = 1) const;
 
         [[nodiscard]]
-        std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>> createBufferBindings() const;
+        std::unique_ptr<VulkanBufferDescriptorBindingSets> createVulkanBufferDescriptorBindingSets() const;
     };
 
 } // engine

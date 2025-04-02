@@ -101,9 +101,21 @@ namespace engine {
 //
 //    }
 
-    std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>> VulkanDescriptorSetConfigures::createBufferBindings() const {
-        std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>> map{};
-        return map;
+    std::unique_ptr<VulkanBufferDescriptorBindingSets> VulkanDescriptorSetConfigures::createVulkanBufferDescriptorBindingSets() const {
+        if (mVulkanDescriptorSetConfigures.empty()) {
+            return nullptr;
+        }
+
+        std::unique_ptr<VulkanBufferDescriptorBindingSets> vulkanBufferDescriptorBindingSets = std::make_unique<VulkanBufferDescriptorBindingSets>();
+
+        for (const auto &entry: mVulkanDescriptorSetConfigures) {
+            uint32_t set = entry.first;
+            const std::unique_ptr<VulkanDescriptorSetConfigure>& vulkanDescriptorSetConfigure = entry.second;
+
+            vulkanBufferDescriptorBindingSets->set(vulkanDescriptorSetConfigure->);
+        }
+
+        return vulkanBufferDescriptorBindingSets;
     }
 
 } // engine

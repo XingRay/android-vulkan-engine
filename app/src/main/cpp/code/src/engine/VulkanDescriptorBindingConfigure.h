@@ -19,7 +19,8 @@ namespace engine {
     private:
         uint32_t mBinding;
         vk::DescriptorType mDescriptorType;
-        uint32_t mDescriptorCount;
+        uint32_t mDescriptorOffset;
+        uint32_t mDescriptorRange;
         vk::ShaderStageFlags mShaderStageFlags;
         std::vector<std::unique_ptr<VulkanSampler>> mImmutableSamplers;
 
@@ -30,7 +31,7 @@ namespace engine {
 //        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
 //                                         std::vector<std::unique_ptr<VulkanSampler>> &&immutableSamplers);
 
-        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
+        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorOffset, uint32_t descriptorRange, vk::ShaderStageFlags shaderStageFlags,
                                          std::unique_ptr<VulkanBufferViewConfigure> &&vulkanBufferViewConfigure);
 
 //        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
@@ -45,7 +46,10 @@ namespace engine {
         vk::DescriptorType getDescriptorType() const;
 
         [[nodiscard]]
-        uint32_t getDescriptorCount() const;
+        uint32_t getDescriptorOffset() const;
+
+        [[nodiscard]]
+        uint32_t getDescriptorRange() const;
 
         [[nodiscard]]
         vk::ShaderStageFlags getShaderStageFlags() const;
@@ -54,7 +58,10 @@ namespace engine {
         const std::vector<std::unique_ptr<VulkanSampler>> &getImmutableSamplers() const;
 
         [[nodiscard]]
-        vk::DescriptorSetLayoutBinding createDescriptorSetLayoutBinding();
+        vk::DescriptorSetLayoutBinding createDescriptorSetLayoutBinding() const;
+
+        [[nodiscard]]
+        std::unique_ptr<VulkanBufferDescriptorBinding> createVulkanBufferDescriptorBinding() const;
     };
 
 } // engine

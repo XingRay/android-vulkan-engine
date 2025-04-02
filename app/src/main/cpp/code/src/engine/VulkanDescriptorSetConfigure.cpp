@@ -82,6 +82,24 @@ namespace engine {
 //        return mUniformSet;
 //    }
 
+    std::unique_ptr<VulkanBufferDescriptorBindingSet> VulkanDescriptorSetConfigure::createVulkanBufferDescriptorBindingSet() {
+        if (mVulkanDescriptorBindingConfigures.empty()) {
+            return nullptr;
+        }
+
+        std::unique_ptr<VulkanBufferDescriptorBindingSet> vulkanBufferDescriptorBindingSet = std::make_unique<VulkanBufferDescriptorBindingSet>();
+
+        for (const auto &entry: mVulkanDescriptorBindingConfigures) {
+            uint32_t binding = entry.first;
+            const std::unique_ptr<VulkanDescriptorBindingConfigure> &vulkanDescriptorBindingConfigure = entry.second;
+
+            vulkanBufferDescriptorBindingSet->set(binding, vulkanDescriptorBindingConfigure->createVulkanBufferDescriptorBinding());
+        }
+
+
+        return vulkanBufferDescriptorBindingSet;
+    }
+
     std::vector<vk::DescriptorSetLayoutBinding> VulkanDescriptorSetConfigure::createDescriptorSetLayoutBindings() {
 
         std::vector<vk::DescriptorSetLayoutBinding> descriptorSetLayoutBindings;

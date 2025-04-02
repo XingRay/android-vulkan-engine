@@ -7,6 +7,7 @@
 #include <memory>
 #include <cstdint>
 #include <vector>
+#include <functional>
 
 #include "engine/vulkan_wrapper/VulkanBufferView.h"
 #include "engine/VulkanBufferViewCreateInfo.h"
@@ -16,10 +17,10 @@ namespace engine {
     class VulkanBufferViewConfigure {
     private:
         // set bufferView
-        std::shared_ptr<VulkanBufferView> mBufferView;
+        std::shared_ptr<VulkanBufferView> mVulkanBufferView;
 
         // create bufferView
-        std::unique_ptr<VulkanBufferViewCreateInfo> mBufferViewCreateInfo;
+        std::unique_ptr<VulkanBufferViewCreateInfo> mVulkanBufferViewCreateInfo;
 
     public:
 
@@ -39,6 +40,7 @@ namespace engine {
 
         ~VulkanBufferViewConfigure();
 
+        std::shared_ptr<VulkanBufferView> getOrCreateVulkanBufferView(std::function<std::shared_ptr<VulkanBufferView>(const VulkanBufferViewCreateInfo&)> vulkanBufferViewBuilder);
     };
 
 } // engine

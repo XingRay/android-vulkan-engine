@@ -20,8 +20,8 @@
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
-#include "engine/vulkan_wrapper/VulkanBufferDescriptorBinding.h"
 #include "engine/vulkan_wrapper/VulkanImageDescriptorBinding.h"
+#include "engine/vulkan_wrapper/VulkanBufferDescriptorBindingSets.h"
 
 namespace engine {
 
@@ -44,8 +44,8 @@ namespace engine {
         std::unique_ptr<VulkanDescriptorPool> mVulkanDescriptorPool;
         std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
 
-        // frame -> set -> binding
-        std::vector<std::unique_ptr<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>>> mVulkanBufferDescriptorBindings;
+        // frame -> VulkanBufferDescriptorBindingSets
+        std::vector<std::unique_ptr<VulkanBufferDescriptorBindingSets>> mVulkanBufferDescriptorBindingSets;
 //        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> mVulkanImageDescriptorBindings;
 
         std::vector<vk::PushConstantRange> mPushConstantRanges;
@@ -65,7 +65,7 @@ namespace engine {
                                uint32_t frameCount,
                                std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
                                const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
-//                               std::vector<std::unique_ptr<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>>>> &&vulkanBufferDescriptorBindings,
+                               std::vector<std::unique_ptr<VulkanBufferDescriptorBindingSets>>&& vulkanBufferDescriptorBindingSets,
 //                               std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> &&vulkanImageDescriptorBindings,
                                std::vector<vk::PushConstantRange> &&pushConstantRanges);
 
