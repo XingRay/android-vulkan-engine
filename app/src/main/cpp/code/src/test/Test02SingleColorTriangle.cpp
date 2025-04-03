@@ -75,7 +75,8 @@ namespace test02 {
                                         .addUniform([&](engine::VulkanUniformConfigure &uniformConfigure) {
                                             uniformConfigure
                                                     .binding(0)
-                                                    .descriptorCount(1)
+                                                    .descriptorRange(1)
+                                                    .descriptorOffset(0)
                                                     .shaderStageFlags(vk::ShaderStageFlagBits::eVertex)
                                                     .setUniformBuffer(colorUniformBufferObject);
                                         });

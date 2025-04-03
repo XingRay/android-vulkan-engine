@@ -129,7 +129,7 @@ namespace engine {
                                                         frameCount,
                                                         std::move(vulkanDescriptorPool),
                                                         descriptorSetLayouts,
-                                                        std::move(vulkanBufferDescriptorBindings),
+                                                        std::move(vulkanBufferDescriptorBindingSets),
 //                                                        {}/*std::move(vulkanImageDescriptorBindings)*/,
                                                         std::move(pushConstantRanges));
     }

@@ -17,14 +17,14 @@ namespace engine {
     class VulkanBufferViewConfigure {
     private:
         // set bufferView
-        std::shared_ptr<VulkanBufferView> mVulkanBufferView;
+        std::unique_ptr<VulkanBufferView> mVulkanBufferView;
 
         // create bufferView
         std::unique_ptr<VulkanBufferViewCreateInfo> mVulkanBufferViewCreateInfo;
 
     public:
 
-        explicit VulkanBufferViewConfigure(const std::shared_ptr<VulkanBufferView> &bufferView);
+        explicit VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferView> &&bufferView);
 
         VulkanBufferViewConfigure(uint32_t capacity, const void *data, uint32_t size);
 
@@ -40,7 +40,8 @@ namespace engine {
 
         ~VulkanBufferViewConfigure();
 
-        std::shared_ptr<VulkanBufferView> getOrCreateVulkanBufferView(std::function<std::shared_ptr<VulkanBufferView>(const VulkanBufferViewCreateInfo&)> vulkanBufferViewBuilder);
+        [[nodiscard]]
+        std::unique_ptr<VulkanBufferView> getOrCreateVulkanBufferView(const std::function<std::unique_ptr<VulkanBufferView>(const VulkanBufferViewCreateInfo &)> &vulkanBufferViewBuilder);
     };
 
 } // engine

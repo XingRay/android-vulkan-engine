@@ -109,7 +109,7 @@ namespace engine {
     std::unique_ptr<VulkanBufferDescriptorBinding> VulkanDescriptorBindingConfigure::createVulkanBufferDescriptorBinding() const {
         std::unique_ptr<VulkanBufferDescriptorBinding> vulkanBufferDescriptorBinding = std::make_unique<VulkanBufferDescriptorBinding>(mDescriptorType, mDescriptorOffset, mDescriptorRange);
 
-        if(mVulkanBufferViewConfigure->)
+//        if(mVulkanBufferViewConfigure->)
         return vulkanBufferDescriptorBinding;
     }
 }

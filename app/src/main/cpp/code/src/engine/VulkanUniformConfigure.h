@@ -21,7 +21,8 @@ namespace engine {
 
     private:
         uint32_t mBinding;
-        uint32_t mDescriptorCount;
+        uint32_t mDescriptorOffset;
+        uint32_t mDescriptorRange;
         vk::ShaderStageFlags mShaderStageFlags;
 
         std::unique_ptr<VulkanBufferViewConfigure> mVulkanBufferViewConfigure;
@@ -33,13 +34,15 @@ namespace engine {
 
         VulkanUniformConfigure &binding(uint32_t binding);
 
-        VulkanUniformConfigure &descriptorCount(uint32_t count);
+        VulkanUniformConfigure &descriptorOffset(uint32_t offset);
+
+        VulkanUniformConfigure &descriptorRange(uint32_t range);
 
         VulkanUniformConfigure &shaderStageFlags(vk::ShaderStageFlags shaderStageFlags);
 
         VulkanUniformConfigure &setUniformBuffer(uint32_t capacity, const void *data, uint32_t size);
 
-        VulkanUniformConfigure &setUniformBuffer(const std::shared_ptr<VulkanBufferView> &bufferView);
+        VulkanUniformConfigure &setUniformBuffer(std::unique_ptr<VulkanBufferView> &&bufferView);
 
         template<class T>
         VulkanUniformConfigure &setUniformBuffer(uint32_t capacity, const std::vector<T> &data) {

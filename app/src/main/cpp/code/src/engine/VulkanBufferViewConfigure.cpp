@@ -6,8 +6,8 @@
 
 namespace engine {
 
-    VulkanBufferViewConfigure::VulkanBufferViewConfigure(const std::shared_ptr<VulkanBufferView> &bufferView)
-            : mVulkanBufferView(bufferView), mVulkanBufferViewCreateInfo(nullptr) {}
+    VulkanBufferViewConfigure::VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferView> &&bufferView)
+            : mVulkanBufferView(std::move(bufferView)), mVulkanBufferViewCreateInfo(nullptr) {}
 
     VulkanBufferViewConfigure::VulkanBufferViewConfigure(uint32_t capacity, const void *data, uint32_t size)
             : mVulkanBufferView(nullptr), mVulkanBufferViewCreateInfo(std::make_unique<VulkanBufferViewCreateInfo>(capacity, data, size)) {}
@@ -17,10 +17,10 @@ namespace engine {
 
     VulkanBufferViewConfigure::~VulkanBufferViewConfigure() = default;
 
-    std::shared_ptr<VulkanBufferView>
-    VulkanBufferViewConfigure::getOrCreateVulkanBufferView(std::function<std::shared_ptr<VulkanBufferView>(const VulkanBufferViewCreateInfo &)> vulkanBufferViewBuilder) {
+    std::unique_ptr<VulkanBufferView>
+    VulkanBufferViewConfigure::getOrCreateVulkanBufferView(const std::function<std::unique_ptr<VulkanBufferView>(const VulkanBufferViewCreateInfo &)> &vulkanBufferViewBuilder) {
         if (mVulkanBufferView != nullptr) {
-            return mVulkanBufferView;
+            return std::move(mVulkanBufferView);
         }
 
         return vulkanBufferViewBuilder(*mVulkanBufferViewCreateInfo);

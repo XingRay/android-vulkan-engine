@@ -38,7 +38,7 @@ namespace engine {
                 descriptorSetLayoutBinding
                         .setBinding(vulkanDescriptorConfigure->getBinding())
                         .setDescriptorType(vulkanDescriptorConfigure->getDescriptorType())
-                        .setDescriptorCount(vulkanDescriptorConfigure->getDescriptorCount())
+                        .setDescriptorCount(vulkanDescriptorConfigure->getDescriptorRange())
                         .setStageFlags(vulkanDescriptorConfigure->getShaderStageFlags());
 
                 const std::vector<std::unique_ptr<VulkanSampler>> &immutableSamplers = vulkanDescriptorConfigure->getImmutableSamplers();
@@ -80,7 +80,7 @@ namespace engine {
                 const std::unique_ptr<VulkanDescriptorBindingConfigure> &vulkanDescriptorBindingConfigure = vulkanDescriptorBindingConfigureEntry.second;
 
                 const vk::DescriptorType type = vulkanDescriptorBindingConfigure->getDescriptorType();
-                const uint32_t count = vulkanDescriptorBindingConfigure->getDescriptorCount() * frameCount;
+                const uint32_t count = vulkanDescriptorBindingConfigure->getDescriptorRange() * frameCount;
                 if (descriptorTypeToIndexMap.contains(type)) {
                     descriptorPoolSizes[descriptorTypeToIndexMap[type]].descriptorCount += count;
                 } else {
@@ -112,7 +112,7 @@ namespace engine {
             uint32_t set = entry.first;
             const std::unique_ptr<VulkanDescriptorSetConfigure>& vulkanDescriptorSetConfigure = entry.second;
 
-            vulkanBufferDescriptorBindingSets->set(vulkanDescriptorSetConfigure->);
+//            vulkanBufferDescriptorBindingSets->set(vulkanDescriptorSetConfigure->);
         }
 
         return vulkanBufferDescriptorBindingSets;

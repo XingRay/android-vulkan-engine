@@ -7,7 +7,8 @@
 
 namespace engine {
 
-    VulkanUniformConfigure::VulkanUniformConfigure() = default;
+    VulkanUniformConfigure::VulkanUniformConfigure()
+            : mBinding(0), mDescriptorOffset(0), mDescriptorRange(1) {}
 
     VulkanUniformConfigure::~VulkanUniformConfigure() = default;
 
@@ -16,8 +17,13 @@ namespace engine {
         return *this;
     }
 
-    VulkanUniformConfigure &VulkanUniformConfigure::descriptorCount(uint32_t count) {
-        mDescriptorCount = count;
+    VulkanUniformConfigure &VulkanUniformConfigure::descriptorOffset(uint32_t offset) {
+        mDescriptorOffset = offset;
+        return *this;
+    }
+
+    VulkanUniformConfigure &VulkanUniformConfigure::descriptorRange(uint32_t range) {
+        mDescriptorRange = range;
         return *this;
     }
 
@@ -28,13 +34,11 @@ namespace engine {
 
     VulkanUniformConfigure &VulkanUniformConfigure::setUniformBuffer(uint32_t capacity, const void *data, uint32_t size) {
         mVulkanBufferViewConfigure = std::make_unique<VulkanBufferViewConfigure>(capacity, data, size);
-
         return *this;
     }
 
-    VulkanUniformConfigure &VulkanUniformConfigure::setUniformBuffer(const std::shared_ptr<VulkanBufferView> &bufferView) {
-        mVulkanBufferViewConfigure = std::make_unique<VulkanBufferViewConfigure>(bufferView);
-
+    VulkanUniformConfigure &VulkanUniformConfigure::setUniformBuffer(std::unique_ptr<VulkanBufferView> &&bufferView) {
+        mVulkanBufferViewConfigure = std::make_unique<VulkanBufferViewConfigure>(std::move(bufferView));
         return *this;
     }
 
@@ -73,7 +77,7 @@ namespace engine {
 //    }
 
     std::unique_ptr<VulkanDescriptorBindingConfigure> VulkanUniformConfigure::createVulkanDescriptorBindingConfigure() {
-        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eUniformBuffer,mDescriptorCount,
+        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eUniformBuffer, mDescriptorOffset, mDescriptorRange,
                                                                   mShaderStageFlags, std::move(mVulkanBufferViewConfigure));
     }
 
