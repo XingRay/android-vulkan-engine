@@ -34,7 +34,7 @@ namespace engine {
         uint32_t getSetCount(uint32_t frameCount = 1) const;
 
         [[nodiscard]]
-        std::unique_ptr<VulkanBufferDescriptorBindingSets> createVulkanBufferDescriptorBindingSets() const;
+        std::unique_ptr<VulkanBufferDescriptorBindingSets> createVulkanBufferDescriptorBindingSets(const VulkanDevice &vulkanDevice) const;
     };
 
 } // engine

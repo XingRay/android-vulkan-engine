@@ -7,10 +7,11 @@
 #include "VulkanDeviceLocalBuffer.h"
 #include "engine/vulkan_wrapper/buffer/VulkanStagingBuffer.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
+#include "engine/vulkan_wrapper/VulkanBufferInterface.h"
 
 namespace engine {
 
-    class VulkanDeviceLocalUniformBuffer {
+    class VulkanDeviceLocalUniformBuffer : public VulkanBufferInterface {
     private:
         VulkanDeviceLocalBuffer mUniformBuffer;
         VulkanStagingBuffer mStagingBuffer;
@@ -21,7 +22,10 @@ namespace engine {
         ~VulkanDeviceLocalUniformBuffer();
 
         [[nodiscard]]
-        const vk::Buffer &getBuffer() const;
+        vk::DeviceSize getSize() const override;
+
+        [[nodiscard]]
+        const vk::Buffer &getBuffer() const override;
 
         [[nodiscard]]
         const vk::DeviceMemory &getDeviceMemory() const;

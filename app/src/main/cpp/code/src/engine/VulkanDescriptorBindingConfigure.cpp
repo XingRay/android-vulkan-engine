@@ -12,7 +12,8 @@ namespace engine {
 //            : mBinding(binding), mDescriptorType(descriptorType), mDescriptorCount(descriptorCount), mShaderStageFlags(shaderStageFlags), mImmutableSamplers(std::move(immutableSamplers)) {}
 
     VulkanDescriptorBindingConfigure::VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorOffset, uint32_t descriptorRange,
-                                                                       vk::ShaderStageFlags shaderStageFlags, std::unique_ptr<VulkanBufferViewConfigure> &&vulkanBufferViewConfigure)
+                                                                       vk::ShaderStageFlags shaderStageFlags,
+                                                                       std::unique_ptr<VulkanBufferViewConfigure> &&vulkanBufferViewConfigure)
             : mBinding(binding), mDescriptorType(descriptorType), mDescriptorOffset(descriptorOffset), mDescriptorRange(descriptorRange), mShaderStageFlags(shaderStageFlags),
               mVulkanBufferViewConfigure(std::move(vulkanBufferViewConfigure)) {}
 
@@ -25,7 +26,7 @@ namespace engine {
 
 //    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t index, uint32_t descriptorCount, VulkanUniformData data)
 //            : mVulkanDescriptorType(VulkanDescriptorType::uniform), mBinding(binding), mDescriptorType(vk::DescriptorType::eUniformBuffer), mShaderStageFlagBits(shaderStageFlagBits), mIndex(index),
-//              mDescriptorCount(descriptorCount), mData(data) {}
+//              mDescriptorCount(descri       ptorCount), mData(data) {}
 
 //    VulkanDescriptor::VulkanDescriptor(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, VulkanSamplerData data)
 //            : VulkanDescriptor(binding, shaderStageFlagBits, 0, 1, data) {}
@@ -106,10 +107,9 @@ namespace engine {
         return descriptorSetLayoutBinding;
     }
 
-    std::unique_ptr<VulkanBufferDescriptorBinding> VulkanDescriptorBindingConfigure::createVulkanBufferDescriptorBinding() const {
+    std::unique_ptr<VulkanBufferDescriptorBinding> VulkanDescriptorBindingConfigure::createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice) {
         std::unique_ptr<VulkanBufferDescriptorBinding> vulkanBufferDescriptorBinding = std::make_unique<VulkanBufferDescriptorBinding>(mDescriptorType, mDescriptorOffset, mDescriptorRange);
-
-//        if(mVulkanBufferViewConfigure->)
+        vulkanBufferDescriptorBinding->setBufferView(mVulkanBufferViewConfigure->providerVulkanBufferView(vulkanDevice));
         return vulkanBufferDescriptorBinding;
     }
 }

@@ -33,7 +33,7 @@ namespace engine {
     }
 
     VulkanUniformConfigure &VulkanUniformConfigure::setUniformBuffer(uint32_t capacity, const void *data, uint32_t size) {
-        mVulkanBufferViewConfigure = std::make_unique<VulkanBufferViewConfigure>(capacity, data, size);
+        mVulkanBufferViewConfigure = std::make_unique<VulkanBufferViewConfigure>(std::make_unique<VulkanUniformBufferBuilder>(), capacity, data, size);
         return *this;
     }
 
@@ -77,8 +77,8 @@ namespace engine {
 //    }
 
     std::unique_ptr<VulkanDescriptorBindingConfigure> VulkanUniformConfigure::createVulkanDescriptorBindingConfigure() {
-        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eUniformBuffer, mDescriptorOffset, mDescriptorRange,
-                                                                  mShaderStageFlags, std::move(mVulkanBufferViewConfigure));
+        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eUniformBuffer, mDescriptorOffset, mDescriptorRange, mShaderStageFlags,
+                                                                  std::move(mVulkanBufferViewConfigure));
     }
 
 } // engine

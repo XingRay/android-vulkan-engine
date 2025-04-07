@@ -27,7 +27,7 @@ namespace engine {
         return mBuffer;
     }
 
-    const vk::DeviceSize &VulkanDeviceLocalBuffer::getBufferSize() const {
+    vk::DeviceSize VulkanDeviceLocalBuffer::getBufferSize() const {
         return mBufferSize;
     }
 

@@ -3,6 +3,7 @@
 //
 
 #include "engine/VulkanDescriptorSetConfigure.h"
+#include "engine/VulkanUniformBufferBuilder.h"
 
 namespace engine {
 
@@ -82,7 +83,7 @@ namespace engine {
 //        return mUniformSet;
 //    }
 
-    std::unique_ptr<VulkanBufferDescriptorBindingSet> VulkanDescriptorSetConfigure::createVulkanBufferDescriptorBindingSet() {
+    std::unique_ptr<VulkanBufferDescriptorBindingSet> VulkanDescriptorSetConfigure::createVulkanBufferDescriptorBindingSet(const VulkanDevice &vulkanDevice) {
         if (mVulkanDescriptorBindingConfigures.empty()) {
             return nullptr;
         }
@@ -93,7 +94,7 @@ namespace engine {
             uint32_t binding = entry.first;
             const std::unique_ptr<VulkanDescriptorBindingConfigure> &vulkanDescriptorBindingConfigure = entry.second;
 
-            vulkanBufferDescriptorBindingSet->set(binding, vulkanDescriptorBindingConfigure->createVulkanBufferDescriptorBinding());
+            vulkanBufferDescriptorBindingSet->set(binding, vulkanDescriptorBindingConfigure->createVulkanBufferDescriptorBinding(vulkanDevice));
         }
 
 

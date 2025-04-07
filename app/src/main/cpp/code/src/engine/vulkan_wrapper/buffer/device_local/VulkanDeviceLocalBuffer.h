@@ -32,12 +32,12 @@ namespace engine {
         const vk::Buffer &getBuffer() const;
 
         [[nodiscard]]
-        const vk::DeviceSize &getBufferSize() const;
+        vk::DeviceSize getBufferSize() const;
 
         [[nodiscard]]
         const vk::DeviceMemory &getDeviceMemory() const;
 
-        void recordCommandCopyFrom(const vk::CommandBuffer &commandBuffer, vk::Buffer srcBuffer, vk::DeviceSize srcOffset,  vk::DeviceSize dstOffset, vk::DeviceSize copyDataSize);
+        void recordCommandCopyFrom(const vk::CommandBuffer &commandBuffer, vk::Buffer srcBuffer, vk::DeviceSize srcOffset, vk::DeviceSize dstOffset, vk::DeviceSize copyDataSize);
 
         void recordCommandCopyFrom(const vk::CommandBuffer &commandBuffer, vk::Buffer srcBuffer);
 

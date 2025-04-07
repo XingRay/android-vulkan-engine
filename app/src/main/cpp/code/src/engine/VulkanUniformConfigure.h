@@ -10,6 +10,7 @@
 #include "vulkan/vulkan.hpp"
 
 #include "engine/VulkanBufferViewConfigure.h"
+#include "engine/VulkanUniformBufferBuilder.h"
 
 namespace engine {
 
@@ -61,7 +62,7 @@ namespace engine {
             return setUniformBuffer(size, &data, size);
         }
 
-    private:
+    private: 
 //        [[nodiscard]]
 //        vk::DescriptorSetLayoutBinding createDescriptorSetLayoutBinding() const;
 //

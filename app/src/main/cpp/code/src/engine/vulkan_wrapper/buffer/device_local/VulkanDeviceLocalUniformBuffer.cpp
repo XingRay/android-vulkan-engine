@@ -14,6 +14,10 @@ namespace engine {
 
     VulkanDeviceLocalUniformBuffer::~VulkanDeviceLocalUniformBuffer() = default;
 
+    vk::DeviceSize VulkanDeviceLocalUniformBuffer::getSize() const {
+        return mUniformBuffer.getBufferSize();
+    }
+
     const vk::Buffer &VulkanDeviceLocalUniformBuffer::getBuffer() const {
         return mUniformBuffer.getBuffer();
     }

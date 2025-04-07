@@ -10,38 +10,62 @@
 #include <functional>
 
 #include "engine/vulkan_wrapper/VulkanBufferView.h"
-#include "engine/VulkanBufferViewCreateInfo.h"
+#include "engine/VulkanBufferBuilder.h"
 
 namespace engine {
 
     class VulkanBufferViewConfigure {
     private:
-        // set bufferView
+        // set BufferView
         std::unique_ptr<VulkanBufferView> mVulkanBufferView;
 
-        // create bufferView
-        std::unique_ptr<VulkanBufferViewCreateInfo> mVulkanBufferViewCreateInfo;
+        // create Buffer
+        std::unique_ptr<VulkanBufferBuilder> mVulkanBufferBuilder;
+        vk::DeviceSize mVulkanBufferCapacity;
+
+        // create BufferView
+        uint32_t mVulkanBufferOffset;
+        uint32_t mVulkanBufferRange;
+
+        // update buffer
+        std::vector<uint8_t> mVulkanBufferData;
 
     public:
 
+        VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferView> &&bufferView, const void *data, uint32_t size);
+
+        VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferView> &&bufferView, std::vector<uint8_t>&& data);
+
         explicit VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferView> &&bufferView);
 
-        VulkanBufferViewConfigure(uint32_t capacity, const void *data, uint32_t size);
+        VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+                                  uint32_t vulkanBufferOffset, uint32_t vulkanBufferRange, const void *data, uint32_t size);
 
-        explicit VulkanBufferViewConfigure(uint32_t capacity);
+        VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+                                  uint32_t vulkanBufferOffset, uint32_t vulkanBufferRange, std::vector<uint8_t>&& data);
+
+        VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+                                  uint32_t vulkanBufferOffset, uint32_t vulkanBufferRange);
+
+        VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+                                  const void *data, uint32_t size);
+
+        VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+                                  std::vector<uint8_t>&& data);
+
+        VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity);
 
         template<class T>
-        VulkanBufferViewConfigure(uint32_t capacity, std::vector<T> data)
-                :VulkanBufferViewConfigure(capacity, data.data(), data.size() * sizeof(T)) {}
-
-        template<class T>
-        explicit VulkanBufferViewConfigure(std::vector<T> data)
-                :VulkanBufferViewConfigure(data.size() * sizeof(T), data.data(), data.size() * sizeof(T)) {}
+        VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity, const T& data)
+                :VulkanBufferViewConfigure(vulkanBufferBuilder, vulkanBufferCapacity, &data, sizeof(T)) {}
 
         ~VulkanBufferViewConfigure();
 
         [[nodiscard]]
-        std::unique_ptr<VulkanBufferView> getOrCreateVulkanBufferView(const std::function<std::unique_ptr<VulkanBufferView>(const VulkanBufferViewCreateInfo &)> &vulkanBufferViewBuilder);
+        std::unique_ptr<VulkanBufferView> providerVulkanBufferView(const VulkanDevice &vulkanDevice);
+
+    private:
+        VulkanBufferViewConfigure& copyData(const void *data, uint32_t size);
     };
 
 } // engine

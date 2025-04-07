@@ -12,6 +12,7 @@
 #include "engine/vulkan_wrapper/VulkanBufferDescriptorBinding.h"
 #include "engine/vulkan_wrapper/VulkanImageDescriptorBinding.h"
 #include "engine/VulkanBufferViewConfigure.h"
+#include "engine/VulkanUniformBufferBuilder.h"
 
 namespace engine {
 
@@ -61,7 +62,7 @@ namespace engine {
         vk::DescriptorSetLayoutBinding createDescriptorSetLayoutBinding() const;
 
         [[nodiscard]]
-        std::unique_ptr<VulkanBufferDescriptorBinding> createVulkanBufferDescriptorBinding() const;
+        std::unique_ptr<VulkanBufferDescriptorBinding> createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice);
     };
 
 } // engine

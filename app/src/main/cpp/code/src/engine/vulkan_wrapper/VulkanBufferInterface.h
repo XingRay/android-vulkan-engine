@@ -16,13 +16,13 @@ namespace engine {
     public:
         VulkanBufferInterface();
 
-        ~VulkanBufferInterface();
+        virtual ~VulkanBufferInterface() = 0;
 
         [[nodiscard]]
-        virtual uint32_t getSize() const = 0;
+        virtual vk::DeviceSize getSize() const = 0;
 
         [[nodiscard]]
-        virtual vk::Buffer getBuffer() const = 0;
+        virtual const vk::Buffer &getBuffer() const = 0;
     };
 
 } // engine
