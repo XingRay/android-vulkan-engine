@@ -62,13 +62,12 @@ namespace test02 {
                                         .addAttribute(ShaderFormat::Vec3)
                                         .setVertexBuffer(vertices);
                             })
-
+                            .index(std::move(indices))
+                                    // or
 //                            .index([&](engine::VulkanIndexConfigure &indexConfigure) {
 //                                indexConfigure
 //                                        .setIndexBuffer(std::move(indices));
 //                            })
-
-                            .index(std::move(indices))
                             .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
                                 descriptorSetConfigure
                                         .set(0)
@@ -88,17 +87,6 @@ namespace test02 {
     }
 
     void Test02SingleColorTriangle::init() {
-
-//        std::vector<uint32_t> indices = {0, 1, 2};
-//
-//        mVulkanEngine->createIndexBuffer(indices.size() * sizeof(uint32_t));
-//        mVulkanEngine->updateIndexBuffer(indices);
-
-        ColorUniformBufferObject colorUniformBufferObject{{0.2f, 0.8f, 0.4f}};
-
-        for (int i = 0; i < mFrameCount; i++) {
-            mVulkanEngine->updateUniformBuffer(i, 0, 0, &colorUniformBufferObject, sizeof(ColorUniformBufferObject));
-        }
 
     }
 

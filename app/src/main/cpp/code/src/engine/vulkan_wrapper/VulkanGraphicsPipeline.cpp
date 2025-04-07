@@ -230,6 +230,9 @@ namespace engine {
 
         for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
             const std::unique_ptr<VulkanBufferDescriptorBindingSets> &vulkanBufferDescriptorBindingSetOfFrame = mVulkanBufferDescriptorBindingSets[frameIndex];
+            if (vulkanBufferDescriptorBindingSetOfFrame == nullptr) {
+                continue;
+            }
             for (const auto &setsEntry: vulkanBufferDescriptorBindingSetOfFrame->getVulkanBufferDescriptorBindingSets()) {
                 uint32_t set = setsEntry.first;
                 const std::unique_ptr<VulkanBufferDescriptorBindingSet> &vulkanBufferDescriptorBindingSet = setsEntry.second;
@@ -273,7 +276,10 @@ namespace engine {
 //            }
         }
 
-        vulkanDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
+        if (!writeDescriptorSets.empty()) {
+            vulkanDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
+        }
+
 
         for (const vk::PushConstantRange &pushConstantRange: mPushConstantRanges) {
             // 创建数据缓冲区

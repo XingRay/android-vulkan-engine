@@ -27,7 +27,7 @@ namespace test03 {
 
         const android_app &mApp;
 
-//        std::unique_ptr<engine::VulkanGraphicsEngine> mVulkanEngine;
+        std::unique_ptr<engine::VulkanEngine> mVulkanEngine;
 
     public:
         // 构造函数初始化基类 TestBase，并传递 name
