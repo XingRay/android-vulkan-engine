@@ -46,7 +46,7 @@ namespace engine {
 //
 //        VulkanDescriptorSetConfigure &addStorage(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
 
-        std::unique_ptr<VulkanBufferDescriptorBindingSet> createVulkanBufferDescriptorBindingSet(const VulkanDevice &vulkanDevice);
+        std::unique_ptr<VulkanBufferDescriptorBindingSet> createVulkanBufferDescriptorBindingSet(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
 
     private:
         std::vector<vk::DescriptorSetLayoutBinding> createDescriptorSetLayoutBindings();

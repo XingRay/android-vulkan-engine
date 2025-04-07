@@ -229,19 +229,32 @@ namespace engine {
         std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
 
         for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-//            const std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanBufferDescriptorBinding>> &vulkanDescriptorBindingsOfFrame = mVulkanBufferDescriptorBindings[frameIndex];
-//            for (const auto &setEntry: vulkanDescriptorBindingsOfFrame) {
-//                uint32_t set = setEntry.first;
-//                const std::unordered_map<uint32_t, VulkanBufferDescriptorBinding> &vulkanDescriptorBindingsOfSet = setEntry.second;
-//
-//                for (const auto &bindingEntry: vulkanDescriptorBindingsOfSet) {
-//                    uint32_t binding = bindingEntry.first;
-//                    const VulkanBufferDescriptorBinding &vulkanDescriptorBinding = bindingEntry.second;
-//                    if (vulkanDescriptorBinding.getVulkanBufferView() != nullptr) {
-//                        writeDescriptorSets.push_back(vulkanDescriptorBinding.createWriteDescriptorSet(mDescriptorSets[frameIndex][set], binding));
-//                    }
-//                }
-//            }
+            const std::unique_ptr<VulkanBufferDescriptorBindingSets> &vulkanBufferDescriptorBindingSetOfFrame = mVulkanBufferDescriptorBindingSets[frameIndex];
+            for (const auto &setsEntry: vulkanBufferDescriptorBindingSetOfFrame->getVulkanBufferDescriptorBindingSets()) {
+                uint32_t set = setsEntry.first;
+                const std::unique_ptr<VulkanBufferDescriptorBindingSet> &vulkanBufferDescriptorBindingSet = setsEntry.second;
+
+                for (const auto &bindingEntry: vulkanBufferDescriptorBindingSet->getVulkanBufferDescriptorBindings()) {
+                    uint32_t binding = bindingEntry.first;
+                    const std::unique_ptr<VulkanBufferDescriptorBinding> &vulkanDescriptorBinding = bindingEntry.second;
+
+                    if (vulkanDescriptorBinding->getVulkanBufferView() != nullptr) {
+                        vk::WriteDescriptorSet writeDescriptorSet{};
+
+                        vk::DescriptorBufferInfo descriptorBufferInfo = vulkanDescriptorBinding->createDescriptorBufferInfo();
+                        std::array<vk::DescriptorBufferInfo, 1> descriptorBufferInfos = {descriptorBufferInfo};
+
+                        writeDescriptorSet
+                                .setDstSet(mDescriptorSets[frameIndex][set])
+                                .setDstBinding(binding)
+                                .setDstArrayElement(vulkanDescriptorBinding->getDescriptorOffset())
+                                .setDescriptorCount(vulkanDescriptorBinding->getDescriptorRange())
+                                .setDescriptorType(vulkanDescriptorBinding->getDescriptorType())
+                                .setBufferInfo(descriptorBufferInfos);
+                        writeDescriptorSets.push_back(writeDescriptorSet);
+                    }
+                }
+            }
         }
 
         for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {

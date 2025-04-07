@@ -29,4 +29,8 @@ namespace engine {
         return mRange;
     }
 
+    void VulkanBufferView::update(const VulkanCommandPool &commandPool, const void *data, uint32_t size) {
+        mVulkanBuffer->update(commandPool, data, size);
+    }
+
 } // engine

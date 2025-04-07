@@ -20,7 +20,10 @@ namespace engine {
 
         ~VulkanBufferDescriptorBindingSet();
 
-        VulkanBufferDescriptorBindingSet& set(uint32_t binding, std::unique_ptr<VulkanBufferDescriptorBinding>&& vulkanBufferDescriptorBinding);
+        [[nodiscard]]
+        const std::unordered_map<uint32_t, std::unique_ptr<VulkanBufferDescriptorBinding>> &getVulkanBufferDescriptorBindings() const;
+
+        VulkanBufferDescriptorBindingSet &set(uint32_t binding, std::unique_ptr<VulkanBufferDescriptorBinding> &&vulkanBufferDescriptorBinding);
     };
 
 } // engine

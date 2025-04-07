@@ -30,10 +30,19 @@ namespace engine {
         [[nodiscard]]
         const std::unique_ptr<VulkanBufferView> &getVulkanBufferView() const;
 
+        [[nodiscard]]
+        vk::DescriptorType getDescriptorType() const;
+
+        [[nodiscard]]
+        uint32_t getDescriptorOffset() const;
+
+        [[nodiscard]]
+        uint32_t getDescriptorRange() const;
+
         VulkanBufferDescriptorBinding &setBufferView(std::unique_ptr<VulkanBufferView> &&vulkanBufferView);
 
         [[nodiscard]]
-        vk::WriteDescriptorSet createWriteDescriptorSet(const vk::DescriptorSet &descriptorSet, uint32_t binding) const;
+        vk::DescriptorBufferInfo createDescriptorBufferInfo() const;
     };
 
 } // engine

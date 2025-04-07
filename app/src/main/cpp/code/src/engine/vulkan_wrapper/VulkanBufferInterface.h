@@ -7,6 +7,7 @@
 #include <cstdint>
 
 #include "vulkan/vulkan.hpp"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
 namespace engine {
 
@@ -23,6 +24,8 @@ namespace engine {
 
         [[nodiscard]]
         virtual const vk::Buffer &getBuffer() const = 0;
+
+        virtual void update(const VulkanCommandPool &commandPool, const void *data, uint32_t size) = 0;
     };
 
 } // engine

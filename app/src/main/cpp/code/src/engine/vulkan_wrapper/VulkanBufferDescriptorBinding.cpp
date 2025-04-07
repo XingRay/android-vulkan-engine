@@ -15,31 +15,53 @@ namespace engine {
         return mVulkanBufferView;
     }
 
+    vk::DescriptorType VulkanBufferDescriptorBinding::getDescriptorType() const {
+        return mDescriptorType;
+    }
+
+    uint32_t VulkanBufferDescriptorBinding::getDescriptorOffset() const {
+        return mDescriptorOffset;
+    }
+
+    uint32_t VulkanBufferDescriptorBinding::getDescriptorRange() const {
+        return mDescriptorRange;
+    }
+
     VulkanBufferDescriptorBinding &VulkanBufferDescriptorBinding::setBufferView(std::unique_ptr<VulkanBufferView> &&vulkanBufferView) {
         mVulkanBufferView = std::move(vulkanBufferView);
         return *this;
     }
 
-    vk::WriteDescriptorSet VulkanBufferDescriptorBinding::createWriteDescriptorSet(const vk::DescriptorSet &descriptorSet, uint32_t binding) const {
-        vk::WriteDescriptorSet writeDescriptorSet{};
+//    vk::WriteDescriptorSet VulkanBufferDescriptorBinding::createWriteDescriptorSet(const vk::DescriptorSet &descriptorSet, uint32_t binding) const {
+//        vk::WriteDescriptorSet writeDescriptorSet{};
+//
+//        vk::DescriptorBufferInfo descriptorBufferInfo{};
+//        descriptorBufferInfo
+//                .setBuffer(mVulkanBufferView->getVulkanBuffer()->getBuffer())
+//                .setOffset(mVulkanBufferView->getOffset())
+//                .setRange(mVulkanBufferView->getRange());
+//
+//        std::array<vk::DescriptorBufferInfo, 1> descriptorBufferInfos = {descriptorBufferInfo};
+//
+//        writeDescriptorSet
+//                .setDstSet(descriptorSet)
+//                .setDstBinding(binding)
+//                .setDstArrayElement(mDescriptorOffset)
+//                .setDescriptorCount(mDescriptorRange)
+//                .setDescriptorType(mDescriptorType)
+//                .setBufferInfo(descriptorBufferInfos);
+//
+//        return writeDescriptorSet;
+//    }
 
+    [[nodiscard]]
+    vk::DescriptorBufferInfo VulkanBufferDescriptorBinding::createDescriptorBufferInfo() const {
         vk::DescriptorBufferInfo descriptorBufferInfo{};
         descriptorBufferInfo
                 .setBuffer(mVulkanBufferView->getVulkanBuffer()->getBuffer())
                 .setOffset(mVulkanBufferView->getOffset())
                 .setRange(mVulkanBufferView->getRange());
-
-        std::array<vk::DescriptorBufferInfo, 1> descriptorBufferInfos = {descriptorBufferInfo};
-
-        writeDescriptorSet
-                .setDstSet(descriptorSet)
-                .setDstBinding(binding)
-                .setDstArrayElement(mDescriptorOffset)
-                .setDescriptorCount(mDescriptorRange)
-                .setDescriptorType(mDescriptorType)
-                .setBufferInfo(descriptorBufferInfos);
-
-        return writeDescriptorSet;
+        return descriptorBufferInfo;
     }
 
 } // engine

@@ -9,7 +9,7 @@ namespace engine {
     VulkanBufferViewConfigure::VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferView> &&bufferView, const void *data, uint32_t size)
             : mVulkanBufferView(std::move(bufferView)),
               mVulkanBufferCapacity(0), mVulkanBufferOffset(0), mVulkanBufferRange(0) {
-        copyData(data, size);
+
     }
 
     VulkanBufferViewConfigure::VulkanBufferViewConfigure(std::unique_ptr<VulkanBufferView> &&bufferView, std::vector<uint8_t> &&data)
@@ -56,6 +56,25 @@ namespace engine {
 
     VulkanBufferViewConfigure::~VulkanBufferViewConfigure() = default;
 
+    std::unique_ptr<VulkanBufferView> VulkanBufferViewConfigure::providerVulkanBufferView(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
+        if (mVulkanBufferView != nullptr) {
+            if (!mVulkanBufferData.empty()) {
+                mVulkanBufferView->update(commandPool, mVulkanBufferData.data(), mVulkanBufferData.size());
+            }
+            return std::move(mVulkanBufferView);
+        }
+
+        if (mVulkanBufferBuilder == nullptr) {
+            return nullptr;
+        }
+
+        std::unique_ptr<VulkanBufferInterface> vulkanBuffer = mVulkanBufferBuilder->build(vulkanDevice, mVulkanBufferCapacity);
+        if (!mVulkanBufferData.empty()) {
+            vulkanBuffer->update(commandPool, mVulkanBufferData.data(), mVulkanBufferData.size());
+        }
+        return std::make_unique<VulkanBufferView>(std::move(vulkanBuffer), mVulkanBufferOffset, mVulkanBufferRange);
+    }
+
     VulkanBufferViewConfigure &VulkanBufferViewConfigure::copyData(const void *data, uint32_t size) {
         if (data == nullptr) {
             mVulkanBufferData.clear();
@@ -75,20 +94,6 @@ namespace engine {
         // std::copy(byteData, byteData + size, mVulkanBufferData.begin());
 
         return *this;
-    }
-
-    std::unique_ptr<VulkanBufferView>
-    VulkanBufferViewConfigure::providerVulkanBufferView(const VulkanDevice &vulkanDevice) {
-        if (mVulkanBufferView != nullptr) {
-            return std::move(mVulkanBufferView);
-        }
-
-        if (mVulkanBufferBuilder == nullptr) {
-            return nullptr;
-        }
-
-        std::unique_ptr<VulkanBufferInterface> vulkanBuffer = mVulkanBufferBuilder->build(vulkanDevice, mVulkanBufferCapacity);
-        return std::make_unique<VulkanBufferView>(std::move(vulkanBuffer), mVulkanBufferOffset, mVulkanBufferRange);
     }
 
 } // engine

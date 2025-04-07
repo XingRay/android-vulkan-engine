@@ -62,7 +62,7 @@ namespace engine {
         vk::DescriptorSetLayoutBinding createDescriptorSetLayoutBinding() const;
 
         [[nodiscard]]
-        std::unique_ptr<VulkanBufferDescriptorBinding> createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice);
+        std::unique_ptr<VulkanBufferDescriptorBinding> createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
     };
 
 } // engine

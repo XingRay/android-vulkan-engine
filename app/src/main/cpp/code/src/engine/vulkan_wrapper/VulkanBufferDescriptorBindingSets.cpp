@@ -10,6 +10,10 @@ namespace engine {
 
     VulkanBufferDescriptorBindingSets::~VulkanBufferDescriptorBindingSets() = default;
 
+    const std::unordered_map<uint32_t, std::unique_ptr<VulkanBufferDescriptorBindingSet>> &VulkanBufferDescriptorBindingSets::getVulkanBufferDescriptorBindingSets() const {
+        return mVulkanBufferDescriptorBindingSets;
+    }
+
     VulkanBufferDescriptorBindingSets &VulkanBufferDescriptorBindingSets::set(uint32_t set, std::unique_ptr<VulkanBufferDescriptorBindingSet> &&vulkanBufferDescriptorBindingSet) {
         mVulkanBufferDescriptorBindingSets[set] = std::move(vulkanBufferDescriptorBindingSet);
         return *this;

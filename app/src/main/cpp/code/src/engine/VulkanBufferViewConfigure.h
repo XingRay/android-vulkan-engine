@@ -11,6 +11,8 @@
 
 #include "engine/vulkan_wrapper/VulkanBufferView.h"
 #include "engine/VulkanBufferBuilder.h"
+#include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
 namespace engine {
 
@@ -62,7 +64,7 @@ namespace engine {
         ~VulkanBufferViewConfigure();
 
         [[nodiscard]]
-        std::unique_ptr<VulkanBufferView> providerVulkanBufferView(const VulkanDevice &vulkanDevice);
+        std::unique_ptr<VulkanBufferView> providerVulkanBufferView(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
 
     private:
         VulkanBufferViewConfigure& copyData(const void *data, uint32_t size);

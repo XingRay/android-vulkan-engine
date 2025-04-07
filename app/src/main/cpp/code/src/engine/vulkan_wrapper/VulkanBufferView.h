@@ -9,6 +9,7 @@
 
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanBufferInterface.h"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
 namespace engine {
 
@@ -36,6 +37,7 @@ namespace engine {
         [[nodiscard]]
         uint32_t getRange() const;
 
+        void update(const VulkanCommandPool& commandPool, const void *data, uint32_t size);
     };
 
 } // engine

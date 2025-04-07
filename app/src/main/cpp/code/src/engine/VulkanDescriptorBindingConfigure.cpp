@@ -107,9 +107,9 @@ namespace engine {
         return descriptorSetLayoutBinding;
     }
 
-    std::unique_ptr<VulkanBufferDescriptorBinding> VulkanDescriptorBindingConfigure::createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice) {
+    std::unique_ptr<VulkanBufferDescriptorBinding> VulkanDescriptorBindingConfigure::createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
         std::unique_ptr<VulkanBufferDescriptorBinding> vulkanBufferDescriptorBinding = std::make_unique<VulkanBufferDescriptorBinding>(mDescriptorType, mDescriptorOffset, mDescriptorRange);
-        vulkanBufferDescriptorBinding->setBufferView(mVulkanBufferViewConfigure->providerVulkanBufferView(vulkanDevice));
+        vulkanBufferDescriptorBinding->setBufferView(mVulkanBufferViewConfigure->providerVulkanBufferView(vulkanDevice, commandPool));
         return vulkanBufferDescriptorBinding;
     }
 }

@@ -19,7 +19,7 @@ namespace engine {
     public:
         VulkanDeviceLocalUniformBuffer(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize);
 
-        ~VulkanDeviceLocalUniformBuffer();
+        ~VulkanDeviceLocalUniformBuffer() override;
 
         [[nodiscard]]
         vk::DeviceSize getSize() const override;
@@ -37,7 +37,7 @@ namespace engine {
             recordCommandUpdate(commandBuffer, data.data(), data.size() * sizeof(T));
         }
 
-        void update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size);
+        void update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size) override;
 
         template<class T>
         void update(const VulkanCommandPool &vulkanCommandPool, const std::vector<T> &data) {

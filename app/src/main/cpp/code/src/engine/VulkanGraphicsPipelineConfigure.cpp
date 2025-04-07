@@ -97,7 +97,7 @@ namespace engine {
         // frame -> set -> binding
         std::vector<std::unique_ptr<VulkanBufferDescriptorBindingSets>> vulkanBufferDescriptorBindingSets;
         for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-            std::unique_ptr<VulkanBufferDescriptorBindingSets> bufferBindingOfFrame = mVulkanDescriptorSetConfigures.createVulkanBufferDescriptorBindingSets(vulkanDevice);
+            std::unique_ptr<VulkanBufferDescriptorBindingSets> bufferBindingOfFrame = mVulkanDescriptorSetConfigures.createVulkanBufferDescriptorBindingSets(vulkanDevice, commandPool);
             vulkanBufferDescriptorBindingSets.push_back(std::move(bufferBindingOfFrame));
         }
 
