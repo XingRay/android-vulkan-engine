@@ -62,13 +62,7 @@ namespace test03 {
                                         .addAttribute(ShaderFormat::Vec3)
                                         .setVertexBuffer(vertices);
                             })
-                            .index(std::move(indices))
-                                    // or
-//                            .index([&](engine::VulkanIndexConfigure &indexConfigure) {
-//                                indexConfigure
-//                                        .setIndexBuffer(std::move(indices));
-//                            })
-                            ;
+                            .index(std::move(indices));
                 })
                 .build();
 

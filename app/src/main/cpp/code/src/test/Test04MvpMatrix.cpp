@@ -4,6 +4,7 @@
 
 #include "Test04MvpMatrix.h"
 #include "FileUtil.h"
+#include "engine/VulkanEngineBuilder.h"
 
 namespace test04 {
 
@@ -31,36 +32,6 @@ namespace test04 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/04_mvp_matrix.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/04_mvp_matrix.frag.spv");
 
-//        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
-//                .layers({}, layers)
-//                .extensions({}, instanceExtensions)
-//                .asGraphics()
-//                .deviceExtensions(std::move(deviceExtensions))
-//                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
-//                .enableMsaa()
-//                .physicalDeviceAsDefault()
-//                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
-//                    shaderConfigure
-//                            .vertexShaderCode(std::move(vertexShaderCode))
-//                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
-//                                vertexConfigure
-//                                        .binding(0)
-//                                        .size(sizeof(Vertex))
-//                                        .addAttribute(ShaderFormat::Vec3)
-//                                                //.addAttribute(1, 0, ShaderFormat::Vec3, sizeof(ShaderFormat::Vec3)) //error
-//                                                //.addAttribute(1, 0, ShaderFormat::Vec3, engine::VulkanUtil::getFormatSize(vk::Format::eR32G32B32Sfloat)); //ok
-//                                        .addAttribute(ShaderFormat::Vec3); //simple, binding set as vertexConfigure#binding, location and offset auto calc
-//                            })
-//                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex);
-//                })
-//                .build();
-//
-//        mVulkanEngine = std::move(engine);
-    }
-
-    void Test04MvpMatrix::init() {
-        // x轴朝右, y轴朝下, z轴朝前, 右手系 (x,y)->z
         std::vector<Vertex> vertices = {
                 {{1.0f,  -1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}},
                 {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f, 0.0f}},
@@ -68,6 +39,32 @@ namespace test04 {
         };
 
         std::vector<uint32_t> indices = {0, 1, 2};
+
+        std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
+                .layers({}, std::move(layers))
+                .extensions({}, std::move(instanceExtensions))
+                .deviceExtensions(std::move(deviceExtensions))
+                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .enableMsaa()
+                .physicalDeviceAsDefault()
+                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+                    graphicsPipelineConfigure
+                            .vertexShaderCode(std::move(vertexShaderCode))
+                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+                                vertexConfigure
+                                        .binding(0)
+                                        .stride(sizeof(Vertex))
+                                        .addAttribute(ShaderFormat::Vec3)
+                                        .addAttribute(ShaderFormat::Vec3)
+                                        .setVertexBuffer(vertices);
+                            })
+                            .index(std::move(indices))
+                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex);;
+                })
+                .build();
+
+        mVulkanEngine = std::move(engine);
 
         mMvpMatrix = MvpMatrix{};
         float scale = 1.0f;
@@ -79,12 +76,10 @@ namespace test04 {
                                       glm::vec3(0.0f, 0.0f, 0.0f),
                                       glm::vec3(1.0f, 1.0f, 0.0f));
         mMvpMatrix.proj = glm::perspective(glm::radians(45.0f), (float) ANativeWindow_getWidth(mApp.window) / (float) ANativeWindow_getHeight(mApp.window), 0.1f, 10.0f);
+    }
 
-//        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
-//        mVulkanEngine->updateVertexBuffer(vertices);
-//
-//        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-//        mVulkanEngine->updateIndexBuffer(indices);
+    void Test04MvpMatrix::init() {
+
     }
 
     // 检查是否准备好
@@ -108,9 +103,9 @@ namespace test04 {
 //        mMvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mMvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-//        mVulkanEngine->updatePushConstant(0, &(mvp));
-//
-//        mVulkanEngine->drawFrame();
+        mVulkanEngine->updatePushConstant(0, &(mvp));
+
+        mVulkanEngine->drawFrame();
     }
 
     // 清理操作

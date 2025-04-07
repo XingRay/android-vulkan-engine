@@ -44,8 +44,8 @@ void handle_cmd(android_app *app, int32_t cmd) {
         case APP_CMD_INIT_WINDOW: {
 //            app->test = new test01::Test01SimpleTriangle(*app, "Test01SimpleTriangle");
 //            app->test = new test02::Test02SingleColorTriangle(*app, "Test02SingleColorTriangle");
-            app->test = new test03::Test03ColoredTriangle(*app, "Test03ColoredTriangle");
-//            app->test = new test04::Test04MvpMatrix(*app, "Test04MvpMatrix");
+//            app->test = new test03::Test03ColoredTriangle(*app, "Test03ColoredTriangle");
+            app->test = new test04::Test04MvpMatrix(*app, "Test04MvpMatrix");
 //            app->test = new test05::Test05TextureImage(*app, "Test05TextureImage");
 //            app->test = new test06::Test06Load3dModel(*app, "Test06Load3dModel");
 //            app->test = new test07::Test07NdkCamera(*app, "Test07NdkCamera");

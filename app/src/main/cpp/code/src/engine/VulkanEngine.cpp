@@ -160,6 +160,7 @@ namespace engine {
     }
 
     VulkanEngine &VulkanEngine::updatePushConstant(uint32_t index, const void *data) {
+        getGraphicsPipeline().updatePushConstant(index, data);
         return *this;
     }
 

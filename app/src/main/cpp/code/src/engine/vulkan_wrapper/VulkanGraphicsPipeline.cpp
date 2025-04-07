@@ -378,7 +378,7 @@ namespace engine {
     }
 
     VulkanGraphicsPipeline &VulkanGraphicsPipeline::updatePushConstant(uint32_t index, const void *data) {
-        //
+        std::memcpy(mPushConstantDataList[index].data(), data, mPushConstantRanges[index].size);
         return *this;
     }
 
