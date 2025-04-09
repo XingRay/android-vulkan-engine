@@ -241,10 +241,11 @@ namespace engine {
                     uint32_t binding = bindingEntry.first;
                     const std::unique_ptr<VulkanBufferDescriptorBinding> &vulkanDescriptorBinding = bindingEntry.second;
 
-                    if (vulkanDescriptorBinding->getVulkanBufferView() != nullptr) {
+                    const std::unique_ptr<VulkanDescriptorBufferInfo> &bufferInfo = vulkanDescriptorBinding->getVulkanDescriptorBufferInfo();
+                    if (bufferInfo != nullptr) {
                         vk::WriteDescriptorSet writeDescriptorSet{};
 
-                        vk::DescriptorBufferInfo descriptorBufferInfo = vulkanDescriptorBinding->createDescriptorBufferInfo();
+                        vk::DescriptorBufferInfo descriptorBufferInfo = bufferInfo->createDescriptorBufferInfo();
                         std::array<vk::DescriptorBufferInfo, 1> descriptorBufferInfos = {descriptorBufferInfo};
 
                         writeDescriptorSet
@@ -367,13 +368,13 @@ namespace engine {
         return *this;
     }
 
-    VulkanGraphicsPipeline &VulkanGraphicsPipeline::setDescriptorBindingBufferView(uint32_t frameIndex, uint32_t set, uint32_t binding, std::unique_ptr<VulkanBufferView> &&vulkanBufferView) {
-//        mVulkanBufferDescriptorBindings[frameIndex].at(set).at(binding).setBufferView(std::move(vulkanBufferView));
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::setDescriptorBindingBufferInfo(uint32_t frameIndex, uint32_t set, uint32_t binding,
+                                                                                   std::unique_ptr<VulkanDescriptorBufferInfo> &&vulkanBufferInfo) {
         return *this;
     }
 
-    VulkanGraphicsPipeline &VulkanGraphicsPipeline::setDescriptorBindingImageView(uint32_t frameIndex, uint32_t set, uint32_t binding, std::unique_ptr<VulkanImageView> &&vulkanImageView) {
-//        mVulkanImageDescriptorBindings[frameIndex].at(set).at(binding).setImageView(std::move(vulkanImageView));
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::setDescriptorBindingImageInfo(uint32_t frameIndex, uint32_t set, uint32_t binding,
+                                                                                  std::unique_ptr<VulkanDescriptorImageInfo> &&vulkanImageInfo) {
         return *this;
     }
 

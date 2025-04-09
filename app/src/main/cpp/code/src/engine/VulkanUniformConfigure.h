@@ -9,7 +9,7 @@
 
 #include "vulkan/vulkan.hpp"
 
-#include "engine/VulkanBufferViewConfigure.h"
+#include "engine/VulkanDescriptorBufferInfoConfigure.h"
 #include "engine/VulkanUniformBufferBuilder.h"
 
 namespace engine {
@@ -26,7 +26,7 @@ namespace engine {
         uint32_t mDescriptorRange;
         vk::ShaderStageFlags mShaderStageFlags;
 
-        std::unique_ptr<VulkanBufferViewConfigure> mVulkanBufferViewConfigure;
+        std::unique_ptr<VulkanDescriptorBufferInfoConfigure> mVulkanDescriptorBufferInfoConfigure;
 
     public:
         VulkanUniformConfigure();
@@ -43,7 +43,7 @@ namespace engine {
 
         VulkanUniformConfigure &setUniformBuffer(uint32_t capacity, const void *data, uint32_t size);
 
-        VulkanUniformConfigure &setUniformBuffer(std::unique_ptr<VulkanBufferView> &&bufferView);
+        VulkanUniformConfigure &setUniformBuffer(std::unique_ptr<VulkanDescriptorBufferInfo> &&bufferInfo);
 
         template<class T>
         VulkanUniformConfigure &setUniformBuffer(uint32_t capacity, const std::vector<T> &data) {

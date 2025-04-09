@@ -22,6 +22,8 @@
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanImageDescriptorBinding.h"
 #include "engine/vulkan_wrapper/VulkanBufferDescriptorBindingSets.h"
+#include "engine/vulkan_wrapper/VulkanDescriptorBufferInfo.h"
+#include "engine/vulkan_wrapper/VulkanDescriptorImageInfo.h"
 
 namespace engine {
 
@@ -122,9 +124,9 @@ namespace engine {
 
         VulkanGraphicsPipeline &updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
 
-        VulkanGraphicsPipeline &setDescriptorBindingBufferView(uint32_t frameIndex, uint32_t set, uint32_t binding, std::unique_ptr<VulkanBufferView> &&vulkanBufferView);
+        VulkanGraphicsPipeline &setDescriptorBindingBufferInfo(uint32_t frameIndex, uint32_t set, uint32_t binding, std::unique_ptr<VulkanDescriptorBufferInfo> &&vulkanBufferInfo);
 
-        VulkanGraphicsPipeline &setDescriptorBindingImageView(uint32_t frameIndex, uint32_t set, uint32_t binding, std::unique_ptr<VulkanImageView> &&vulkanImageView);
+        VulkanGraphicsPipeline &setDescriptorBindingImageInfo(uint32_t frameIndex, uint32_t set, uint32_t binding, std::unique_ptr<VulkanDescriptorImageInfo> &&vulkanImageInfo);
 
         VulkanGraphicsPipeline &updatePushConstant(uint32_t index, const void *data);
 

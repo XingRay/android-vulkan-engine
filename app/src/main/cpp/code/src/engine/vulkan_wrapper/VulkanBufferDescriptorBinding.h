@@ -8,14 +8,14 @@
 
 #include "vulkan/vulkan.hpp"
 
-#include "engine/vulkan_wrapper/VulkanBufferView.h"
+#include "engine/vulkan_wrapper/VulkanDescriptorBufferInfo.h"
 
 namespace engine {
 
     class VulkanBufferDescriptorBinding {
     private:
-        // buffer view
-        std::unique_ptr<VulkanBufferView> mVulkanBufferView;
+        // buffer info
+        std::unique_ptr<VulkanDescriptorBufferInfo> mVulkanDescriptorBufferInfo;
 
         //descriptor view
         vk::DescriptorType mDescriptorType;
@@ -28,7 +28,7 @@ namespace engine {
         ~VulkanBufferDescriptorBinding();
 
         [[nodiscard]]
-        const std::unique_ptr<VulkanBufferView> &getVulkanBufferView() const;
+        const std::unique_ptr<VulkanDescriptorBufferInfo> &getVulkanDescriptorBufferInfo() const;
 
         [[nodiscard]]
         vk::DescriptorType getDescriptorType() const;
@@ -39,10 +39,10 @@ namespace engine {
         [[nodiscard]]
         uint32_t getDescriptorRange() const;
 
-        VulkanBufferDescriptorBinding &setBufferView(std::unique_ptr<VulkanBufferView> &&vulkanBufferView);
+        VulkanBufferDescriptorBinding &setBufferInfo(std::unique_ptr<VulkanDescriptorBufferInfo> &&vulkanDescriptorBufferInfo);
 
-        [[nodiscard]]
-        vk::DescriptorBufferInfo createDescriptorBufferInfo() const;
+//        [[nodiscard]]
+//        vk::DescriptorBufferInfo createDescriptorBufferInfo() const;
     };
 
 } // engine

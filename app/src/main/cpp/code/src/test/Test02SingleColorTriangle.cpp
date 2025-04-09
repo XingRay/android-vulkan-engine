@@ -44,7 +44,7 @@ namespace test02 {
 
         ColorUniformBufferObject colorUniformBufferObject{{0.8f, 0.2f, 0.4f}};
 
-        std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
+        mVulkanEngine = engine::VulkanEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
@@ -82,8 +82,6 @@ namespace test02 {
                             });
                 })
                 .build();
-
-        mVulkanEngine = std::move(engine);
     }
 
     void Test02SingleColorTriangle::init() {

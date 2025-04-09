@@ -34,7 +34,7 @@ namespace test01 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.frag.spv");
 
-        std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
+        mVulkanEngine = engine::VulkanEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
@@ -53,9 +53,6 @@ namespace test01 {
                             });
                 })
                 .build();
-
-        mVulkanEngine = std::move(engine);
-
     }
 
     void Test01SimpleTriangle::init() {

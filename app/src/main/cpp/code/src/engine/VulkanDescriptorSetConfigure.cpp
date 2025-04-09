@@ -50,6 +50,14 @@ namespace engine {
 //        return *this;
 //    }
 
+    VulkanDescriptorSetConfigure &VulkanDescriptorSetConfigure::addSampler(const std::function<void(VulkanSamplerConfigure &)> &configure){
+        VulkanSamplerConfigure config{};
+        configure(config);
+
+//        mVulkanDescriptorBindingConfigures[config.mBinding] = std::move(config.createVulkanDescriptorBindingConfigure());
+        return *this;
+    }
+
 //    VulkanDescriptorSetConfigure &VulkanDescriptorSetConfigure::addImmutableSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount) {
 //        mVulkanDescriptorBindingConfigures.push_back(std::make_unique<VulkanDescriptorBindingConfigure>(binding, vk::DescriptorType::eCombinedImageSampler, descriptorCount, shaderStageFlagBits));
 //        return *this;

@@ -11,8 +11,8 @@ namespace engine {
 
     VulkanBufferDescriptorBinding::~VulkanBufferDescriptorBinding() = default;
 
-    const std::unique_ptr<VulkanBufferView> &VulkanBufferDescriptorBinding::getVulkanBufferView() const {
-        return mVulkanBufferView;
+    const std::unique_ptr<VulkanDescriptorBufferInfo> &VulkanBufferDescriptorBinding::getVulkanDescriptorBufferInfo() const {
+        return mVulkanDescriptorBufferInfo;
     }
 
     vk::DescriptorType VulkanBufferDescriptorBinding::getDescriptorType() const {
@@ -27,8 +27,8 @@ namespace engine {
         return mDescriptorRange;
     }
 
-    VulkanBufferDescriptorBinding &VulkanBufferDescriptorBinding::setBufferView(std::unique_ptr<VulkanBufferView> &&vulkanBufferView) {
-        mVulkanBufferView = std::move(vulkanBufferView);
+    VulkanBufferDescriptorBinding &VulkanBufferDescriptorBinding::setBufferInfo(std::unique_ptr<VulkanDescriptorBufferInfo> &&vulkanDescriptorBufferInfo) {
+        mVulkanDescriptorBufferInfo = std::move(vulkanDescriptorBufferInfo);
         return *this;
     }
 
@@ -54,14 +54,14 @@ namespace engine {
 //        return writeDescriptorSet;
 //    }
 
-    [[nodiscard]]
-    vk::DescriptorBufferInfo VulkanBufferDescriptorBinding::createDescriptorBufferInfo() const {
-        vk::DescriptorBufferInfo descriptorBufferInfo{};
-        descriptorBufferInfo
-                .setBuffer(mVulkanBufferView->getVulkanBuffer()->getBuffer())
-                .setOffset(mVulkanBufferView->getOffset())
-                .setRange(mVulkanBufferView->getRange());
-        return descriptorBufferInfo;
-    }
+//    [[nodiscard]]
+//    vk::DescriptorBufferInfo VulkanBufferDescriptorBinding::createDescriptorBufferInfo() const {
+//        vk::DescriptorBufferInfo descriptorBufferInfo{};
+//        descriptorBufferInfo
+//                .setBuffer(mVulkanBufferView->getVulkanBuffer()->getBuffer())
+//                .setOffset(mVulkanBufferView->getOffset())
+//                .setRange(mVulkanBufferView->getRange());
+//        return descriptorBufferInfo;
+//    }
 
 } // engine

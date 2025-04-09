@@ -9,10 +9,13 @@
 #include "vulkan/vulkan.hpp"
 
 #include "engine/vulkan_wrapper/buffer/VulkanSampler.h"
+
 #include "engine/vulkan_wrapper/VulkanBufferDescriptorBinding.h"
-#include "engine/vulkan_wrapper/VulkanImageDescriptorBinding.h"
-#include "engine/VulkanBufferViewConfigure.h"
+#include "engine/VulkanDescriptorBufferInfoConfigure.h"
 #include "engine/VulkanUniformBufferBuilder.h"
+
+#include "engine/vulkan_wrapper/VulkanImageDescriptorBinding.h"
+#include "engine/VulkanDescriptorImageInfoConfigure.h"
 
 namespace engine {
 
@@ -25,7 +28,8 @@ namespace engine {
         vk::ShaderStageFlags mShaderStageFlags;
         std::vector<std::unique_ptr<VulkanSampler>> mImmutableSamplers;
 
-        std::unique_ptr<VulkanBufferViewConfigure> mVulkanBufferViewConfigure;
+        std::unique_ptr<VulkanDescriptorBufferInfoConfigure> mVulkanDescriptorBufferInfoConfigure;
+        std::unique_ptr<VulkanDescriptorImageInfoConfigure> mVulkanDescriptorImageInfoConfigure;
 
     public:
 
@@ -33,7 +37,7 @@ namespace engine {
 //                                         std::vector<std::unique_ptr<VulkanSampler>> &&immutableSamplers);
 
         VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorOffset, uint32_t descriptorRange, vk::ShaderStageFlags shaderStageFlags,
-                                         std::unique_ptr<VulkanBufferViewConfigure> &&vulkanBufferViewConfigure);
+                                         std::unique_ptr<VulkanDescriptorBufferInfoConfigure> &&vulkanDescriptorBufferInfoConfigure);
 
 //        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
 //                                         std::unique_ptr<VulkanImageViewConfigure> &&VulkanBufferViewConfigure);

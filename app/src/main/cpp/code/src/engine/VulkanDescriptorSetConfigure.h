@@ -10,8 +10,9 @@
 
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/VulkanDescriptorBindingConfigure.h"
-#include "engine/VulkanUniformConfigure.h"
 #include "engine/vulkan_wrapper/VulkanBufferDescriptorBindingSet.h"
+#include "engine/VulkanUniformConfigure.h"
+#include "engine/VulkanSamplerConfigure.h"
 
 namespace engine {
 
@@ -41,6 +42,8 @@ namespace engine {
         VulkanDescriptorSetConfigure &addUniform(const std::function<void(VulkanUniformConfigure &)> &configure);
 
 //        VulkanDescriptorSetConfigure &addSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
+
+        VulkanDescriptorSetConfigure &addSampler(const std::function<void(VulkanSamplerConfigure &)> &configure);
 //
 //        VulkanDescriptorSetConfigure &addImmutableSampler(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
 //

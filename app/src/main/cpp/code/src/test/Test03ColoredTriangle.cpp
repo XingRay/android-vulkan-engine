@@ -43,7 +43,7 @@ namespace test03 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-        std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
+        mVulkanEngine = engine::VulkanEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
@@ -65,8 +65,6 @@ namespace test03 {
                             .index(std::move(indices));
                 })
                 .build();
-
-        mVulkanEngine = std::move(engine);
     }
 
     void Test03ColoredTriangle::init() {

@@ -3,7 +3,6 @@
 //
 
 #include "engine/VulkanDescriptorBindingConfigure.h"
-#include "engine/vulkan_wrapper/platform/android/VulkanAndroidHardwareBufferSampler.h"
 
 namespace engine {
 
@@ -13,9 +12,9 @@ namespace engine {
 
     VulkanDescriptorBindingConfigure::VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorOffset, uint32_t descriptorRange,
                                                                        vk::ShaderStageFlags shaderStageFlags,
-                                                                       std::unique_ptr<VulkanBufferViewConfigure> &&vulkanBufferViewConfigure)
+                                                                       std::unique_ptr<VulkanDescriptorBufferInfoConfigure> &&vulkanDescriptorBufferInfoConfigure)
             : mBinding(binding), mDescriptorType(descriptorType), mDescriptorOffset(descriptorOffset), mDescriptorRange(descriptorRange), mShaderStageFlags(shaderStageFlags),
-              mVulkanBufferViewConfigure(std::move(vulkanBufferViewConfigure)) {}
+              mVulkanDescriptorBufferInfoConfigure(std::move(vulkanDescriptorBufferInfoConfigure)) {}
 
 //    VulkanDescriptorBindingConfigure::VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
 //                                                                       std::unique_ptr<VulkanImageView> &&vulkanImageView)
@@ -109,7 +108,7 @@ namespace engine {
 
     std::unique_ptr<VulkanBufferDescriptorBinding> VulkanDescriptorBindingConfigure::createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
         std::unique_ptr<VulkanBufferDescriptorBinding> vulkanBufferDescriptorBinding = std::make_unique<VulkanBufferDescriptorBinding>(mDescriptorType, mDescriptorOffset, mDescriptorRange);
-        vulkanBufferDescriptorBinding->setBufferView(mVulkanBufferViewConfigure->providerVulkanBufferView(vulkanDevice, commandPool));
+        vulkanBufferDescriptorBinding->setBufferInfo(mVulkanDescriptorBufferInfoConfigure->provideVulkanDescriptorBufferInfo(vulkanDevice, commandPool));
         return vulkanBufferDescriptorBinding;
     }
 }

@@ -6,6 +6,8 @@
 #include "FileUtil.h"
 
 #include "stb_image.h"
+#include "engine/VulkanEngineBuilder.h"
+#include "image/StbImage.h"
 
 namespace test05 {
 
@@ -33,8 +35,51 @@ namespace test05 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/05_texture_image.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/05_texture_image.frag.spv");
 
-        int width, height, channels;
-        stbi_uc *pixels = stbi_load("/storage/emulated/0/01.png", &width, &height, &channels, STBI_rgb_alpha);
+        // x轴朝右, y轴朝下, z轴朝前, 右手系 (x,y)->z
+        std::vector<Vertex> vertices = {
+                {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}}, // 左上角
+                {{1.0f,  -1.0f, 0.0f}, {1.0f, 0.0f}}, // 右上角
+                {{-1.0f, 1.0f,  0.0f}, {0.0f, 1.0f}}, // 左下角
+                {{1.0f,  1.0f,  0.0f}, {1.0f, 1.0f}}, // 右下角
+        };
+
+        std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
+
+        std::unique_ptr<image::StbImage> image = image::StbImage::loadImage("/storage/emulated/0/01.png");
+
+        std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
+                .layers({}, std::move(layers))
+                .extensions({}, std::move(instanceExtensions))
+                .deviceExtensions(std::move(deviceExtensions))
+                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .enableMsaa()
+                .physicalDeviceAsDefault()
+                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+                    graphicsPipelineConfigure
+                            .vertexShaderCode(std::move(vertexShaderCode))
+                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+                                vertexConfigure
+                                        .binding(0)
+                                        .stride(sizeof(Vertex))
+                                        .addAttribute(ShaderFormat::Vec3)
+                                        .addAttribute(ShaderFormat::Vec2)
+                                        .setVertexBuffer(vertices);
+                            })
+                            .index(std::move(indices))
+                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex)
+                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
+                                descriptorSetConfigure.addSampler([&](engine::VulkanSamplerConfigure &samplerConfigure) {
+                                    samplerConfigure
+                                            .binding(0)
+                                            .descriptorRange(1)
+                                            .descriptorOffset(0)
+                                            .shaderStageFlags(vk::ShaderStageFlagBits::eVertex);
+//                                            .setImage(image);
+                                });
+                            });
+                })
+                .build();
 
 //        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
 //                .layers({}, layers)
@@ -63,20 +108,10 @@ namespace test05 {
 //                })
 //                .build();
 //
-//        mVulkanEngine = std::move(engine);
+        mVulkanEngine = std::move(engine);
     }
 
     void Test05TextureImage::init() {
-        // x轴朝右, y轴朝下, z轴朝前, 右手系 (x,y)->z
-        std::vector<Vertex> vertices = {
-                {{-1.0f, -1.0f, 0.0f}, {0.0f, 0.0f}}, // 左上角
-                {{1.0f,  -1.0f, 0.0f}, {1.0f, 0.0f}}, // 右上角
-                {{-1.0f, 1.0f,  0.0f}, {0.0f, 1.0f}}, // 左下角
-                {{1.0f,  1.0f,  0.0f}, {1.0f, 1.0f}}, // 右下角
-        };
-
-        std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
-
         mMvpMatrix = MvpMatrix{};
         float scale = 1.0f;
 
@@ -135,7 +170,7 @@ namespace test05 {
 //        mMvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mMvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-//        mVulkanEngine->updatePushConstant(0, &(mvp));
+        mVulkanEngine->updatePushConstant(0, &(mvp));
 
 //        mVulkanEngine->drawFrame();
     }

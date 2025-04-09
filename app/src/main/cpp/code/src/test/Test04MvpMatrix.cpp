@@ -40,7 +40,7 @@ namespace test04 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-        std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
+        mVulkanEngine = engine::VulkanEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
@@ -63,8 +63,6 @@ namespace test04 {
                             .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex);;
                 })
                 .build();
-
-        mVulkanEngine = std::move(engine);
 
         mMvpMatrix = MvpMatrix{};
         float scale = 1.0f;

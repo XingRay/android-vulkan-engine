@@ -13,20 +13,20 @@
 
 namespace engine {
 
-    class VulkanBufferView {
+    class VulkanDescriptorBufferInfo {
     private:
         std::shared_ptr<VulkanBufferInterface> mVulkanBuffer;
         uint32_t mOffset;
         uint32_t mRange;
 
     public:
-        VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &buffer, uint32_t offset, uint32_t range);
+        VulkanDescriptorBufferInfo(const std::shared_ptr<VulkanBufferInterface> &buffer, uint32_t offset, uint32_t range);
 
-        VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &buffer, uint32_t range);
+        VulkanDescriptorBufferInfo(const std::shared_ptr<VulkanBufferInterface> &buffer, uint32_t range);
 
-        explicit VulkanBufferView(const std::shared_ptr<VulkanBufferInterface> &buffer);
+        explicit VulkanDescriptorBufferInfo(const std::shared_ptr<VulkanBufferInterface> &buffer);
 
-        ~VulkanBufferView();
+        ~VulkanDescriptorBufferInfo();
 
         [[nodiscard]]
         const std::shared_ptr<VulkanBufferInterface> &getVulkanBuffer() const;
@@ -37,7 +37,10 @@ namespace engine {
         [[nodiscard]]
         uint32_t getRange() const;
 
-        void update(const VulkanCommandPool& commandPool, const void *data, uint32_t size);
+        void update(const VulkanCommandPool &commandPool, const void *data, uint32_t size);
+
+        [[nodiscard]]
+        vk::DescriptorBufferInfo createDescriptorBufferInfo() const;
     };
 
 } // engine
