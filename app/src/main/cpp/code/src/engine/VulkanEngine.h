@@ -25,7 +25,7 @@
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanSampler.h"
+#include "engine/vulkan_wrapper/image/VulkanSampler.h"
 
 #include "engine/common/StringListSelector.h"
 #include "engine/VulkanPhysicalDeviceProvider.h"

@@ -12,7 +12,7 @@
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanImage.h"
+#include "engine/vulkan_wrapper/image/VulkanImage.h"
 
 #include "engine/vulkan_wrapper/platform/android/AndroidHardwareBuffer.h"
 #include "engine/vulkan_wrapper/platform/android/VulkanAndroidSamplerYcbcrConversion.h"

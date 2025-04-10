@@ -6,7 +6,7 @@
 
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
-#include "engine/vulkan_wrapper/buffer/VulkanSampler.h"
+#include "engine/vulkan_wrapper/image/VulkanSampler.h"
 #include "engine/vulkan_wrapper/platform/android/AndroidHardwareBuffer.h"
 #include "engine/vulkan_wrapper/platform/android/VulkanAndroidSamplerYcbcrConversion.h"
 #include "engine/vulkan_wrapper/platform/android/VulkanAndroidHardwareBufferImage.h"

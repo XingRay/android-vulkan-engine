@@ -20,10 +20,10 @@
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
-#include "engine/vulkan_wrapper/VulkanImageDescriptorBinding.h"
-#include "engine/vulkan_wrapper/VulkanBufferDescriptorBindingSets.h"
-#include "engine/vulkan_wrapper/VulkanDescriptorBufferInfo.h"
-#include "engine/vulkan_wrapper/VulkanDescriptorImageInfo.h"
+#include "engine/vulkan_wrapper/image/descriptor/VulkanImageDescriptorBinding.h"
+#include "engine/vulkan_wrapper/buffer/descriptor/VulkanBufferDescriptorBindingSets.h"
+#include "engine/vulkan_wrapper/buffer/descriptor/VulkanDescriptorBufferInfo.h"
+#include "engine/vulkan_wrapper/image/descriptor/VulkanDescriptorImageInfo.h"
 
 namespace engine {
 

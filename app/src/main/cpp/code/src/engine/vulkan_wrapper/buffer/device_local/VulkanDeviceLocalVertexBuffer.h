@@ -5,7 +5,7 @@
 #pragma once
 
 #include "VulkanDeviceLocalBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanStagingBuffer.h"
+#include "engine/vulkan_wrapper/buffer/host_visible/VulkanStagingBuffer.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
 namespace engine {

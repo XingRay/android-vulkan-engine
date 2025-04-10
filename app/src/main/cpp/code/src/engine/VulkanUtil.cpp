@@ -621,4 +621,13 @@ namespace engine {
         return descriptorPoolSizes.back();
     }
 
+    uint32_t VulkanUtil::getImageFormatBytesPerPixel(vk::Format format) {
+        switch (format) {
+            case vk::Format::eR8G8B8A8Srgb:
+                return 4;
+            default:
+                throw std::runtime_error("unknown format");
+        }
+    }
+
 } // engine

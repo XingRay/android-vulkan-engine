@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <stdint.h>
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/VulkanPhysicalDeviceCandidate.h"
@@ -68,6 +69,8 @@ namespace engine {
         static uint32_t getFormatSize(vk::Format format);
 
         static vk::DescriptorPoolSize &getOrCreateDescriptorPoolSize(std::vector<vk::DescriptorPoolSize> &descriptorPoolSizes, vk::DescriptorType type);
+
+        static uint32_t getImageFormatBytesPerPixel(vk::Format format);
     };
 
 } // engine
