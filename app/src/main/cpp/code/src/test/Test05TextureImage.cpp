@@ -45,7 +45,7 @@ namespace test05 {
 
         std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
 
-        std::unique_ptr<image::StbImage> image = image::StbImage::loadImage("/storage/emulated/0/01.png");
+        std::unique_ptr<engine::ImageInterface> image = image::StbImage::loadImage("/storage/emulated/0/01.png");
 
         std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
                 .layers({}, std::move(layers))
@@ -74,8 +74,9 @@ namespace test05 {
                                             .binding(0)
                                             .descriptorRange(1)
                                             .descriptorOffset(0)
-                                            .shaderStageFlags(vk::ShaderStageFlagBits::eVertex);
-//                                            .setImage(image);
+                                            .shaderStageFlags(vk::ShaderStageFlagBits::eVertex)
+                                            .setImage(std::move(image))
+                                            ;
                                 });
                             });
                 })

@@ -11,11 +11,11 @@
 
 namespace engine {
 
-    class VulkanBufferBuilder {
+    class VulkanBufferBuilderInterface {
     public:
-        VulkanBufferBuilder();
+        VulkanBufferBuilderInterface();
 
-        virtual ~VulkanBufferBuilder() = 0;
+        virtual ~VulkanBufferBuilderInterface() = 0;
 
         virtual std::unique_ptr<VulkanBufferInterface> build(const VulkanDevice &vulkanDevice, vk::DeviceSize bufferSize) = 0;
     };

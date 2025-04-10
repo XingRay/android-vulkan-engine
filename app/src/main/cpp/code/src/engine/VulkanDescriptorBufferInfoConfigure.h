@@ -10,7 +10,7 @@
 #include <functional>
 
 #include "engine/vulkan_wrapper/VulkanDescriptorBufferInfo.h"
-#include "engine/VulkanBufferBuilder.h"
+#include "engine/VulkanBufferBuilderInterface.h"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
@@ -22,7 +22,7 @@ namespace engine {
         std::unique_ptr<VulkanDescriptorBufferInfo> mVulkanDescriptorBufferInfo;
 
         // create Buffer
-        std::unique_ptr<VulkanBufferBuilder> mVulkanBufferBuilder;
+        std::unique_ptr<VulkanBufferBuilderInterface> mVulkanBufferBuilder;
         vk::DeviceSize mVulkanBufferCapacity;
 
         // create bufferInfo
@@ -40,25 +40,25 @@ namespace engine {
 
         explicit VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanDescriptorBufferInfo> &&bufferInfo);
 
-        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                   uint32_t vulkanBufferOffset, uint32_t vulkanBufferRange, const void *data, uint32_t size);
 
-        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                   uint32_t vulkanBufferOffset, uint32_t vulkanBufferRange, std::vector<uint8_t>&& data);
 
-        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                   uint32_t vulkanBufferOffset, uint32_t vulkanBufferRange);
 
-        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                   const void *data, uint32_t size);
 
-        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                   std::vector<uint8_t>&& data);
 
-        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity);
+        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity);
 
         template<class T>
-        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity, const T& data)
+        VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity, const T& data)
                 :VulkanDescriptorBufferInfoConfigure(vulkanBufferBuilder, vulkanBufferCapacity, &data, sizeof(T)) {}
 
         ~VulkanDescriptorBufferInfoConfigure();

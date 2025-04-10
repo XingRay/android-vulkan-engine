@@ -2,7 +2,7 @@
 // Created by leixing on 2025/3/11.
 //
 
-#include "VulkanVertexConfigures.h"
+#include "engine/VulkanVertexConfigures.h"
 
 namespace engine {
     VulkanVertexConfigures::VulkanVertexConfigures() {

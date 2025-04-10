@@ -20,38 +20,38 @@ namespace engine {
             : mVulkanDescriptorBufferInfo(std::move(bufferInfo)),
               mVulkanBufferCapacity(0), mVulkanBufferOffset(0), mVulkanBufferRange(0) {}
 
-    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                                          uint32_t vulkanBufferOffset, uint32_t vulkanBufferRange, const void *data, uint32_t size)
             : mVulkanBufferBuilder(std::move(vulkanBufferBuilder)),
               mVulkanBufferCapacity(vulkanBufferCapacity), mVulkanBufferOffset(vulkanBufferOffset), mVulkanBufferRange(vulkanBufferRange) {
         copyData(data, size);
     }
 
-    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                                          uint32_t vulkanBufferOffset, uint32_t vulkanBufferRange, std::vector<uint8_t> &&data)
             : mVulkanBufferBuilder(std::move(vulkanBufferBuilder)),
               mVulkanBufferCapacity(vulkanBufferCapacity), mVulkanBufferOffset(vulkanBufferOffset), mVulkanBufferRange(vulkanBufferRange),
               mVulkanBufferData(std::move(data)) {}
 
-    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                                          uint32_t vulkanBufferOffset, uint32_t vulkanBufferRange)
             : mVulkanBufferBuilder(std::move(vulkanBufferBuilder)),
               mVulkanBufferCapacity(vulkanBufferCapacity), mVulkanBufferOffset(vulkanBufferOffset), mVulkanBufferRange(vulkanBufferRange) {}
 
-    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                                          const void *data, uint32_t size)
             : mVulkanBufferBuilder(std::move(vulkanBufferBuilder)),
               mVulkanBufferCapacity(vulkanBufferCapacity), mVulkanBufferOffset(0), mVulkanBufferRange(size) {
         copyData(data, size);
     }
 
-    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
+    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity,
                                                          std::vector<uint8_t> &&data)
             : mVulkanBufferBuilder(std::move(vulkanBufferBuilder)),
               mVulkanBufferCapacity(vulkanBufferCapacity), mVulkanBufferOffset(0), mVulkanBufferRange(data.size()),
               mVulkanBufferData(std::move(data)) {}
 
-    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilder> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity)
+    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanBufferBuilderInterface> &&vulkanBufferBuilder, vk::DeviceSize vulkanBufferCapacity)
             : mVulkanBufferBuilder(std::move(vulkanBufferBuilder)), mVulkanBufferCapacity(vulkanBufferCapacity), mVulkanBufferOffset(0), mVulkanBufferRange(vulkanBufferCapacity) {}
 
     VulkanDescriptorBufferInfoConfigure::~VulkanDescriptorBufferInfoConfigure() = default;

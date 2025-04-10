@@ -31,7 +31,7 @@ namespace engine {
     }
 
     VulkanSamplerConfigure &VulkanSamplerConfigure::setImage(std::unique_ptr<engine::ImageInterface> &&image) {
-
+        mVulkanDescriptorImageInfoConfigure = std::make_unique<VulkanDescriptorImageInfoConfigure>(std::move(image));
         return *this;
     }
 

@@ -6,9 +6,8 @@
 
 namespace engine {
 
-    VulkanDescriptorImageInfoConfigure::VulkanDescriptorImageInfoConfigure() {
-
-    }
+    VulkanDescriptorImageInfoConfigure::VulkanDescriptorImageInfoConfigure(std::unique_ptr <engine::ImageInterface> &&image)
+            : mImage(std::move(image)) {}
 
     VulkanDescriptorImageInfoConfigure::~VulkanDescriptorImageInfoConfigure() {
 

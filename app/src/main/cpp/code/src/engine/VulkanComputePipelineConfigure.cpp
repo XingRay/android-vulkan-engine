@@ -2,7 +2,7 @@
 // Created by leixing on 2025/3/7.
 //
 
-#include "VulkanComputePipelineConfigure.h"
+#include "engine/VulkanComputePipelineConfigure.h"
 
 namespace engine {
     VulkanComputePipelineConfigure::VulkanComputePipelineConfigure() {

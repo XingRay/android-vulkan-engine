@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/11.
 //
 
-#include "VulkanPhysicalDeviceScoreConfig.h"
+#include "engine/VulkanPhysicalDeviceScoreConfig.h"
 
 namespace engine {
 } // engine
