@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/20.
 //
 
-#include "ImageReader.h"
+#include "ndk_camera/ImageReader.h"
 
 #include "ndk_camera/Log.h"
 #include "camera/NdkCameraDevice.h"

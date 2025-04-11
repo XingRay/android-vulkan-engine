@@ -3,7 +3,7 @@
 //
 #ifdef WIN32
 
-#include "WindowsVulkanSurface.h"
+#include "engine/vulkan_wrapper/platform/windows/WindowsVulkanSurface.h"
 #include "engine/Log.h"
 
 namespace engine {

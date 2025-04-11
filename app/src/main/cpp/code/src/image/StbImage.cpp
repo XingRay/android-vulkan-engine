@@ -2,7 +2,7 @@
 // Created by leixing on 2025/4/8.
 //
 
-#include "StbImage.h"
+#include "image/StbImage.h"
 
 namespace image {
 

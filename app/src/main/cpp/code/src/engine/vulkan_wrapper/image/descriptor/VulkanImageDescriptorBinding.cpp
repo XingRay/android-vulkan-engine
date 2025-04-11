@@ -2,7 +2,7 @@
 // Created by leixing on 2025/3/28.
 //
 
-#include "VulkanImageDescriptorBinding.h"
+#include "engine/vulkan_wrapper/image/descriptor/VulkanImageDescriptorBinding.h"
 
 namespace engine {
 

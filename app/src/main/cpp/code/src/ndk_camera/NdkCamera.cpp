@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/19.
 //
 
-#include "NdkCamera.h"
+#include "ndk_camera/NdkCamera.h"
 #include "ndk_camera/Log.h"
 
 #include <camera/NdkCameraMetadata.h>

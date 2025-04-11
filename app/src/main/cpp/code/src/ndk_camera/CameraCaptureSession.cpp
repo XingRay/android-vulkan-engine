@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/20.
 //
 
-#include "CameraCaptureSession.h"
+#include "ndk_camera/CameraCaptureSession.h"
 #include "ndk_camera/Log.h"
 #include <array>
 

@@ -1,7 +1,7 @@
 //
 // Created by leixing on 2025/1/19.
 //
-#include "VulkanAndroidHardwareBufferImage.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidHardwareBufferImage.h"
 
 #include "engine/VkCheckCpp.h"
 #include "engine/VkCheck.h"

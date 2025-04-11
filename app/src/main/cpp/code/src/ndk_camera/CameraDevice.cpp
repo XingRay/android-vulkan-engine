@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/20.
 //
 
-#include "CameraDevice.h"
+#include "ndk_camera/CameraDevice.h"
 #include "ndk_camera/Log.h"
 
 namespace ndkcamera {

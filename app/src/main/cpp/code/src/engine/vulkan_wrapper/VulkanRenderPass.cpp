@@ -2,7 +2,7 @@
 // Created by leixing on 2024/12/26.
 //
 
-#include "VulkanRenderPass.h"
+#include "engine/vulkan_wrapper/VulkanRenderPass.h"
 #include "engine/VulkanUtil.h"
 
 namespace engine {

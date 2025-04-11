@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/26.
 //
 
-#include "VulkanAndroidHardwareBufferSampler.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidHardwareBufferSampler.h"
 #include "engine/VkCheck.h"
 #include "engine/Log.h"
 

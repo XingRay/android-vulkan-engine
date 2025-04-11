@@ -3,7 +3,7 @@
 //
 #ifdef ANDROID
 
-#include "AndroidVulkanSurface.h"
+#include "engine/vulkan_wrapper/platform/android/AndroidVulkanSurface.h"
 #include "engine/Log.h"
 
 namespace engine {

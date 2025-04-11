@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/20.
 //
 
-#include "CameraOutputTarget.h"
+#include "ndk_camera/CameraOutputTarget.h"
 
 namespace ndkcamera {
     CameraOutputTarget::CameraOutputTarget(ACameraOutputTarget *outputTarget) : mCameraOutputTarget(outputTarget) {

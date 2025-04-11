@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/7.
 //
 
-#include "VulkanSampler.h"
+#include "engine/vulkan_wrapper/image/VulkanSampler.h"
 #include "engine/VulkanUtil.h"
 
 namespace engine {

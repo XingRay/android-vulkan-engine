@@ -2,7 +2,7 @@
 // Created by leixing on 2025/3/15.
 //
 
-#include "VulkanAndroidSamplerYcbcrConversion.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidSamplerYcbcrConversion.h"
 #include "engine/VkCheck.h"
 
 namespace engine {

@@ -2,7 +2,7 @@
 // Created by leixing on 2024/12/31.
 //
 
-#include "VulkanSyncObject.h"
+#include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/Log.h"
 
 namespace engine {

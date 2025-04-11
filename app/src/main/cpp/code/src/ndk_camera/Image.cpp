@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/21.
 //
 
-#include "Image.h"
+#include "ndk_camera/Image.h"
 
 namespace ndkcamera {
 

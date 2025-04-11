@@ -2,7 +2,7 @@
 // Created by leixing on 2025/3/18.
 //
 
-#include "VulkanDescriptorBufferInfo.h"
+#include "engine/vulkan_wrapper/buffer/descriptor/VulkanDescriptorBufferInfo.h"
 
 namespace engine {
 

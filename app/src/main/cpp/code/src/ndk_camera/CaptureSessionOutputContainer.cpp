@@ -2,7 +2,7 @@
 // Created by leixing on 2025/1/20.
 //
 
-#include "CaptureSessionOutputContainer.h"
+#include "ndk_camera/CaptureSessionOutputContainer.h"
 
 #include "ndk_camera/Log.h"
 

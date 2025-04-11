@@ -97,10 +97,6 @@ namespace engine {
         return mVulkanDescriptorSetConfigures.size() * frameCount;
     }
 
-//    vk::DescriptorSetLayoutBinding VulkanDescriptorSetConfigures::createDescriptorSetLayoutBinding() {
-//
-//    }
-
     std::unique_ptr<VulkanBufferDescriptorBindingSets> VulkanDescriptorSetConfigures::createVulkanBufferDescriptorBindingSets(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
         if (mVulkanDescriptorSetConfigures.empty()) {
             return nullptr;

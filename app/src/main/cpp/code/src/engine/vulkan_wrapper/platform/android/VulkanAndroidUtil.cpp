@@ -2,7 +2,7 @@
 // Created by leixing on 2025/3/9.
 //
 
-#include "VulkanAndroidUtil.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidUtil.h"
 #include "engine/VkCheck.h"
 
 namespace engine {

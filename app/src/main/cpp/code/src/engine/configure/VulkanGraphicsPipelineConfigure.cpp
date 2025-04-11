@@ -2,9 +2,10 @@
 // Created by leixing on 2025/3/7.
 //
 
-#include "VulkanGraphicsPipelineConfigure.h"
+#include "engine/configure/VulkanGraphicsPipelineConfigure.h"
 #include "engine/vulkan_wrapper/VulkanShaderModule.h"
 #include "engine/vulkan_wrapper/VulkanDescriptorPool.h"
+#include "engine/vulkan_wrapper/image/descriptor/VulkanImageDescriptorBindingSets.h"
 
 namespace engine {
 
@@ -101,12 +102,13 @@ namespace engine {
             vulkanBufferDescriptorBindingSets.push_back(std::move(bufferBindingOfFrame));
         }
 
-//        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> vulkanImageDescriptorBindings;
-//        for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-//            std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>> imageBindingOfFrame;
-//
+        std::vector<std::unique_ptr<VulkanImageDescriptorBindingSets>> vulkanImageDescriptorBindingSets;
+        for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
+//            std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>> imageBindingOfFrame= mVulkanDescriptorSetConfigures.createVulkanIma(vulkanDevice, commandPool);
+//            vulkanBufferDescriptorBindingSets.push_back(std::move(bufferBindingOfFrame));
+
 //            vulkanImageDescriptorBindings.push_back(imageBindingOfFrame);
-//        }
+        }
 
         // push constant
         std::vector<vk::PushConstantRange> pushConstantRanges = mVulkanPushConstantConfigures.createPushConstantRanges();

@@ -2,7 +2,7 @@
 // Created by leixing on 2025/3/10.
 //
 
-#include "VulkanShaderModule.h"
+#include "engine/vulkan_wrapper/VulkanShaderModule.h"
 
 namespace engine {
     VulkanShaderModule::VulkanShaderModule(const VulkanDevice &vulkanDevice, const std::vector<char> &code)

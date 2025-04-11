@@ -2,7 +2,7 @@
 // Created by leixing on 2024/12/28.
 //
 
-#include "VulkanGraphicsPipeline.h"
+#include "engine/vulkan_wrapper/VulkanGraphicsPipeline.h"
 #include "engine/Log.h"
 
 namespace engine {
