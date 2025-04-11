@@ -19,6 +19,8 @@ namespace engine {
     class VulkanDescriptorSetConfigure;
 
     class VulkanSamplerConfigure {
+        friend VulkanDescriptorSetConfigure;
+
     private:
         uint32_t mBinding;
         uint32_t mDescriptorOffset;

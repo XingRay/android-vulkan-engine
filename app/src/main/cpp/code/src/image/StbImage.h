@@ -16,7 +16,7 @@ namespace image {
     private:
         uint32_t mWidth;
         uint32_t mHeight;
-        uint32_t mChannels;
+        vk::Format mFormat;
         stbi_uc *mPixels;
 
     public:
@@ -32,7 +32,7 @@ namespace image {
 
         uint32_t getHeight() const override;
 
-        uint32_t getChannels() const override;
+        vk::Format getFormat() const override;
 
         const void *getPixels() const override;
     };

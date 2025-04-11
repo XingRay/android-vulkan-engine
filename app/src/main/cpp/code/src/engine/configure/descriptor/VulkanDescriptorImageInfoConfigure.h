@@ -8,6 +8,8 @@
 
 #include "engine/ImageInterface.h"
 
+#include "engine/vulkan_wrapper/VulkanDevice.h"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/vulkan_wrapper/image/VulkanImageBuilderInterface.h"
 #include "engine/vulkan_wrapper/image/VulkanSamplerBuilderInterface.h"
 
@@ -59,6 +61,8 @@ namespace engine {
                 std::unique_ptr<engine::ImageInterface> &&image);
 
         ~VulkanDescriptorImageInfoConfigure();
+
+        std::unique_ptr<VulkanDescriptorImageInfo> provideVulkanDescriptorImageInfo(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
     };
 
 } // engine

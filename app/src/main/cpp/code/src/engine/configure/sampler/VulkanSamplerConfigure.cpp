@@ -3,6 +3,8 @@
 //
 
 #include "engine/configure/sampler/VulkanSamplerConfigure.h"
+#include "engine/configure/descriptor/VulkanDescriptorBindingConfigure.h"
+
 #include "engine/vulkan_wrapper/image/VulkanImageBuilder.h"
 #include "engine/vulkan_wrapper/image/VulkanSamplerBuilder.h"
 
@@ -43,9 +45,8 @@ namespace engine {
     }
 
     std::unique_ptr<VulkanDescriptorBindingConfigure> VulkanSamplerConfigure::createVulkanDescriptorBindingConfigure() {
-//        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eUniformBuffer, mDescriptorOffset, mDescriptorRange, mShaderStageFlags,
-//                                                                  std::move(mVulkanBufferViewConfigure));
-        return nullptr;
+        return std::make_unique<VulkanDescriptorBindingConfigure>(mBinding, vk::DescriptorType::eCombinedImageSampler, mDescriptorOffset, mDescriptorRange, mShaderStageFlags,
+                                                                  std::move(mVulkanDescriptorImageInfoConfigure));
     }
 
 } // engine

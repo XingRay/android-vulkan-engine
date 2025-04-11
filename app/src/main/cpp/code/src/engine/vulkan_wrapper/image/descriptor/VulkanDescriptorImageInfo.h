@@ -5,18 +5,19 @@
 #pragma once
 
 #include <memory>
-#include "engine/vulkan_wrapper/image/VulkanImage.h"
-#include "engine/vulkan_wrapper/image/VulkanSampler.h"
+#include "engine/vulkan_wrapper/image/VulkanImageInterface.h"
+#include "engine/vulkan_wrapper/image/VulkanSamplerInterface.h"
 
 namespace engine {
 
     class VulkanDescriptorImageInfo {
     private:
-        std::shared_ptr<VulkanImage> mVulkanImage;
-        std::shared_ptr<VulkanSampler> mVulkanSampler;
+        std::unique_ptr<VulkanImageInterface> mVulkanImage;
+        std::unique_ptr<VulkanSamplerInterface> mVulkanSampler;
 
     public:
-        VulkanDescriptorImageInfo();
+        VulkanDescriptorImageInfo(std::unique_ptr<VulkanImageInterface> &&vulkanImage,
+                                  std::unique_ptr<VulkanSamplerInterface> &&vulkanSampler);
 
         ~VulkanDescriptorImageInfo();
 

@@ -11,11 +11,11 @@
 #include "engine/vulkan_wrapper/image/VulkanSampler.h"
 
 #include "engine/vulkan_wrapper/buffer/descriptor/VulkanBufferDescriptorBinding.h"
-#include "VulkanDescriptorBufferInfoConfigure.h"
+#include "engine/configure/descriptor/VulkanDescriptorBufferInfoConfigure.h"
 #include "engine/vulkan_wrapper/buffer/VulkanUniformBufferBuilder.h"
 
 #include "engine/vulkan_wrapper/image/descriptor/VulkanImageDescriptorBinding.h"
-#include "VulkanDescriptorImageInfoConfigure.h"
+#include "engine/configure/descriptor/VulkanDescriptorImageInfoConfigure.h"
 
 namespace engine {
 
@@ -39,8 +39,8 @@ namespace engine {
         VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorOffset, uint32_t descriptorRange, vk::ShaderStageFlags shaderStageFlags,
                                          std::unique_ptr<VulkanDescriptorBufferInfoConfigure> &&vulkanDescriptorBufferInfoConfigure);
 
-//        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorCount, vk::ShaderStageFlags shaderStageFlags,
-//                                         std::unique_ptr<VulkanImageViewConfigure> &&VulkanBufferViewConfigure);
+        VulkanDescriptorBindingConfigure(uint32_t binding, vk::DescriptorType descriptorType, uint32_t descriptorOffset, uint32_t descriptorRange, vk::ShaderStageFlags shaderStageFlags,
+                                         std::unique_ptr<VulkanDescriptorImageInfoConfigure> &&vulkanDescriptorImageInfoConfigure);
 
         ~VulkanDescriptorBindingConfigure();
 
@@ -67,6 +67,9 @@ namespace engine {
 
         [[nodiscard]]
         std::unique_ptr<VulkanBufferDescriptorBinding> createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
+
+        [[nodiscard]]
+        std::unique_ptr<VulkanImageDescriptorBinding> createVulkanImageDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
     };
 
 } // engine

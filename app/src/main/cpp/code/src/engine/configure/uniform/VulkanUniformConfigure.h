@@ -10,7 +10,6 @@
 #include "vulkan/vulkan.hpp"
 
 #include "engine/configure/descriptor/VulkanDescriptorBufferInfoConfigure.h"
-#include "engine/vulkan_wrapper/buffer/VulkanUniformBufferBuilder.h"
 
 namespace engine {
 
@@ -62,12 +61,7 @@ namespace engine {
             return setUniformBuffer(size, &data, size);
         }
 
-    private: 
-//        [[nodiscard]]
-//        vk::DescriptorSetLayoutBinding createDescriptorSetLayoutBinding() const;
-//
-//        [[nodiscard]]
-//        std::shared_ptr<VulkanDeviceLocalUniformBuffer> createUniformBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const;
+    private:
 
         [[nodiscard]]
         std::unique_ptr<VulkanDescriptorBindingConfigure> createVulkanDescriptorBindingConfigure();

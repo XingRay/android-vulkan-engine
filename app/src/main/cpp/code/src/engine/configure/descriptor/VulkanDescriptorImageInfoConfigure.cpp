@@ -16,4 +16,10 @@ namespace engine {
 
     VulkanDescriptorImageInfoConfigure::~VulkanDescriptorImageInfoConfigure() = default;
 
+    std::unique_ptr<VulkanDescriptorImageInfo> VulkanDescriptorImageInfoConfigure::provideVulkanDescriptorImageInfo(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
+        std::unique_ptr<VulkanImageInterface> image = mVulkanImageBuilder->build(vulkanDevice, mImage->getWidth(), mImage->getHeight(), mImage->getFormat());
+        std::unique_ptr<VulkanSamplerInterface> sampler = mVulkanSamplerBuilder->build(vulkanDevice, *image);
+        return std::make_unique<VulkanDescriptorImageInfo>(std::move(image), std::move(sampler));
+    }
+
 } // engine

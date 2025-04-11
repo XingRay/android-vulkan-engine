@@ -6,7 +6,10 @@
 
 namespace engine {
 
-    VulkanDescriptorImageInfo::VulkanDescriptorImageInfo() = default;
+    VulkanDescriptorImageInfo::VulkanDescriptorImageInfo(std::unique_ptr<VulkanImageInterface> &&vulkanImage,
+                                                         std::unique_ptr<VulkanSamplerInterface> &&vulkanSampler)
+            : mVulkanImage(std::move(vulkanImage)),
+              mVulkanSampler(std::move(vulkanSampler)) {}
 
     VulkanDescriptorImageInfo::~VulkanDescriptorImageInfo() = default;
 

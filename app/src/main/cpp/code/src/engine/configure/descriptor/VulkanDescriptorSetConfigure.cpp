@@ -54,7 +54,7 @@ namespace engine {
         VulkanSamplerConfigure config{};
         configure(config);
 
-//        mVulkanDescriptorBindingConfigures[config.mBinding] = std::move(config.createVulkanDescriptorBindingConfigure());
+        mVulkanDescriptorBindingConfigures[config.mBinding] = std::move(config.createVulkanDescriptorBindingConfigure());
         return *this;
     }
 

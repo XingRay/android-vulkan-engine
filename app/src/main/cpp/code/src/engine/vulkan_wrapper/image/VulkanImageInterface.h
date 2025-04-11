@@ -14,7 +14,7 @@ namespace engine {
     public:
         VulkanImageInterface();
 
-        ~VulkanImageInterface();
+        virtual ~VulkanImageInterface() = 0;
 
         [[nodiscard]]
         virtual const vk::Image &getImage() const = 0;

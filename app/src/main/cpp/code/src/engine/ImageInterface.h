@@ -6,6 +6,8 @@
 
 #include <cstdint>
 
+#include "vulkan/vulkan.hpp"
+
 namespace engine {
 
     class ImageInterface {
@@ -24,7 +26,7 @@ namespace engine {
         virtual uint32_t getHeight() const = 0;
 
         [[nodiscard]]
-        virtual uint32_t getChannels() const = 0;
+        virtual vk::Format getFormat() const = 0;
 
         [[nodiscard]]
         virtual const void *getPixels() const = 0;

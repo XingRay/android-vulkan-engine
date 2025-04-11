@@ -20,7 +20,15 @@ namespace image {
     }
 
     StbImage::StbImage(uint32_t width, uint32_t height, uint32_t channels, stbi_uc *pixels)
-            : mWidth(width), mHeight(height), mChannels(channels), mPixels(pixels) {}
+            : mWidth(width), mHeight(height), mPixels(pixels) {
+        if (channels == 3) {
+            mFormat = vk::Format::eR8G8B8Srgb;
+        } else if (channels == 4) {
+            mFormat = vk::Format::eR8G8B8A8Srgb;
+        } else {
+            throw std::runtime_error("unknown format");
+        }
+    }
 
     StbImage::~StbImage() {
         stbi_image_free(mPixels);
@@ -34,8 +42,8 @@ namespace image {
         return mHeight;
     }
 
-    uint32_t StbImage::getChannels() const {
-        return mChannels;
+    vk::Format StbImage::getFormat() const {
+        return mFormat;
     }
 
     const void *StbImage::getPixels() const {
