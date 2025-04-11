@@ -19,13 +19,11 @@ namespace engine {
                                                    uint32_t frameCount,
                                                    std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
                                                    const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
-                                                   std::vector<std::unique_ptr<VulkanBufferDescriptorBindingSets>> &&vulkanBufferDescriptorBindingSets,
-//                                                   std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> &&vulkanImageDescriptorBindings,
+                                                   std::vector<std::unique_ptr<VulkanDescriptorBindingSets>> &&vulkanDescriptorBindingSets,
                                                    std::vector<vk::PushConstantRange> &&pushConstantRanges)
             : mVulkanDevice(vulkanDevice),
               mVulkanDescriptorPool(std::move(vulkanDescriptorPool)),
-              mVulkanBufferDescriptorBindingSets(std::move(vulkanBufferDescriptorBindingSets)),
-//              mVulkanImageDescriptorBindings(std::move(vulkanImageDescriptorBindings)),
+              mVulkanDescriptorBindingSets(std::move(vulkanDescriptorBindingSets)),
               mPushConstantRanges(std::move(pushConstantRanges)),
               mVulkanVertexBuffers(std::move(vertexBuffers)),
               mIndexBuffer(std::move(indexBuffer)) {
@@ -229,34 +227,56 @@ namespace engine {
         std::vector<vk::WriteDescriptorSet> writeDescriptorSets;
 
         for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-            const std::unique_ptr<VulkanBufferDescriptorBindingSets> &vulkanBufferDescriptorBindingSetOfFrame = mVulkanBufferDescriptorBindingSets[frameIndex];
-            if (vulkanBufferDescriptorBindingSetOfFrame == nullptr) {
+            const std::unique_ptr<VulkanDescriptorBindingSets> &vulkanDescriptorBindingSetOfFrame = mVulkanDescriptorBindingSets[frameIndex];
+            if (vulkanDescriptorBindingSetOfFrame == nullptr) {
                 continue;
             }
-            for (const auto &setsEntry: vulkanBufferDescriptorBindingSetOfFrame->getVulkanBufferDescriptorBindingSets()) {
+            for (const auto &setsEntry: vulkanDescriptorBindingSetOfFrame->getVulkanDescriptorBindingSets()) {
                 uint32_t set = setsEntry.first;
-                const std::unique_ptr<VulkanBufferDescriptorBindingSet> &vulkanBufferDescriptorBindingSet = setsEntry.second;
+                const std::unique_ptr<VulkanDescriptorBindingSet> &vulkanDescriptorBindingSet = setsEntry.second;
 
-                for (const auto &bindingEntry: vulkanBufferDescriptorBindingSet->getVulkanBufferDescriptorBindings()) {
+                for (const auto &bindingEntry: vulkanDescriptorBindingSet->getVulkanDescriptorBindings()) {
                     uint32_t binding = bindingEntry.first;
-                    const std::unique_ptr<VulkanBufferDescriptorBinding> &vulkanDescriptorBinding = bindingEntry.second;
+                    const std::unique_ptr<VulkanDescriptorBinding> &vulkanDescriptorBinding = bindingEntry.second;
+                    vk::DescriptorType type = vulkanDescriptorBinding->getDescriptorType();
+                    if (type == vk::DescriptorType::eUniformBuffer) {
+                        const std::unique_ptr<VulkanDescriptorBufferInfo> &bufferInfo = vulkanDescriptorBinding->getVulkanDescriptorBufferInfo();
+                        if (bufferInfo != nullptr) {
+                            vk::WriteDescriptorSet writeDescriptorSet{};
 
-                    const std::unique_ptr<VulkanDescriptorBufferInfo> &bufferInfo = vulkanDescriptorBinding->getVulkanDescriptorBufferInfo();
-                    if (bufferInfo != nullptr) {
-                        vk::WriteDescriptorSet writeDescriptorSet{};
+                            vk::DescriptorBufferInfo descriptorBufferInfo = bufferInfo->createDescriptorBufferInfo();
+                            std::array<vk::DescriptorBufferInfo, 1> descriptorBufferInfos = {descriptorBufferInfo};
 
-                        vk::DescriptorBufferInfo descriptorBufferInfo = bufferInfo->createDescriptorBufferInfo();
-                        std::array<vk::DescriptorBufferInfo, 1> descriptorBufferInfos = {descriptorBufferInfo};
+                            writeDescriptorSet
+                                    .setDstSet(mDescriptorSets[frameIndex][set])
+                                    .setDstBinding(binding)
+                                    .setDstArrayElement(vulkanDescriptorBinding->getDescriptorOffset())
+                                    .setDescriptorCount(vulkanDescriptorBinding->getDescriptorRange())
+                                    .setDescriptorType(vulkanDescriptorBinding->getDescriptorType())
+                                    .setBufferInfo(descriptorBufferInfos);
+                            writeDescriptorSets.push_back(writeDescriptorSet);
+                        }
+                    } else if (type == vk::DescriptorType::eCombinedImageSampler) {
+                        const std::unique_ptr<VulkanDescriptorImageInfo> &imageInfo = vulkanDescriptorBinding->getVulkanDescriptorImageInfo();
+                        if (imageInfo != nullptr) {
+                            vk::WriteDescriptorSet writeDescriptorSet{};
 
-                        writeDescriptorSet
-                                .setDstSet(mDescriptorSets[frameIndex][set])
-                                .setDstBinding(binding)
-                                .setDstArrayElement(vulkanDescriptorBinding->getDescriptorOffset())
-                                .setDescriptorCount(vulkanDescriptorBinding->getDescriptorRange())
-                                .setDescriptorType(vulkanDescriptorBinding->getDescriptorType())
-                                .setBufferInfo(descriptorBufferInfos);
-                        writeDescriptorSets.push_back(writeDescriptorSet);
+                            vk::DescriptorImageInfo descriptorImageInfo = imageInfo->createDescriptorImageInfo();
+                            std::array<vk::DescriptorImageInfo, 1> descriptorImageInfos = {descriptorImageInfo};
+
+                            writeDescriptorSet
+                                    .setDstSet(mDescriptorSets[frameIndex][set])
+                                    .setDstBinding(binding)
+                                    .setDstArrayElement(vulkanDescriptorBinding->getDescriptorOffset())
+                                    .setDescriptorCount(vulkanDescriptorBinding->getDescriptorRange())
+                                    .setDescriptorType(vulkanDescriptorBinding->getDescriptorType())
+                                    .setImageInfo(descriptorImageInfos);
+                            writeDescriptorSets.push_back(writeDescriptorSet);
+                        }
+                    } else {
+                        throw std::runtime_error("unknown descriptor type");
                     }
+
                 }
             }
         }

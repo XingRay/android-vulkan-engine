@@ -91,22 +91,22 @@ namespace engine {
 //        return mUniformSet;
 //    }
 
-    std::unique_ptr<VulkanBufferDescriptorBindingSet> VulkanDescriptorSetConfigure::createVulkanBufferDescriptorBindingSet(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
+    std::unique_ptr<VulkanDescriptorBindingSet> VulkanDescriptorSetConfigure::createVulkanDescriptorBindingSet(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
         if (mVulkanDescriptorBindingConfigures.empty()) {
             return nullptr;
         }
 
-        std::unique_ptr<VulkanBufferDescriptorBindingSet> vulkanBufferDescriptorBindingSet = std::make_unique<VulkanBufferDescriptorBindingSet>();
+        std::unique_ptr<VulkanDescriptorBindingSet> vulkanDescriptorBindingSet = std::make_unique<VulkanDescriptorBindingSet>();
 
         for (const auto &entry: mVulkanDescriptorBindingConfigures) {
             uint32_t binding = entry.first;
             const std::unique_ptr<VulkanDescriptorBindingConfigure> &vulkanDescriptorBindingConfigure = entry.second;
 
-            vulkanBufferDescriptorBindingSet->set(binding, vulkanDescriptorBindingConfigure->createVulkanBufferDescriptorBinding(vulkanDevice, commandPool));
+            vulkanDescriptorBindingSet->set(binding, vulkanDescriptorBindingConfigure->createVulkanDescriptorBinding(vulkanDevice, commandPool));
         }
 
 
-        return vulkanBufferDescriptorBindingSet;
+        return vulkanDescriptorBindingSet;
     }
 
     std::vector<vk::DescriptorSetLayoutBinding> VulkanDescriptorSetConfigure::createDescriptorSetLayoutBindings() {

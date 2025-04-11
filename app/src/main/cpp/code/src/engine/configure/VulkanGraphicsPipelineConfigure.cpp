@@ -5,7 +5,7 @@
 #include "engine/configure/VulkanGraphicsPipelineConfigure.h"
 #include "engine/vulkan_wrapper/VulkanShaderModule.h"
 #include "engine/vulkan_wrapper/VulkanDescriptorPool.h"
-#include "engine/vulkan_wrapper/image/descriptor/VulkanImageDescriptorBindingSets.h"
+#include "engine/vulkan_wrapper/descriptor/VulkanDescriptorBindingSets.h"
 
 namespace engine {
 
@@ -96,18 +96,10 @@ namespace engine {
                                                                                                             mVulkanDescriptorSetConfigures.getSetCount(frameCount));
 
         // frame -> set -> binding
-        std::vector<std::unique_ptr<VulkanBufferDescriptorBindingSets>> vulkanBufferDescriptorBindingSets;
+        std::vector<std::unique_ptr<VulkanDescriptorBindingSets>> vulkanBufferDescriptorBindingSets;
         for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-            std::unique_ptr<VulkanBufferDescriptorBindingSets> bufferBindingOfFrame = mVulkanDescriptorSetConfigures.createVulkanBufferDescriptorBindingSets(vulkanDevice, commandPool);
+            std::unique_ptr<VulkanDescriptorBindingSets> bufferBindingOfFrame = mVulkanDescriptorSetConfigures.createVulkanDescriptorBindingSets(vulkanDevice, commandPool);
             vulkanBufferDescriptorBindingSets.push_back(std::move(bufferBindingOfFrame));
-        }
-
-        std::vector<std::unique_ptr<VulkanImageDescriptorBindingSets>> vulkanImageDescriptorBindingSets;
-        for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-//            std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>> imageBindingOfFrame= mVulkanDescriptorSetConfigures.createVulkanIma(vulkanDevice, commandPool);
-//            vulkanBufferDescriptorBindingSets.push_back(std::move(bufferBindingOfFrame));
-
-//            vulkanImageDescriptorBindings.push_back(imageBindingOfFrame);
         }
 
         // push constant

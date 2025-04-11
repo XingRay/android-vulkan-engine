@@ -20,10 +20,9 @@
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
-#include "engine/vulkan_wrapper/image/descriptor/VulkanImageDescriptorBinding.h"
-#include "engine/vulkan_wrapper/buffer/descriptor/VulkanBufferDescriptorBindingSets.h"
-#include "engine/vulkan_wrapper/buffer/descriptor/VulkanDescriptorBufferInfo.h"
-#include "engine/vulkan_wrapper/image/descriptor/VulkanDescriptorImageInfo.h"
+#include "engine/vulkan_wrapper/descriptor/VulkanDescriptorBindingSets.h"
+#include "engine/vulkan_wrapper/buffer/VulkanDescriptorBufferInfo.h"
+#include "engine/vulkan_wrapper/image/VulkanDescriptorImageInfo.h"
 
 namespace engine {
 
@@ -47,7 +46,7 @@ namespace engine {
         std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
 
         // frame -> VulkanBufferDescriptorBindingSets
-        std::vector<std::unique_ptr<VulkanBufferDescriptorBindingSets>> mVulkanBufferDescriptorBindingSets;
+        std::vector<std::unique_ptr<VulkanDescriptorBindingSets>> mVulkanDescriptorBindingSets;
 //        std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> mVulkanImageDescriptorBindings;
 
         std::vector<vk::PushConstantRange> mPushConstantRanges;
@@ -67,8 +66,7 @@ namespace engine {
                                uint32_t frameCount,
                                std::unique_ptr<VulkanDescriptorPool> &&vulkanDescriptorPool,
                                const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
-                               std::vector<std::unique_ptr<VulkanBufferDescriptorBindingSets>>&& vulkanBufferDescriptorBindingSets,
-//                               std::vector<std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>>> &&vulkanImageDescriptorBindings,
+                               std::vector<std::unique_ptr<VulkanDescriptorBindingSets>>&& vulkanDescriptorBindingSets,
                                std::vector<vk::PushConstantRange> &&pushConstantRanges);
 
         ~VulkanGraphicsPipeline();

@@ -67,15 +67,16 @@ namespace engine {
         return descriptorSetLayoutBinding;
     }
 
-    std::unique_ptr<VulkanBufferDescriptorBinding> VulkanDescriptorBindingConfigure::createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
-        std::unique_ptr<VulkanBufferDescriptorBinding> vulkanBufferDescriptorBinding = std::make_unique<VulkanBufferDescriptorBinding>(mDescriptorType, mDescriptorOffset, mDescriptorRange);
-        vulkanBufferDescriptorBinding->setBufferInfo(mVulkanDescriptorBufferInfoConfigure->provideVulkanDescriptorBufferInfo(vulkanDevice, commandPool));
-        return vulkanBufferDescriptorBinding;
-    }
+    std::unique_ptr<VulkanDescriptorBinding> VulkanDescriptorBindingConfigure::createVulkanDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
+        std::unique_ptr<VulkanDescriptorBinding> vulkanDescriptorBinding = std::make_unique<VulkanDescriptorBinding>(mDescriptorType, mDescriptorOffset, mDescriptorRange);
+        if (mDescriptorType == vk::DescriptorType::eUniformBuffer) {
+            vulkanDescriptorBinding->setVulkanDescriptorBufferInfo(mVulkanDescriptorBufferInfoConfigure->provideVulkanDescriptorBufferInfo(vulkanDevice, commandPool));
+        } else if (mDescriptorType == vk::DescriptorType::eCombinedImageSampler) {
+            vulkanDescriptorBinding->setVulkanDescriptorImageInfo(mVulkanDescriptorImageInfoConfigure->provideVulkanDescriptorImageInfo(vulkanDevice, commandPool));
+        } else {
+            throw std::runtime_error("unknown descriptor type.");
+        }
 
-    std::unique_ptr<VulkanImageDescriptorBinding> VulkanDescriptorBindingConfigure::createVulkanImageDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
-        std::unique_ptr<VulkanImageDescriptorBinding> vulkanImageDescriptorBinding = std::make_unique<VulkanImageDescriptorBinding>(mDescriptorType, mDescriptorOffset, mDescriptorRange);
-        vulkanImageDescriptorBinding->setVulkanDescriptorImageInfo(mVulkanDescriptorImageInfoConfigure->provideVulkanDescriptorImageInfo(vulkanDevice, commandPool));
-        return vulkanImageDescriptorBinding;
+        return vulkanDescriptorBinding;
     }
 }

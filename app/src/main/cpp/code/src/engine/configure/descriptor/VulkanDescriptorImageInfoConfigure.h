@@ -13,7 +13,7 @@
 #include "engine/vulkan_wrapper/image/VulkanImageBuilderInterface.h"
 #include "engine/vulkan_wrapper/image/VulkanSamplerBuilderInterface.h"
 
-#include "engine/vulkan_wrapper/image/descriptor/VulkanDescriptorImageInfo.h"
+#include "engine/vulkan_wrapper/image/VulkanDescriptorImageInfo.h"
 
 namespace engine {
 

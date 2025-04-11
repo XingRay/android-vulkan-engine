@@ -9,7 +9,7 @@
 #include <vector>
 #include <functional>
 
-#include "engine/vulkan_wrapper/buffer/descriptor/VulkanDescriptorBufferInfo.h"
+#include "engine/vulkan_wrapper/buffer/VulkanDescriptorBufferInfo.h"
 #include "engine/vulkan_wrapper/buffer/VulkanBufferBuilderInterface.h"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"

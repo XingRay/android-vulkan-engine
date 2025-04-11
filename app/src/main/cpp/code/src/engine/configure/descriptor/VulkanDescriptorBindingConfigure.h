@@ -10,11 +10,9 @@
 
 #include "engine/vulkan_wrapper/image/VulkanSampler.h"
 
-#include "engine/vulkan_wrapper/buffer/descriptor/VulkanBufferDescriptorBinding.h"
+#include "engine/vulkan_wrapper/descriptor/VulkanDescriptorBinding.h"
 #include "engine/configure/descriptor/VulkanDescriptorBufferInfoConfigure.h"
 #include "engine/vulkan_wrapper/buffer/VulkanUniformBufferBuilder.h"
-
-#include "engine/vulkan_wrapper/image/descriptor/VulkanImageDescriptorBinding.h"
 #include "engine/configure/descriptor/VulkanDescriptorImageInfoConfigure.h"
 
 namespace engine {
@@ -66,10 +64,7 @@ namespace engine {
         vk::DescriptorSetLayoutBinding createDescriptorSetLayoutBinding() const;
 
         [[nodiscard]]
-        std::unique_ptr<VulkanBufferDescriptorBinding> createVulkanBufferDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
-
-        [[nodiscard]]
-        std::unique_ptr<VulkanImageDescriptorBinding> createVulkanImageDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
+        std::unique_ptr<VulkanDescriptorBinding> createVulkanDescriptorBinding(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
     };
 
 } // engine

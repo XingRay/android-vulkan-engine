@@ -97,22 +97,22 @@ namespace engine {
         return mVulkanDescriptorSetConfigures.size() * frameCount;
     }
 
-    std::unique_ptr<VulkanBufferDescriptorBindingSets> VulkanDescriptorSetConfigures::createVulkanBufferDescriptorBindingSets(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
+    std::unique_ptr<VulkanDescriptorBindingSets> VulkanDescriptorSetConfigures::createVulkanDescriptorBindingSets(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
         if (mVulkanDescriptorSetConfigures.empty()) {
             return nullptr;
         }
 
-        std::unique_ptr<VulkanBufferDescriptorBindingSets> vulkanBufferDescriptorBindingSets = std::make_unique<VulkanBufferDescriptorBindingSets>();
+        std::unique_ptr<VulkanDescriptorBindingSets> vulkanDescriptorBindingSets = std::make_unique<VulkanDescriptorBindingSets>();
 
         for (const auto &entry: mVulkanDescriptorSetConfigures) {
             uint32_t set = entry.first;
             const std::unique_ptr<VulkanDescriptorSetConfigure> &vulkanDescriptorSetConfigure = entry.second;
 
-            std::unique_ptr<VulkanBufferDescriptorBindingSet> vulkanBufferDescriptorBindingSet = vulkanDescriptorSetConfigure->createVulkanBufferDescriptorBindingSet(vulkanDevice, commandPool);
-            vulkanBufferDescriptorBindingSets->set(set, std::move(vulkanBufferDescriptorBindingSet));
+            std::unique_ptr<VulkanDescriptorBindingSet> vulkanDescriptorBindingSet = vulkanDescriptorSetConfigure->createVulkanDescriptorBindingSet(vulkanDevice, commandPool);
+            vulkanDescriptorBindingSets->set(set, std::move(vulkanDescriptorBindingSet));
         }
 
-        return vulkanBufferDescriptorBindingSets;
+        return vulkanDescriptorBindingSets;
     }
 
 } // engine

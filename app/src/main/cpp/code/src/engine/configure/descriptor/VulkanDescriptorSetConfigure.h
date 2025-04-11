@@ -10,7 +10,7 @@
 
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "VulkanDescriptorBindingConfigure.h"
-#include "engine/vulkan_wrapper/buffer/descriptor/VulkanBufferDescriptorBindingSet.h"
+#include "engine/vulkan_wrapper/descriptor/VulkanDescriptorBindingSet.h"
 #include "engine/configure/uniform/VulkanUniformConfigure.h"
 #include "engine/configure/sampler/VulkanSamplerConfigure.h"
 
@@ -49,7 +49,7 @@ namespace engine {
 //
 //        VulkanDescriptorSetConfigure &addStorage(uint32_t binding, vk::ShaderStageFlagBits shaderStageFlagBits, uint32_t descriptorCount = 1);
 
-        std::unique_ptr<VulkanBufferDescriptorBindingSet> createVulkanBufferDescriptorBindingSet(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
+        std::unique_ptr<VulkanDescriptorBindingSet> createVulkanDescriptorBindingSet(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
 
     private:
         std::vector<vk::DescriptorSetLayoutBinding> createDescriptorSetLayoutBindings();
