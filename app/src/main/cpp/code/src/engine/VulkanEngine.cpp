@@ -160,6 +160,10 @@ namespace engine {
         return *this;
     }
 
+    VulkanEngine &VulkanEngine::updateCurrentFrameUniformBuffer(uint32_t set, uint32_t binding, const void *data, uint32_t size) {
+        return updateUniformBuffer(getCurrentFrameIndex(), set, binding, data, size);
+    }
+
     VulkanEngine &VulkanEngine::updatePushConstant(uint32_t index, const void *data) {
         getGraphicsPipeline().updatePushConstant(index, data);
         return *this;

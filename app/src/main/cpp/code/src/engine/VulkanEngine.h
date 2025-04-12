@@ -122,6 +122,13 @@ namespace engine {
             return *this;
         }
 
+        VulkanEngine &updateCurrentFrameUniformBuffer(uint32_t set, uint32_t binding, const void *data, uint32_t size);
+
+        template<class T>
+        VulkanEngine &updateCurrentFrameUniformBuffer(uint32_t set, uint32_t binding, const T &data) {
+            return updateCurrentFrameUniformBuffer(set, binding, static_cast<const void *>(&data), sizeof(T));
+        }
+
         VulkanEngine &updatePushConstant(uint32_t index, const void *data);
 
         void drawFrame();
