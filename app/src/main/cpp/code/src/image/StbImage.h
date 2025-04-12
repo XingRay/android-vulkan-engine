@@ -20,9 +20,21 @@ namespace image {
         stbi_uc *mPixels;
 
     public:
-        static std::unique_ptr<StbImage> loadImage(const std::string &filePath);
+        static std::unique_ptr<StbImage> loadImage(const char *filePath, int stbiFomrat);
+
+        static std::unique_ptr<StbImage> loadImage(const std::string &filePath, int stbiFomrat);
 
         static std::unique_ptr<StbImage> loadImage(const char *filePath);
+
+        static std::unique_ptr<StbImage> loadImage(const std::string &filePath);
+
+        static std::unique_ptr<StbImage> loadImageAsRgba(const char *filePath);
+
+        static std::unique_ptr<StbImage> loadImageAsRgba(const std::string &filePath);
+
+        static std::unique_ptr<StbImage> loadImageAsRgb(const char *filePath);
+
+        static std::unique_ptr<StbImage> loadImageAsRgb(const std::string &filePath);
 
         StbImage(uint32_t width, uint32_t height, uint32_t channels, stbi_uc *pixels);
 

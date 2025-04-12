@@ -60,7 +60,7 @@ namespace test06 {
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/06_load_3d_model.frag.spv");
 
         // load texture
-        std::unique_ptr<image::StbImage> image = image::StbImage::loadImage(TEXTURE_PATH);
+        std::unique_ptr<image::StbImage> image = image::StbImage::loadImageAsRgb(TEXTURE_PATH);
 
         // load vertex
         std::vector<Vertex> vertices;

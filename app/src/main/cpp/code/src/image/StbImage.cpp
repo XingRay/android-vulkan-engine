@@ -6,17 +6,41 @@
 
 namespace image {
 
-    std::unique_ptr<StbImage> StbImage::loadImage(const std::string &filePath) {
-        return loadImage(filePath.c_str());
-    }
-
-    std::unique_ptr<StbImage> StbImage::loadImage(const char *filePath) {
+    std::unique_ptr<StbImage> StbImage::loadImage(const char *filePath, int stbiFomrat) {
         int width, height, channels;
-        stbi_uc *pixels = stbi_load(filePath, &width, &height, &channels, STBI_rgb_alpha);
+        stbi_uc *pixels = stbi_load(filePath, &width, &height, &channels, stbiFomrat);
         if (!pixels) {
             throw std::runtime_error("Failed to load image!");
         }
         return std::make_unique<StbImage>(width, height, channels, pixels);
+    }
+
+    std::unique_ptr<StbImage> StbImage::loadImage(const std::string &filePath, int stbiFomrat) {
+        return loadImage(filePath.c_str(), stbiFomrat);
+    }
+
+    std::unique_ptr<StbImage> StbImage::loadImage(const char *filePath){
+        return loadImage(filePath, STBI_rgb_alpha);
+    }
+
+    std::unique_ptr<StbImage> StbImage::loadImage(const std::string &filePath){
+        return loadImage(filePath.c_str(), STBI_rgb_alpha);
+    }
+
+    std::unique_ptr<StbImage> StbImage::loadImageAsRgba(const char *filePath){
+        return loadImage(filePath, STBI_rgb_alpha);
+    }
+
+    std::unique_ptr<StbImage> StbImage::loadImageAsRgba(const std::string &filePath){
+        return loadImage(filePath.c_str(), STBI_rgb_alpha);
+    }
+
+    std::unique_ptr<StbImage> StbImage::loadImageAsRgb(const char *filePath){
+        return loadImage(filePath, STBI_rgb);
+    }
+
+    std::unique_ptr<StbImage> StbImage::loadImageAsRgb(const std::string &filePath){
+        return loadImage(filePath.c_str(), STBI_rgb);
     }
 
     StbImage::StbImage(uint32_t width, uint32_t height, uint32_t channels, stbi_uc *pixels)
