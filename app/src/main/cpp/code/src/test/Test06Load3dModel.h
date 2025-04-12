@@ -37,7 +37,7 @@ namespace test06 {
 
         const android_app &mApp;
 
-//        std::unique_ptr<engine::VulkanGraphicsEngine> mVulkanEngine;
+        std::unique_ptr<engine::VulkanEngine> mVulkanEngine;
 
         MvpMatrix mMvpMatrix{};
     public:

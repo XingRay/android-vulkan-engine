@@ -26,7 +26,7 @@ namespace image {
         } else if (channels == 4) {
             mFormat = vk::Format::eR8G8B8A8Srgb;
         } else {
-            throw std::runtime_error("unknown format");
+            throw std::runtime_error("StbImage::StbImage(): unknown format");
         }
     }
 
@@ -56,7 +56,7 @@ namespace image {
         } else if (mFormat == vk::Format::eR8G8B8A8Srgb) {
             return mWidth * mHeight * 4;
         } else {
-            throw std::runtime_error("unknown format");
+            throw std::runtime_error("StbImage::getPixelBytes(): unknown format");
         }
     }
 

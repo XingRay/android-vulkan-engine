@@ -625,8 +625,10 @@ namespace engine {
         switch (format) {
             case vk::Format::eR8G8B8A8Srgb:
                 return 4;
+            case vk::Format::eR8G8B8Srgb:
+                return 3;
             default:
-                throw std::runtime_error("unknown format");
+                throw std::runtime_error("VulkanUtil::getImageFormatBytesPerPixel(): unknown format");
         }
     }
 

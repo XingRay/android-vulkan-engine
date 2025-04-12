@@ -5,7 +5,8 @@
 #include "Test06Load3dModel.h"
 #include "FileUtil.h"
 
-#include "stb_image.h"
+#include "engine/VulkanEngineBuilder.h"
+#include "image/StbImage.h"
 
 #include <tiny_obj_loader.h>
 
@@ -33,7 +34,6 @@ namespace test06 {
 
     const char *MODEL_PATH = "/storage/emulated/0/test/model/viking_room/viking_room.obj";
     const char *TEXTURE_PATH = "/storage/emulated/0/test/model/viking_room/viking_room.png";
-//    const char *TEXTURE_PATH = "/storage/emulated/0/01.png";
 
     Test06Load3dModel::Test06Load3dModel(const android_app &app, const std::string &name)
             : TestBase(name), mApp(app), mMvpMatrix(glm::mat4(1.0f)) {
@@ -59,56 +59,10 @@ namespace test06 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/06_load_3d_model.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/06_load_3d_model.frag.spv");
 
-        int width, height, channels;
-        stbi_uc *pixels = stbi_load(TEXTURE_PATH, &width, &height, &channels, STBI_rgb_alpha);
-        channels = 4;
+        // load texture
+        std::unique_ptr<image::StbImage> image = image::StbImage::loadImage(TEXTURE_PATH);
 
-//        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
-//                .layers({}, layers)
-//                .extensions({}, instanceExtensions)
-//                .asGraphics()
-//                .deviceExtensions(std::move(deviceExtensions))
-//                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
-//                .enableMsaa()
-//                .physicalDeviceAsDefault()
-//                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
-//                    shaderConfigure
-//                            .vertexShaderCode(std::move(vertexShaderCode))
-//                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
-//                                vertexConfigure
-//                                        .binding(0)
-//                                        .size(sizeof(Vertex))
-//                                        .addAttribute(ShaderFormat::Vec3)
-//                                        .addAttribute(ShaderFormat::Vec2);
-//                            })
-//                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
-//                                engine::ImageSize imageSize(width, height, channels);
-//                                configure
-//                                        .set(0)
-//                                        .addUniform(0, vk::ShaderStageFlagBits::eVertex, sizeof(MvpMatrix))
-//                                        .addSampler(1, vk::ShaderStageFlagBits::eFragment, imageSize);
-//                            });
-//                })
-//                .build();
-//
-//        mVulkanEngine = std::move(engine);
-    }
-
-    void Test06Load3dModel::init() {
-        mMvpMatrix = MvpMatrix{};
-        float scale = 1.0f;
-
-        glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
-        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        mMvpMatrix.model = model;
-        mMvpMatrix.view = glm::lookAt(glm::vec3(3.0f, 3.0f, 3.0f),
-                                      glm::vec3(0.0f, 0.0f, 0.0f),
-                                      glm::vec3(0.0f, 0.0f, 1.0f));
-        mMvpMatrix.proj = glm::perspective(glm::radians(45.0f), (float) ANativeWindow_getWidth(mApp.window) / (float) ANativeWindow_getHeight(mApp.window), 0.1f, 10.0f);
-        // GLM 最初为 OpenGL 设计，OpenGL 中剪裁坐标的Y坐标是反转的。补偿这种情况的最简单方法是翻转投影矩阵中Y轴缩放因子的符号。如果不这样做，图像将上下颠倒。
-        mMvpMatrix.proj[1][1] *= -1;
-
+        // load vertex
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
 
@@ -149,30 +103,69 @@ namespace test06 {
             }
         }
 
-//        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
-//        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
-//
-//        LOG_D("mVulkanEngine->updateVertexBuffer");
-//        mVulkanEngine->updateVertexBuffer(vertices);
-//
-//        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
-//        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-//        LOG_D("mVulkanEngine->updateIndexBuffer");
-//        mVulkanEngine->updateIndexBuffer(indices);
 
-        int width, height, channels;
-        stbi_uc *pixels = stbi_load(TEXTURE_PATH, &width, &height, &channels, STBI_rgb_alpha);
-        if (!pixels) {
-            throw std::runtime_error("Failed to load texture image!");
-        }
-        LOG_D("image: [ %d, x %d], channels: %d", width, height, channels);
+        mMvpMatrix = MvpMatrix{};
+        float scale = 1.0f;
 
-        for (int i = 0; i < mFrameCount; i++) {
-            LOG_D("mVulkanEngine->updateTextureSampler");
-//            mVulkanEngine->updateUniformBuffer(i, 0, 1, pixels, width * height * channels);
-        }
+        glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(scale, scale, scale));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        mMvpMatrix.model = model;
+        mMvpMatrix.view = glm::lookAt(glm::vec3(3.0f, 3.0f, 3.0f),
+                                      glm::vec3(0.0f, 0.0f, 0.0f),
+                                      glm::vec3(0.0f, 0.0f, 1.0f));
+        mMvpMatrix.proj = glm::perspective(glm::radians(45.0f), (float) ANativeWindow_getWidth(mApp.window) / (float) ANativeWindow_getHeight(mApp.window), 0.1f, 10.0f);
+        // GLM 最初为 OpenGL 设计，OpenGL 中剪裁坐标的Y坐标是反转的。补偿这种情况的最简单方法是翻转投影矩阵中Y轴缩放因子的符号。如果不这样做，图像将上下颠倒。
+        mMvpMatrix.proj[1][1] *= -1;
 
-        stbi_image_free(pixels);
+
+        mVulkanEngine = engine::VulkanEngineBuilder{}
+                .layers({}, std::move(layers))
+                .extensions({}, std::move(instanceExtensions))
+                .deviceExtensions(std::move(deviceExtensions))
+                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .enableMsaa()
+                .physicalDeviceAsDefault()
+                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+                    graphicsPipelineConfigure
+                            .vertexShaderCode(std::move(vertexShaderCode))
+                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+                                vertexConfigure
+                                        .binding(0)
+                                        .stride(sizeof(Vertex))
+                                        .addAttribute(ShaderFormat::Vec3)
+                                        .addAttribute(ShaderFormat::Vec2)
+                                        .setVertexBuffer(vertices);
+                            })
+                            .index(std::move(indices))
+                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex)
+                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
+                                descriptorSetConfigure
+                                        .set(0)
+                                        .addUniform([&](engine::VulkanUniformConfigure &uniformConfigure) {
+                                            uniformConfigure
+                                                    .binding(0)
+                                                    .descriptorRange(1)
+                                                    .descriptorOffset(0)
+                                                    .shaderStageFlags(vk::ShaderStageFlagBits::eVertex)
+                                                    .setUniformBuffer(mMvpMatrix);
+                                        })
+                                        .addSampler([&](engine::VulkanSamplerConfigure &samplerConfigure) {
+                                            samplerConfigure
+                                                    .binding(1)
+                                                    .descriptorRange(1)
+                                                    .descriptorOffset(0)
+                                                    .shaderStageFlags(vk::ShaderStageFlagBits::eFragment)
+                                                    .setImage(std::move(image));
+                                        });
+
+                            });
+                })
+                .build();
+    }
+
+    void Test06Load3dModel::init() {
+
     }
 
     // 检查是否准备好
@@ -192,14 +185,13 @@ namespace test06 {
         model = glm::rotate(model, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         mMvpMatrix.model = model;
 
-//        mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, &(mMvpMatrix), sizeof(MvpMatrix));
-//        mVulkanEngine->drawFrame();
+        mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, &(mMvpMatrix), sizeof(MvpMatrix));
+        mVulkanEngine->drawFrame();
     }
 
     // 清理操作
     void Test06Load3dModel::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-//        mVulkanEngine.reset();
     }
 
 } // test

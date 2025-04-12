@@ -156,6 +156,7 @@ namespace engine {
     }
 
     VulkanEngine &VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
+        getGraphicsPipeline().updateUniformBuffer(frameIndex, set, binding, data, size);
         return *this;
     }
 
