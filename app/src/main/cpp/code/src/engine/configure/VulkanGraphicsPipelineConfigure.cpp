@@ -96,10 +96,10 @@ namespace engine {
                                                                                                             mVulkanDescriptorSetConfigures.getSetCount(frameCount));
 
         // frame -> set -> binding
-        std::vector<std::unique_ptr<VulkanDescriptorBindingSets>> vulkanBufferDescriptorBindingSets;
+        std::vector<std::unique_ptr<VulkanDescriptorBindingSets>> vulkanDescriptorBindingSets;
         for (uint32_t frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-            std::unique_ptr<VulkanDescriptorBindingSets> bufferBindingOfFrame = mVulkanDescriptorSetConfigures.createVulkanDescriptorBindingSets(vulkanDevice, commandPool);
-            vulkanBufferDescriptorBindingSets.push_back(std::move(bufferBindingOfFrame));
+            std::unique_ptr<VulkanDescriptorBindingSets> bindingSetsOfFrame = mVulkanDescriptorSetConfigures.createVulkanDescriptorBindingSets(vulkanDevice, commandPool);
+            vulkanDescriptorBindingSets.push_back(std::move(bindingSetsOfFrame));
         }
 
         // push constant
@@ -123,8 +123,7 @@ namespace engine {
                                                         frameCount,
                                                         std::move(vulkanDescriptorPool),
                                                         descriptorSetLayouts,
-                                                        std::move(vulkanBufferDescriptorBindingSets),
-//                                                        {}/*std::move(vulkanImageDescriptorBindings)*/,
+                                                        std::move(vulkanDescriptorBindingSets),
                                                         std::move(pushConstantRanges));
     }
 

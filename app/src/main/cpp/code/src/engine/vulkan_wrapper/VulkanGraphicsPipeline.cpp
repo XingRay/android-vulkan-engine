@@ -281,26 +281,9 @@ namespace engine {
             }
         }
 
-        for (int frameIndex = 0; frameIndex < frameCount; frameIndex++) {
-//            const std::unordered_map<uint32_t, std::unordered_map<uint32_t, VulkanImageDescriptorBinding>> &vulkanDescriptorBindingsOfFrame = mVulkanImageDescriptorBindings[frameIndex];
-//            for (const auto &setEntry: vulkanDescriptorBindingsOfFrame) {
-//                uint32_t set = setEntry.first;
-//                const std::unordered_map<uint32_t, VulkanImageDescriptorBinding> &vulkanDescriptorBindingsOfSet = setEntry.second;
-//
-//                for (const auto &bindingEntry: vulkanDescriptorBindingsOfSet) {
-//                    uint32_t binding = bindingEntry.first;
-//                    const VulkanImageDescriptorBinding &vulkanDescriptorBinding = bindingEntry.second;
-//                    if (vulkanDescriptorBinding.getVulkanImageView() != nullptr) {
-//                        writeDescriptorSets.push_back(vulkanDescriptorBinding.createWriteDescriptorSet(mDescriptorSets[frameIndex][set], binding));
-//                    }
-//                }
-//            }
-        }
-
         if (!writeDescriptorSets.empty()) {
             vulkanDevice.getDevice().updateDescriptorSets(writeDescriptorSets, nullptr);
         }
-
 
         for (const vk::PushConstantRange &pushConstantRange: mPushConstantRanges) {
             // 创建数据缓冲区

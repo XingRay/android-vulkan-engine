@@ -30,6 +30,9 @@ namespace engine {
 
         [[nodiscard]]
         virtual const void *getPixels() const = 0;
+
+        [[nodiscard]]
+        virtual uint32_t getPixelBytes() const = 0;
     };
 
 } // engine

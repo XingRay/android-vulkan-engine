@@ -5,6 +5,7 @@
 #pragma once
 
 #include "vulkan/vulkan.hpp"
+#include "engine/vulkan_wrapper/VulkanCommandPool.h"
 
 namespace engine {
 
@@ -24,6 +25,10 @@ namespace engine {
 
         [[nodiscard]]
         virtual uint32_t getMipLevels() const = 0;
+
+        virtual void transitionImageLayout(const VulkanCommandPool &commandPool) = 0;
+
+        virtual void update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size) = 0;
     };
 
 } // engine

@@ -54,11 +54,11 @@ namespace engine {
         [[nodiscard]]
         uint32_t getHeight() const;
 
-        void transitionImageLayout(const VulkanCommandPool &commandPool);
+        void transitionImageLayout(const VulkanCommandPool &commandPool) override;
 
         void recordCommandTransitionImageLayout(const vk::CommandBuffer &commandBuffer);
 
-        void update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size);
+        void update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size) override;
 
         void recordCommandCopyFromBuffer(const vk::CommandBuffer &commandBuffer, vk::Buffer buffer);
 

@@ -74,41 +74,13 @@ namespace test05 {
                                             .binding(0)
                                             .descriptorRange(1)
                                             .descriptorOffset(0)
-                                            .shaderStageFlags(vk::ShaderStageFlagBits::eVertex)
-                                            .setImage(std::move(image))
-                                            ;
+                                            .shaderStageFlags(vk::ShaderStageFlagBits::eFragment)
+                                            .setImage(std::move(image));
                                 });
                             });
                 })
                 .build();
 
-//        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
-//                .layers({}, layers)
-//                .extensions({}, instanceExtensions)
-//                .asGraphics()
-//                .deviceExtensions(std::move(deviceExtensions))
-//                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
-//                .enableMsaa()
-//                .physicalDeviceAsDefault()
-//                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
-//                    shaderConfigure
-//                            .vertexShaderCode(std::move(vertexShaderCode))
-//                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
-//                                vertexConfigure
-//                                        .binding(0)
-//                                        .size(sizeof(Vertex))
-//                                        .addAttribute(ShaderFormat::Vec3)
-//                                        .addAttribute(ShaderFormat::Vec2);
-//                            })
-//                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
-//                                engine::ImageSize imageSize(width, height, channels);
-//                                configure.addSampler(0, vk::ShaderStageFlagBits::eFragment, imageSize);
-//                            })
-//                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex);
-//                })
-//                .build();
-//
         mVulkanEngine = std::move(engine);
     }
 
@@ -123,31 +95,6 @@ namespace test05 {
                                       glm::vec3(0.0f, 0.0f, 0.0f),
                                       glm::vec3(1.0f, 1.0f, 0.0f));
         mMvpMatrix.proj = glm::perspective(glm::radians(45.0f), (float) ANativeWindow_getWidth(mApp.window) / (float) ANativeWindow_getHeight(mApp.window), 0.1f, 10.0f);
-
-        int width, height, channels;
-        stbi_uc *pixels = stbi_load("/storage/emulated/0/01.png", &width, &height, &channels, STBI_rgb_alpha);
-        if (!pixels) {
-            throw std::runtime_error("Failed to load texture image!");
-        }
-        LOG_D("image: [ %d, x %d], channels: %d", width, height, channels);
-
-//        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
-//        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
-//
-//        LOG_D("mVulkanEngine->updateVertexBuffer");
-//        mVulkanEngine->updateVertexBuffer(vertices);
-//
-//        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
-//        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-//        LOG_D("mVulkanEngine->updateIndexBuffer");
-//        mVulkanEngine->updateIndexBuffer(indices);
-//
-//        for (int i = 0; i < mFrameCount; i++) {
-//            LOG_D("mVulkanEngine->updateTextureSampler");
-//            mVulkanEngine->updateUniformBuffer(i, 0, 0, pixels, width * height * channels);
-//        }
-
-        stbi_image_free(pixels);
     }
 
     // 检查是否准备好
@@ -173,7 +120,7 @@ namespace test05 {
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
         mVulkanEngine->updatePushConstant(0, &(mvp));
 
-//        mVulkanEngine->drawFrame();
+        mVulkanEngine->drawFrame();
     }
 
     // 清理操作

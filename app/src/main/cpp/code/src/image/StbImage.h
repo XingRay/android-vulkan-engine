@@ -35,6 +35,8 @@ namespace image {
         vk::Format getFormat() const override;
 
         const void *getPixels() const override;
+
+        uint32_t getPixelBytes() const override;
     };
 
 } // test

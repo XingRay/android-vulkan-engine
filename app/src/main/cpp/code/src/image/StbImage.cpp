@@ -50,4 +50,14 @@ namespace image {
         return mPixels;
     }
 
+    uint32_t StbImage::getPixelBytes() const {
+        if (mFormat == vk::Format::eR8G8B8Srgb) {
+            return mWidth * mHeight * 3;
+        } else if (mFormat == vk::Format::eR8G8B8A8Srgb) {
+            return mWidth * mHeight * 4;
+        } else {
+            throw std::runtime_error("unknown format");
+        }
+    }
+
 } // test
