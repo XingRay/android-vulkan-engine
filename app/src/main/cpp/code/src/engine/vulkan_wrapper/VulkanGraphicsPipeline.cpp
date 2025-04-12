@@ -366,8 +366,8 @@ namespace engine {
         return *this;
     }
 
-    VulkanGraphicsPipeline &VulkanGraphicsPipeline::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size) {
-
+    VulkanGraphicsPipeline &VulkanGraphicsPipeline::updateUniformBuffer(const VulkanCommandPool& commandPool, uint32_t frameIndex, uint32_t set, uint32_t binding, const void *data, uint32_t size) {
+        mVulkanDescriptorBindingSets[frameIndex]->updateUniformBuffer(commandPool, set, binding, data, size);
         return *this;
     }
 

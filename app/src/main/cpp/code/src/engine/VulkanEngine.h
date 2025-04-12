@@ -114,7 +114,13 @@ namespace engine {
 
         VulkanEngine &updateIndexBuffer(const std::vector<uint32_t> &indices);
 
-        VulkanEngine &updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
+        VulkanEngine &updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, const void *data, uint32_t size);
+
+        template<class T>
+        VulkanEngine &updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, const T &data) {
+            getGraphicsPipeline().updateUniformBuffer(*mVulkanCommandPool, frameIndex, set, binding, static_cast<const void *>(&data), sizeof(T));
+            return *this;
+        }
 
         VulkanEngine &updatePushConstant(uint32_t index, const void *data);
 

@@ -49,6 +49,8 @@ namespace engine {
         const std::unique_ptr<VulkanDescriptorImageInfo> &getVulkanDescriptorImageInfo() const;
 
         VulkanDescriptorBinding &setVulkanDescriptorImageInfo(std::unique_ptr<VulkanDescriptorImageInfo> &&vulkanDescriptorImageInfo);
+
+        VulkanDescriptorBinding &updateUniformBuffer(const VulkanCommandPool& commandPool, const void *data, uint32_t size);
     };
 
 } // engine

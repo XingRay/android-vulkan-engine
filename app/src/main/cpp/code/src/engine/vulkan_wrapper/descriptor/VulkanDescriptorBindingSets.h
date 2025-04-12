@@ -26,6 +26,8 @@ namespace engine {
         const std::unordered_map<uint32_t, std::unique_ptr<VulkanDescriptorBindingSet>> &getVulkanDescriptorBindingSets() const;
 
         VulkanDescriptorBindingSets &set(uint32_t set, std::unique_ptr<VulkanDescriptorBindingSet> &&vulkanDescriptorBindingSet);
+
+        VulkanDescriptorBindingSets &updateUniformBuffer(const VulkanCommandPool& commandPool, uint32_t set, uint32_t binding, const void *data, uint32_t size);
     };
 
 } // engine

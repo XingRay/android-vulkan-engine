@@ -47,4 +47,9 @@ namespace engine {
         return *this;
     }
 
+    VulkanDescriptorBinding &VulkanDescriptorBinding::updateUniformBuffer(const VulkanCommandPool &commandPool, const void *data, uint32_t size) {
+        mVulkanDescriptorBufferInfo->update(commandPool, data, size);
+        return *this;
+    }
+
 } // engine

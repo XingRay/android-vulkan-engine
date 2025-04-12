@@ -120,7 +120,7 @@ namespace engine {
 
         VulkanGraphicsPipeline &updateIndexBuffer(const VulkanCommandPool &vulkanCommandPool, const std::vector<uint32_t> &indices);
 
-        VulkanGraphicsPipeline &updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, void *data, uint32_t size);
+        VulkanGraphicsPipeline &updateUniformBuffer(const VulkanCommandPool& commandPool, uint32_t frameIndex, uint32_t set, uint32_t binding, const void *data, uint32_t size);
 
         VulkanGraphicsPipeline &setDescriptorBindingBufferInfo(uint32_t frameIndex, uint32_t set, uint32_t binding, std::unique_ptr<VulkanDescriptorBufferInfo> &&vulkanBufferInfo);
 
