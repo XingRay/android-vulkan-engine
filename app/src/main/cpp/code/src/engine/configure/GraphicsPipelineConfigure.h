@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "engine/configure/vertex_buffer/VulkanVertexConfigures.h"
+#include "engine/configure/vertex_buffer/VertexConfigures.h"
 #include "engine/configure/index_buffer/IndexBufferConfigure.h"
-#include "engine/configure/push_constants/VulkanPushConstantConfigures.h"
+#include "engine/configure/push_constants/PushConstantConfigures.h"
 #include "engine/vulkan_wrapper/pipeline/GraphicsPipeline.h"
 #include "engine/configure/descriptor/PipelineLayoutConfigure.h"
 
@@ -27,7 +27,7 @@ namespace engine {
         /**
          * vertex
          */
-        VulkanVertexConfigures mVulkanVertexConfigures;
+        VertexConfigures mVertexConfigures;
 
         /**
          * index
@@ -43,7 +43,7 @@ namespace engine {
         /**
          * push constant
          */
-        VulkanPushConstantConfigures mVulkanPushConstantConfigures;
+        PushConstantConfigures mPushConstantConfigures;
 
     public:
         explicit GraphicsPipelineConfigure();

@@ -4,7 +4,6 @@
 
 #include "engine/configure/GraphicsPipelineConfigure.h"
 #include "engine/vulkan_wrapper/VulkanShaderModule.h"
-//#include "engine/vulkan_wrapper/VulkanDescriptorPool.h"
 #include "engine/vulkan_wrapper/pipeline/descriptor/VulkanDescriptorBindingSets.h"
 
 namespace engine {
@@ -27,7 +26,7 @@ namespace engine {
     GraphicsPipelineConfigure &GraphicsPipelineConfigure::addVertex(const std::function<void(VertexConfigure &)> &configure) {
         VertexConfigure config{};
         configure(config);
-        mVulkanVertexConfigures.addVertexConfigure(config);
+        mVertexConfigures.addVertexConfigure(config);
         return *this;
     }
 
@@ -66,7 +65,7 @@ namespace engine {
 //    }
 
     GraphicsPipelineConfigure &GraphicsPipelineConfigure::addPushConstant(uint32_t size, uint32_t offset, vk::ShaderStageFlagBits stageFlagBits) {
-        mVulkanPushConstantConfigures.addVulkanPushConstantConfigures(VulkanPushConstantConfigure(size, offset, stageFlagBits));
+        mPushConstantConfigures.addPushConstantConfigures(PushConstantConfigure(size, offset, stageFlagBits));
         return *this;
     }
 
@@ -81,9 +80,9 @@ namespace engine {
         VulkanShaderModule fragmentShaderModule = VulkanShaderModule(vulkanDevice, mFragmentShaderCode);
 
         // vertex buffer
-        std::vector<vk::VertexInputBindingDescription> vertexInputBindingDescriptions = mVulkanVertexConfigures.createVertexInputBindingDescriptions();
-        std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions = mVulkanVertexConfigures.createVertexInputAttributeDescriptions();
-        std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> vertexBuffers = mVulkanVertexConfigures.createVertexBuffers(vulkanDevice, commandPool);
+        std::vector<vk::VertexInputBindingDescription> vertexInputBindingDescriptions = mVertexConfigures.createVertexInputBindingDescriptions();
+        std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions = mVertexConfigures.createVertexInputAttributeDescriptions();
+        std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> vertexBuffers = mVertexConfigures.createVertexBuffers(vulkanDevice, commandPool);
 
         // index buffer
         // todo support index buffers
@@ -106,10 +105,10 @@ namespace engine {
         }
 
         // push constant
-        std::vector<vk::PushConstantRange> pushConstantRanges = mVulkanPushConstantConfigures.createPushConstantRanges();
+        std::vector<vk::PushConstantRange> pushConstantRanges = mPushConstantConfigures.createPushConstantRanges();
         // 检查总大小是否超出设备限制
         uint32_t maxPushConstantsSize = vulkanDevice.getMaxPushConstantsSize();
-        uint32_t totalPushConstantSize = mVulkanPushConstantConfigures.calcTotalPushConstantSize();
+        uint32_t totalPushConstantSize = mPushConstantConfigures.calcTotalPushConstantSize();
         if (totalPushConstantSize > maxPushConstantsSize) {
             throw std::runtime_error(
                     "Total Push Constant size (" + std::to_string(totalPushConstantSize) +
@@ -130,8 +129,8 @@ namespace engine {
                                                   frameCount
 //                                                  std::move(vulkanDescriptorPool),
 //                                                  descriptorSetLayouts,
-                                                  /*std::move(vulkanDescriptorBindingSets),
-                                                  std::move(pushConstantRanges)*/);
+                /*std::move(vulkanDescriptorBindingSets),
+                std::move(pushConstantRanges)*/);
     }
 
 } // engine

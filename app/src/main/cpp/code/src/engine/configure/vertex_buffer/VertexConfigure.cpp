@@ -22,7 +22,7 @@ namespace engine {
         return mStride;
     }
 
-    const std::vector<VulkanVertexAttributeConfigure> &VertexConfigure::getAttributes() const {
+    const std::vector<VertexAttributeConfigure> &VertexConfigure::getAttributes() const {
         return mAttributes;
     }
 
@@ -51,7 +51,7 @@ namespace engine {
 
     VertexConfigure &VertexConfigure::addAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset) {
         mCurrentAttributeLocation = location;
-        mAttributes.push_back(VulkanVertexAttributeConfigure{binding, location, format, offset});
+        mAttributes.push_back(VertexAttributeConfigure{binding, location, format, offset});
         mCurrentAttributeOffset += VulkanUtil::getFormatSize(format);
 
         return *this;

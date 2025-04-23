@@ -10,7 +10,7 @@
 
 namespace engine {
 
-    class VulkanVertexConfigures {
+    class VertexConfigures {
     private:
         /**
          * vertex
@@ -18,11 +18,11 @@ namespace engine {
         std::vector<VertexConfigure> mVertexConfigures;
 
     public:
-        VulkanVertexConfigures();
+        VertexConfigures();
 
-        ~VulkanVertexConfigures();
+        ~VertexConfigures();
 
-        VulkanVertexConfigures &addVertexConfigure(VertexConfigure vertexConfigure);
+        VertexConfigures &addVertexConfigure(VertexConfigure vertexConfigure);
 
         [[nodiscard]]
         std::vector<vk::VertexInputBindingDescription> createVertexInputBindingDescriptions() const;

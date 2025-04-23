@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 
-#include "VulkanVertexAttributeConfigure.h"
+#include "VertexAttributeConfigure.h"
 #include "engine/ShaderFormat.h"
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalVertexBuffer.h"
 
@@ -19,7 +19,7 @@ namespace engine {
         uint32_t mBinding;
         uint32_t mStride;
 
-        std::vector<VulkanVertexAttributeConfigure> mAttributes;
+        std::vector<VertexAttributeConfigure> mAttributes;
 
         // set buffer
         std::shared_ptr<VulkanDeviceLocalVertexBuffer> mBuffer;
@@ -43,7 +43,7 @@ namespace engine {
         uint32_t getStride() const;
 
         [[nodiscard]]
-        const std::vector<VulkanVertexAttributeConfigure> &getAttributes() const;
+        const std::vector<VertexAttributeConfigure> &getAttributes() const;
 
         VertexConfigure &stride(uint32_t stride);
 

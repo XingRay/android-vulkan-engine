@@ -8,16 +8,16 @@
 
 namespace engine {
 
-    class VulkanPushConstantConfigure {
+    class PushConstantConfigure {
     private:
         uint32_t mSize;
         uint32_t mOffset;
         vk::ShaderStageFlagBits mStageFlagBits;
 
     public:
-        VulkanPushConstantConfigure(uint32_t size, uint32_t offset, vk::ShaderStageFlagBits stageFlagBits);
+        PushConstantConfigure(uint32_t size, uint32_t offset, vk::ShaderStageFlagBits stageFlagBits);
 
-        ~VulkanPushConstantConfigure();
+        ~PushConstantConfigure();
 
         uint32_t getSize() const;
 

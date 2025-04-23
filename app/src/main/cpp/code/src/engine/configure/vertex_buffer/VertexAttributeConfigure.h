@@ -9,7 +9,7 @@
 
 namespace engine {
 
-    class VulkanVertexAttributeConfigure {
+    class VertexAttributeConfigure {
     private:
         uint32_t mBinding;
         uint32_t mLocation;
@@ -17,9 +17,9 @@ namespace engine {
         uint32_t mOffset;
 
     public:
-        VulkanVertexAttributeConfigure(uint32_t binding, uint32_t location, vk::Format format, uint32_t offset);
+        VertexAttributeConfigure(uint32_t binding, uint32_t location, vk::Format format, uint32_t offset);
 
-        ~VulkanVertexAttributeConfigure();
+        ~VertexAttributeConfigure();
 
         [[nodiscard]]
         uint32_t getBinding() const;
