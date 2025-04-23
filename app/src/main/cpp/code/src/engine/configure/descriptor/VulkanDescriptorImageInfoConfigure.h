@@ -11,58 +11,33 @@
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/vulkan_wrapper/image/VulkanImageBuilderInterface.h"
-#include "engine/vulkan_wrapper/image/VulkanSamplerBuilderInterface.h"
-
-#include "engine/vulkan_wrapper/image/VulkanDescriptorImageInfo.h"
+#include "engine/vulkan_wrapper/sampler/builder/SamplerBuilderInterface.h"
+#include "engine/vulkan_wrapper/pipeline/resource/ImageInfo.h"
 
 namespace engine {
 
     class VulkanDescriptorImageInfoConfigure {
     private:
-//        // set bufferInfo
-//        std::unique_ptr<VulkanDescriptorBufferInfo> mVulkanDescriptorBufferInfo;
-//
-//        // create Buffer
-//        std::unique_ptr<VulkanBufferBuilder> mVulkanBufferBuilder;
-//        vk::DeviceSize mVulkanBufferCapacity;
-//
-//        // create bufferInfo
-//        uint32_t mVulkanBufferOffset;
-//        uint32_t mVulkanBufferRange;
-//
-//        // update buffer
-//        std::vector<uint8_t> mVulkanBufferData;
 
         // set ImageInfo
-        std::unique_ptr<VulkanDescriptorImageInfo> mVulkanDescriptorBufferInfo;
+        std::unique_ptr<ImageInfo> mVulkanDescriptorBufferInfo;
 
         //create ImageInfo
         std::unique_ptr<VulkanImageBuilderInterface> mVulkanImageBuilder;
-        std::unique_ptr<VulkanSamplerBuilderInterface> mVulkanSamplerBuilder;
+        std::unique_ptr<SamplerBuilderInterface> mVulkanSamplerBuilder;
 
-
-        // create ImageView
-//        std::unique_ptr<VulkanBufferBuilder> mVulkanBufferBuilder;
-//        vk::DeviceSize mVulkanBufferCapacity;
-
-        // create BufferView
-//        uint32_t mVulkanBufferOffset;
-//        uint32_t mVulkanBufferRange;
-
-        // update buffer
-//        std::vector<uint8_t> mVulkanBufferData;
-
+        // image data
         std::shared_ptr<ImageInterface> mImage;
 
     public:
         VulkanDescriptorImageInfoConfigure(
                 std::unique_ptr<VulkanImageBuilderInterface> &&vulkanImageBuilder,
-                std::unique_ptr<VulkanSamplerBuilderInterface> &&vulkanSamplerBuilder,
+                std::unique_ptr<SamplerBuilderInterface> &&vulkanSamplerBuilder,
                 std::unique_ptr<engine::ImageInterface> &&image);
 
         ~VulkanDescriptorImageInfoConfigure();
 
-        std::unique_ptr<VulkanDescriptorImageInfo> provideVulkanDescriptorImageInfo(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
+        std::unique_ptr<ImageInfo> provideVulkanDescriptorImageInfo(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool);
     };
 
 } // engine

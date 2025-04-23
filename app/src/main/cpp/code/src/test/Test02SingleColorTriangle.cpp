@@ -51,36 +51,37 @@ namespace test02 {
                 .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
-                    graphicsPipelineConfigure
-                            .vertexShaderCode(std::move(vertexShaderCode))
-                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
-                                vertexConfigure
-                                        .binding(0)
-                                        .stride(sizeof(Vertex))
-                                        .addAttribute(ShaderFormat::Vec3)
-                                        .setVertexBuffer(vertices);
-                            })
-                            .index(std::move(indices))
-                                    // or
-//                            .index([&](engine::VulkanIndexConfigure &indexConfigure) {
-//                                indexConfigure
-//                                        .setIndexBuffer(std::move(indices));
+//                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+//                    graphicsPipelineConfigure
+//                            .vertexShaderCode(std::move(vertexShaderCode))
+//                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+//                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+//                                vertexConfigure
+//                                        .binding(0)
+//                                        .stride(sizeof(Vertex))
+//                                        .addAttribute(ShaderFormat::Vec3)
+//                                        .setVertexBuffer(vertices);
 //                            })
-                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
-                                descriptorSetConfigure
-                                        .set(0)
-                                        .addUniform([&](engine::VulkanUniformConfigure &uniformConfigure) {
-                                            uniformConfigure
-                                                    .binding(0)
-                                                    .descriptorRange(1)
-                                                    .descriptorOffset(0)
-                                                    .shaderStageFlags(vk::ShaderStageFlagBits::eVertex)
-                                                    .setUniformBuffer(colorUniformBufferObject);
-                                        });
-                            });
-                })
+//                            .index(std::move(indices))
+//                                    // or
+////                            .index([&](engine::VulkanIndexConfigure &indexConfigure) {
+////                                indexConfigure
+////                                        .setIndexBuffer(std::move(indices));
+////                            })
+////                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
+////                                descriptorSetConfigure
+////                                        .set(0)
+////                                        .addUniform([&](engine::VulkanUniformConfigure &uniformConfigure) {
+////                                            uniformConfigure
+////                                                    .binding(0)
+////                                                    .descriptorRange(1)
+////                                                    .descriptorOffset(0)
+////                                                    .shaderStageFlags(vk::ShaderStageFlagBits::eVertex)
+////                                                    .setUniformBuffer(colorUniformBufferObject);
+////                                        });
+////                            })
+//                            ;
+//                })
                 .build();
     }
 

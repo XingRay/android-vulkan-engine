@@ -151,13 +151,13 @@ namespace engine {
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::graphicsPipeline(const std::function<void(VulkanGraphicsPipelineConfigure &)> &configure) {
-        mVulkanGraphicsPipelineConfigure = std::make_unique<VulkanGraphicsPipelineConfigure>();
+    VulkanEngineBuilder &VulkanEngineBuilder::graphicsPipeline(const std::function<void(GraphicsPipelineConfigure & )> &configure) {
+        mVulkanGraphicsPipelineConfigure = std::make_unique<GraphicsPipelineConfigure>();
         configure(*mVulkanGraphicsPipelineConfigure);
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::computePipeline(const std::function<void(VulkanComputePipelineConfigure &)> &configure) {
+    VulkanEngineBuilder &VulkanEngineBuilder::computePipeline(const std::function<void(ComputePipelineConfigure & )> &configure) {
         return *this;
     }
 
@@ -201,13 +201,13 @@ namespace engine {
 
         std::unique_ptr<VulkanRenderPass> renderPass = std::make_unique<VulkanRenderPass>(*vulkanDevice, *swapchain);
 
-        std::unique_ptr<VulkanGraphicsPipeline> vulkanGraphicsPipeline = nullptr;
+        std::unique_ptr<GraphicsPipeline> vulkanGraphicsPipeline = nullptr;
         if (mVulkanGraphicsPipelineConfigure != nullptr) {
             LOG_D("create VulkanGraphicsPipeline");
             vulkanGraphicsPipeline = mVulkanGraphicsPipelineConfigure->build(*vulkanDevice, *swapchain, *renderPass, *commandPool, mFrameCount);
         }
 
-        std::unique_ptr<VulkanComputePipeline> vulkanComputePipeline = nullptr;
+        std::unique_ptr<ComputePipeline> vulkanComputePipeline = nullptr;
         if (mVulkanComputePipelineConfigure != nullptr) {
             LOG_D("create VulkanGraphicsPipeline");
             vulkanComputePipeline = mVulkanComputePipelineConfigure->build();//std::make_unique<VulkanGraphicsPipeline>(*vulkanDevice, *swapchain, *renderPass, *vulkanShader);

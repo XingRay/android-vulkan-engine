@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "vulkan/vulkan.hpp"
 #include "engine/vulkan_wrapper/VulkanDevice.h"
-#include "engine/VulkanPhysicalDeviceCandidate.h"
+#include "engine/configure/physical_device/VulkanPhysicalDeviceCandidate.h"
 
 namespace engine {
 

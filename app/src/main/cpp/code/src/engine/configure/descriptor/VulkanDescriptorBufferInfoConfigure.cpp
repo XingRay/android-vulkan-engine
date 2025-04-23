@@ -2,21 +2,21 @@
 // Created by leixing on 2025/3/31.
 //
 
-#include "VulkanDescriptorBufferInfoConfigure.h"
+#include "engine/configure/descriptor/VulkanDescriptorBufferInfoConfigure.h"
 
 namespace engine {
 
-    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanDescriptorBufferInfo> &&bufferInfo, const void *data, uint32_t size)
+    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<BufferInfo> &&bufferInfo, const void *data, uint32_t size)
             : mVulkanDescriptorBufferInfo(std::move(bufferInfo)),
               mVulkanBufferCapacity(0), mVulkanBufferOffset(0), mVulkanBufferRange(0) {
 
     }
 
-    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanDescriptorBufferInfo> &&bufferInfo, std::vector<uint8_t> &&data)
+    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<BufferInfo> &&bufferInfo, std::vector<uint8_t> &&data)
             : mVulkanDescriptorBufferInfo(std::move(bufferInfo)), mVulkanBufferData(std::move(data)),
               mVulkanBufferCapacity(0), mVulkanBufferOffset(0), mVulkanBufferRange(0) {}
 
-    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<VulkanDescriptorBufferInfo> &&bufferInfo)
+    VulkanDescriptorBufferInfoConfigure::VulkanDescriptorBufferInfoConfigure(std::unique_ptr<BufferInfo> &&bufferInfo)
             : mVulkanDescriptorBufferInfo(std::move(bufferInfo)),
               mVulkanBufferCapacity(0), mVulkanBufferOffset(0), mVulkanBufferRange(0) {}
 
@@ -56,7 +56,7 @@ namespace engine {
 
     VulkanDescriptorBufferInfoConfigure::~VulkanDescriptorBufferInfoConfigure() = default;
 
-    std::unique_ptr<VulkanDescriptorBufferInfo> VulkanDescriptorBufferInfoConfigure::provideVulkanDescriptorBufferInfo(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
+    std::unique_ptr<BufferInfo> VulkanDescriptorBufferInfoConfigure::provideVulkanDescriptorBufferInfo(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) {
         if (mVulkanDescriptorBufferInfo != nullptr) {
             if (!mVulkanBufferData.empty()) {
                 mVulkanDescriptorBufferInfo->update(commandPool, mVulkanBufferData.data(), mVulkanBufferData.size());
@@ -72,7 +72,7 @@ namespace engine {
         if (!mVulkanBufferData.empty()) {
             vulkanBuffer->update(commandPool, mVulkanBufferData.data(), mVulkanBufferData.size());
         }
-        return std::make_unique<VulkanDescriptorBufferInfo>(std::move(vulkanBuffer), mVulkanBufferOffset, mVulkanBufferRange);
+        return std::make_unique<BufferInfo>(std::move(vulkanBuffer), mVulkanBufferOffset, mVulkanBufferRange);
     }
 
     VulkanDescriptorBufferInfoConfigure &VulkanDescriptorBufferInfoConfigure::copyData(const void *data, uint32_t size) {

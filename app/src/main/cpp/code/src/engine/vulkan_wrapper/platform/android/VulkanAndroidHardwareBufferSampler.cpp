@@ -9,10 +9,9 @@
 namespace engine {
 
     VulkanAndroidHardwareBufferSampler::VulkanAndroidHardwareBufferSampler(const VulkanDevice &vulkanDevice,
-                                                                           const AndroidHardwareBuffer& androidHardwareBuffer,
-                                                                           const VulkanAndroidSamplerYcbcrConversion &vulkanAndroidSamplerYcbcrConversion)
-            : mVulkanDevice(vulkanDevice),
-            mImage(vulkanDevice, androidHardwareBuffer, vulkanAndroidSamplerYcbcrConversion) {
+                                                                           const VulkanAndroidHardwareBufferYcbcrConversion &vulkanAndroidSamplerYcbcrConversion)
+            : mVulkanDevice(vulkanDevice) {
+
         vk::Device device = vulkanDevice.getDevice();
 
         vk::SamplerCreateInfo samplerCreateInfo;
@@ -47,18 +46,8 @@ namespace engine {
         device.destroySampler(mSampler);
     }
 
-    vk::Sampler VulkanAndroidHardwareBufferSampler::getSampler() const {
+    const vk::Sampler &VulkanAndroidHardwareBufferSampler::getSampler() const {
         return mSampler;
     }
 
-    std::vector<vk::DescriptorImageInfo> VulkanAndroidHardwareBufferSampler::createDescriptorImageInfos() {
-        vk::DescriptorImageInfo samplerDescriptorImageInfo;
-        samplerDescriptorImageInfo
-                .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-                .setImageView(mImage.getImageView())
-                .setSampler(mSampler);
-
-        std::vector<vk::DescriptorImageInfo> samplerDescriptorImageInfos = {samplerDescriptorImageInfo};
-        return samplerDescriptorImageInfos;
-    }
 } // engine

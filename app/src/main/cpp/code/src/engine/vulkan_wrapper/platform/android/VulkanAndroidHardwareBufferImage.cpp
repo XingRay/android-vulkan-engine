@@ -12,11 +12,9 @@ namespace engine {
 
     VulkanAndroidHardwareBufferImage::VulkanAndroidHardwareBufferImage(const VulkanDevice &vulkanDevice,
                                                                        const AndroidHardwareBuffer &androidHardwareBuffer,
-                                                                       const VulkanAndroidSamplerYcbcrConversion &vulkanAndroidSamplerYcbcrConversion)
+                                                                       const VulkanAndroidHardwareBufferYcbcrConversion &vulkanAndroidSamplerYcbcrConversion)
             : mVulkanDevice(vulkanDevice) {
         vk::Device device = mVulkanDevice.getDevice();
-
-//        mDataSize = androidHardwareBuffer.getDataSize();
 
         AHardwareBuffer_Desc hardwareBufferDescription = androidHardwareBuffer.getAndroidHardwareBufferDescription();
         vk::AndroidHardwareBufferPropertiesANDROID hardwareBufferProperties = androidHardwareBuffer.getAndroidHardwareBufferProperties();
@@ -158,6 +156,19 @@ namespace engine {
 
     const vk::ImageView &VulkanAndroidHardwareBufferImage::getImageView() const {
         return mImageView;
+    }
+
+    [[nodiscard]]
+    uint32_t VulkanAndroidHardwareBufferImage::getMipLevels() const {
+        return 0;
+    }
+
+    void VulkanAndroidHardwareBufferImage::transitionImageLayout(const VulkanCommandPool &commandPool) {
+
+    }
+
+    void VulkanAndroidHardwareBufferImage::update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size) {
+
     }
 
 } // engine

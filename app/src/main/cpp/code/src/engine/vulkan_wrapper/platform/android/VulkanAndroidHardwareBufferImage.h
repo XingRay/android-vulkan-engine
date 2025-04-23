@@ -15,11 +15,12 @@
 #include "engine/vulkan_wrapper/image/VulkanImage.h"
 
 #include "engine/vulkan_wrapper/platform/android/AndroidHardwareBuffer.h"
-#include "engine/vulkan_wrapper/platform/android/VulkanAndroidSamplerYcbcrConversion.h"
+#include "engine/vulkan_wrapper/platform/android/VulkanAndroidHardwareBufferYcbcrConversion.h"
+#include "engine/vulkan_wrapper/image/VulkanImageInterface.h"
 
 namespace engine {
 
-    class VulkanAndroidHardwareBufferImage {
+    class VulkanAndroidHardwareBufferImage : public VulkanImageInterface {
     private:
         const VulkanDevice &mVulkanDevice;
 
@@ -29,19 +30,27 @@ namespace engine {
 
     public:
         VulkanAndroidHardwareBufferImage(const VulkanDevice &vulkanDevice,
-                                         const AndroidHardwareBuffer& androidHardwareBuffer,
-                                         const VulkanAndroidSamplerYcbcrConversion &vulkanAndroidSamplerYcbcrConversion);
+                                         const AndroidHardwareBuffer &androidHardwareBuffer,
+                                         const VulkanAndroidHardwareBufferYcbcrConversion &vulkanAndroidSamplerYcbcrConversion);
 
-        ~VulkanAndroidHardwareBufferImage();
+        ~VulkanAndroidHardwareBufferImage() override;
 
         [[nodiscard]]
-        const vk::Image &getImage() const;
+        const vk::Image &getImage() const override;
+
+        [[nodiscard]]
+        const vk::ImageView &getImageView() const override;
 
         [[nodiscard]]
         const vk::DeviceMemory &getDeviceMemory() const;
 
         [[nodiscard]]
-        const vk::ImageView &getImageView() const;
+        uint32_t getMipLevels() const override;
+
+        void transitionImageLayout(const VulkanCommandPool &commandPool) override;
+
+        void update(const VulkanCommandPool &vulkanCommandPool, const void *data, uint32_t size) override;
+
     };
 
 } // engine

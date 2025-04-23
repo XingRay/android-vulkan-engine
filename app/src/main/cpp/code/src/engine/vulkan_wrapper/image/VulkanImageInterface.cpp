@@ -2,7 +2,7 @@
 // Created by leixing on 2025/3/30.
 //
 
-#include "engine/vulkan_wrapper/image/VulkanImageInterface.h"
+#include "VulkanImageInterface.h"
 
 namespace engine {
 

@@ -21,8 +21,8 @@ namespace engine {
                                std::unique_ptr<VulkanCommandPool> commandPool,
                                std::unique_ptr<VulkanSwapchain> swapchain,
                                std::unique_ptr<VulkanRenderPass> renderPass,
-                               std::unique_ptr<VulkanGraphicsPipeline> graphicsPipeline,
-                               std::unique_ptr<VulkanComputePipeline> computePipeline,
+                               std::unique_ptr<GraphicsPipeline> graphicsPipeline,
+                               std::unique_ptr<ComputePipeline> computePipeline,
                                std::unique_ptr<VulkanFrameBuffer> frameBuffer,
                                std::unique_ptr<VulkanSyncObject> syncObject,
                                uint32_t frameCount) {
@@ -114,7 +114,7 @@ namespace engine {
         return mCurrentFrameIndex;
     }
 
-    VulkanGraphicsPipeline &VulkanEngine::getGraphicsPipeline() const {
+    GraphicsPipeline &VulkanEngine::getGraphicsPipeline() const {
         return *mGraphicsPipeline;
     }
 
@@ -156,7 +156,7 @@ namespace engine {
     }
 
     VulkanEngine &VulkanEngine::updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, const void *data, uint32_t size) {
-        getGraphicsPipeline().updateUniformBuffer(*mVulkanCommandPool, frameIndex, set, binding, data, size);
+//        getGraphicsPipeline().updateUniformBuffer(*mVulkanCommandPool, frameIndex, set, binding, data, size);
         return *this;
     }
 

@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "engine/vulkan_wrapper/VulkanDevice.h"
-#include "engine/vulkan_wrapper/buffer/VulkanBufferInterface.h"
+#include "VulkanBufferInterface.h"
 
 namespace engine {
 

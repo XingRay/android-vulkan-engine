@@ -3,10 +3,12 @@
 //
 
 #include "Test07NdkCamera.h"
-#include "FileUtil.h"
 
 #include <chrono>
 #include <thread>
+
+#include "engine/VulkanEngineBuilder.h"
+#include "FileUtil.h"
 
 namespace std {
 
@@ -77,38 +79,6 @@ namespace test07 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/07_ndk_camera.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/07_ndk_camera.frag.spv");
 
-//        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
-//                .layers({}, layers)
-//                .extensions({}, instanceExtensions)
-//                .asGraphics()
-//                .deviceExtensions(std::move(deviceExtensions))
-//                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
-//                .enableMsaa(1)
-//                .physicalDeviceAsDefault()
-//                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
-//                    shaderConfigure
-//                            .vertexShaderCode(std::move(vertexShaderCode))
-//                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
-//                                vertexConfigure
-//                                        .binding(0)
-//                                        .size(sizeof(Vertex))
-//                                        .addAttribute(ShaderFormat::Vec3)
-//                                        .addAttribute(ShaderFormat::Vec2);
-//                            })
-//                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
-//                                configure
-//                                        .set(0)
-//                                        .addAndroidHardwareBufferSampler(0, vk::ShaderStageFlagBits::eFragment, hardwareBuffer);
-//                            });
-//                })
-//                .build();
-//
-//        mVulkanEngine = std::move(engine);
-    }
-
-    void Test07NdkCamera::init() {
-
         // x轴朝右, y轴朝下, z轴朝前, 右手系 (x,y)->z
         std::vector<Vertex> vertices = {
                 {{-1.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}, // 左上角
@@ -119,16 +89,47 @@ namespace test07 {
 
         std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
 
-//        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
-//        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
+        mVulkanEngine = engine::VulkanEngineBuilder{}
+                .layers({}, std::move(layers))
+                .extensions({}, std::move(instanceExtensions))
+                .deviceExtensions(std::move(deviceExtensions))
+                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .enableMsaa()
+                .physicalDeviceAsDefault()
+//                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+//                    graphicsPipelineConfigure
+//                            .vertexShaderCode(std::move(vertexShaderCode))
+//                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+//                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+//                                vertexConfigure
+//                                        .binding(0)
+//                                        .stride(sizeof(Vertex))
+//                                        .addAttribute(ShaderFormat::Vec3)
+//                                        .addAttribute(ShaderFormat::Vec2)
+//                                        .setVertexBuffer(vertices);
+//                            })
+//                            .index(std::move(indices))
+//                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex)
+//                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
+//                                descriptorSetConfigure
+//                                        .set(0)
+////                                        .addSampler([&](engine::VulkanSamplerConfigure &samplerConfigure) {
+////                                            samplerConfigure
+////                                                    .binding(1)
+////                                                    .descriptorRange(1)
+////                                                    .descriptorOffset(0)
+////                                                    .shaderStageFlags(vk::ShaderStageFlagBits::eFragment)
+////                                                    .setImage(std::move(image));
+////                                        })
+//                                        ;
 //
-//        LOG_D("mVulkanEngine->updateVertexBuffer");
-//        mVulkanEngine->updateVertexBuffer(vertices);
-//
-//        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
-//        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-//        LOG_D("mVulkanEngine->updateIndexBuffer");
-//        mVulkanEngine->updateIndexBuffer(indices);
+//                            });
+//                })
+                .build();
+    }
+
+    void Test07NdkCamera::init() {
+
     }
 
     // 检查是否准备好
@@ -159,7 +160,7 @@ namespace test07 {
 
             // 每 5 秒输出一次帧率
             if (elapsedTime >= 5) {
-                float fps = static_cast<float>(frameCount) / elapsedTime; // 计算帧率
+                float fps = static_cast<float>(frameCount) / static_cast<float>(elapsedTime); // 计算帧率
                 LOG_D("FPS: %.2f", fps);                                 // 输出帧率
 
                 // 重置统计

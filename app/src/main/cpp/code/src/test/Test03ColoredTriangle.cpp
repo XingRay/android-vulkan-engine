@@ -50,7 +50,7 @@ namespace test03 {
                 .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+                .graphicsPipeline([&](engine::GraphicsPipelineConfigure &graphicsPipelineConfigure) {
                     graphicsPipelineConfigure
                             .vertexShaderCode(std::move(vertexShaderCode))
                             .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))

@@ -21,12 +21,12 @@
 #include "vulkan/vulkan.hpp"
 
 #include "engine/vulkan_wrapper/VulkanInstance.h"
-#include "engine/VulkanPhysicalDeviceProvider.h"
+#include "engine/configure/physical_device/VulkanPhysicalDeviceProvider.h"
 
 #include "engine/VulkanEngine.h"
 #include "engine/VulkanSurfaceBuilder.h"
-#include "engine/configure/VulkanGraphicsPipelineConfigure.h"
-#include "engine/configure/VulkanComputePipelineConfigure.h"
+#include "engine/configure/GraphicsPipelineConfigure.h"
+#include "engine/configure/ComputePipelineConfigure.h"
 
 #include "engine/common/Selector.h"
 
@@ -52,8 +52,8 @@ namespace engine {
         std::unique_ptr<VulkanPhysicalDeviceProvider> mVulkanPhysicalDeviceProvider;
         std::unique_ptr<common::ValueSelector<uint32_t>> mMsaaSelector;
 
-        std::unique_ptr<VulkanGraphicsPipelineConfigure> mVulkanGraphicsPipelineConfigure;
-        std::unique_ptr<VulkanComputePipelineConfigure> mVulkanComputePipelineConfigure;
+        std::unique_ptr<GraphicsPipelineConfigure> mVulkanGraphicsPipelineConfigure;
+        std::unique_ptr<ComputePipelineConfigure> mVulkanComputePipelineConfigure;
 
 //        // shader
 //        std::vector<char> mComputeShaderCode;
@@ -129,10 +129,10 @@ namespace engine {
         VulkanEngineBuilder &enableMsaa(const std::function<uint32_t(const std::vector<uint32_t> &)> &selector);
 
         // graphics pipeline
-        VulkanEngineBuilder &graphicsPipeline(const std::function<void(VulkanGraphicsPipelineConfigure &)> &configure);
+        VulkanEngineBuilder &graphicsPipeline(const std::function<void(GraphicsPipelineConfigure &)> &configure);
 
         // compute pipeline
-        VulkanEngineBuilder &computePipeline(const std::function<void(VulkanComputePipelineConfigure &)> &configure);
+        VulkanEngineBuilder &computePipeline(const std::function<void(ComputePipelineConfigure &)> &configure);
 
         std::unique_ptr<VulkanEngine> build();
 

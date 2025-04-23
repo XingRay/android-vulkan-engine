@@ -10,7 +10,7 @@
 #include "engine/common/StringListSelector.h"
 #include "engine/SwapChainSupportDetail.h"
 #include "engine/QueueFamilyIndices.h"
-#include "engine/VulkanPhysicalDeviceSurfaceSupport.h"
+#include "engine/configure/physical_device/VulkanPhysicalDeviceSurfaceSupport.h"
 #include "engine/vulkan_wrapper/VulkanPhysicalDevice.h"
 
 namespace engine {

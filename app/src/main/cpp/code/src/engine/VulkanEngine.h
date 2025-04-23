@@ -15,20 +15,20 @@
 #include "engine/vulkan_wrapper/VulkanShader.h"
 #include "engine/vulkan_wrapper/VulkanSwapchain.h"
 #include "engine/vulkan_wrapper/VulkanRenderPass.h"
-#include "engine/vulkan_wrapper/VulkanGraphicsPipeline.h"
-#include "engine/vulkan_wrapper/VulkanComputePipeline.h"
+#include "engine/vulkan_wrapper/pipeline/GraphicsPipeline.h"
+#include "engine/vulkan_wrapper/pipeline/ComputePipeline.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalVertexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleVertexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalIndexBuffer.h"
 #include "engine/vulkan_wrapper/buffer/host_visible/VulkanHostVisibleIndexBuffer.h"
-#include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
+#include "engine/vulkan_wrapper//buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
-#include "engine/vulkan_wrapper/image/VulkanSampler.h"
+#include "engine/vulkan_wrapper/sampler/DefaultSampler.h"
 
 #include "engine/common/StringListSelector.h"
-#include "engine/VulkanPhysicalDeviceProvider.h"
+#include "engine/configure/physical_device/VulkanPhysicalDeviceProvider.h"
 
 namespace engine {
 
@@ -50,8 +50,8 @@ namespace engine {
         std::unique_ptr<VulkanRenderPass> mRenderPass;
 
         // todo std::vector<VulkanGraphicsPipeline> mGraphicsPipelines;
-        std::unique_ptr<VulkanGraphicsPipeline> mGraphicsPipeline;
-        std::unique_ptr<VulkanComputePipeline> mComputePipeline;
+        std::unique_ptr<GraphicsPipeline> mGraphicsPipeline;
+        std::unique_ptr<ComputePipeline> mComputePipeline;
 
         std::unique_ptr<VulkanCommandPool> mVulkanCommandPool;
         std::unique_ptr<VulkanFrameBuffer> mFrameBuffer;
@@ -66,8 +66,8 @@ namespace engine {
                      std::unique_ptr<VulkanCommandPool> commandPool,
                      std::unique_ptr<VulkanSwapchain> swapchain,
                      std::unique_ptr<VulkanRenderPass> renderPass,
-                     std::unique_ptr<VulkanGraphicsPipeline> graphicsPipeline,
-                     std::unique_ptr<VulkanComputePipeline> computePipeline,
+                     std::unique_ptr<GraphicsPipeline> graphicsPipeline,
+                     std::unique_ptr<ComputePipeline> computePipeline,
                      std::unique_ptr<VulkanFrameBuffer> frameBuffer,
                      std::unique_ptr<VulkanSyncObject> syncObject,
                      uint32_t frameCount);
@@ -87,7 +87,7 @@ namespace engine {
         uint32_t getCurrentFrameIndex() const;
 
         [[nodiscard]]
-        VulkanGraphicsPipeline &getGraphicsPipeline() const;
+        GraphicsPipeline &getGraphicsPipeline() const;
 
         VulkanEngine &createVertexBuffer(size_t size);
 
@@ -118,7 +118,7 @@ namespace engine {
 
         template<class T>
         VulkanEngine &updateUniformBuffer(uint32_t frameIndex, uint32_t set, uint32_t binding, const T &data) {
-            getGraphicsPipeline().updateUniformBuffer(*mVulkanCommandPool, frameIndex, set, binding, static_cast<const void *>(&data), sizeof(T));
+//            getGraphicsPipeline().updateUniformBuffer(*mVulkanCommandPool, frameIndex, set, binding, static_cast<const void *>(&data), sizeof(T));
             return *this;
         }
 

@@ -26,17 +26,17 @@
 #include "engine/vulkan_wrapper/VulkanShader.h"
 #include "engine/vulkan_wrapper/VulkanSwapchain.h"
 #include "engine/vulkan_wrapper/VulkanRenderPass.h"
-#include "engine/vulkan_wrapper/VulkanGraphicsPipeline.h"
+#include "engine/vulkan_wrapper/pipeline/GraphicsPipeline.h"
 #include "engine/vulkan_wrapper/VulkanCommandPool.h"
 //#include "engine/vulkan_wrapper/buffer/VulkanVertexBuffer.h"
 //#include "engine/vulkan_wrapper/buffer/VulkanIndexBuffer.h"
 //#include "engine/vulkan_wrapper/buffer/VulkanUniformBuffer.h"
 #include "engine/vulkan_wrapper/VulkanSyncObject.h"
 #include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
-#include "engine/vulkan_wrapper/image/VulkanSampler.h"
+#include "engine/vulkan_wrapper/sampler/DefaultSampler.h"
 
 #include "engine/common/StringListSelector.h"
-#include "engine/VulkanPhysicalDeviceProvider.h"
+#include "engine/configure/physical_device/VulkanPhysicalDeviceProvider.h"
 
 namespace test10 {
 

@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "engine/vulkan_wrapper/buffer/device_local/VulkanDeviceLocalUniformBuffer.h"
-#include "engine/vulkan_wrapper/buffer/VulkanBufferBuilderInterface.h"
+#include "VulkanBufferBuilderInterface.h"
 
 namespace engine {
 

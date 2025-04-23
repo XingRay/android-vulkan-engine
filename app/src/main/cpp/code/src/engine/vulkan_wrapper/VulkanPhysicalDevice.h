@@ -7,7 +7,7 @@
 #include "vulkan/vulkan.hpp"
 #include <optional>
 
-#include "engine/VulkanPhysicalDeviceSurfaceSupport.h"
+#include "engine/configure/physical_device/VulkanPhysicalDeviceSurfaceSupport.h"
 #include "engine/vulkan_wrapper/VulkanSurface.h"
 
 namespace engine {
