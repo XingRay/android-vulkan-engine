@@ -63,7 +63,7 @@ namespace engine {
         /**
          * vertex
          */
-        GraphicsPipelineConfigure &addVertex(const std::function<void(VulkanVertexConfigure &)> &configure);
+        GraphicsPipelineConfigure &addVertex(const std::function<void(VertexConfigure &)> &configure);
 
         /**
          * index

@@ -14,7 +14,7 @@
 
 namespace engine {
 
-    class VulkanVertexConfigure {
+    class VertexConfigure {
     private:
         uint32_t mBinding;
         uint32_t mStride;
@@ -32,9 +32,9 @@ namespace engine {
         uint32_t mCurrentAttributeOffset = 0;
 
     public:
-        VulkanVertexConfigure();
+        VertexConfigure();
 
-        ~VulkanVertexConfigure();
+        ~VertexConfigure();
 
         [[nodiscard]]
         uint32_t getBinding() const;
@@ -45,37 +45,37 @@ namespace engine {
         [[nodiscard]]
         const std::vector<VulkanVertexAttributeConfigure> &getAttributes() const;
 
-        VulkanVertexConfigure &stride(uint32_t stride);
+        VertexConfigure &stride(uint32_t stride);
 
-        VulkanVertexConfigure &binding(uint32_t binding);
+        VertexConfigure &binding(uint32_t binding);
 
-        VulkanVertexConfigure &addAttribute(ShaderFormat format);
+        VertexConfigure &addAttribute(ShaderFormat format);
 
-        VulkanVertexConfigure &addAttribute(vk::Format format);
+        VertexConfigure &addAttribute(vk::Format format);
 
-        VulkanVertexConfigure &addAttribute(uint32_t location, uint32_t binding, ShaderFormat format, uint32_t offset);
+        VertexConfigure &addAttribute(uint32_t location, uint32_t binding, ShaderFormat format, uint32_t offset);
 
-        VulkanVertexConfigure &addAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset);
+        VertexConfigure &addAttribute(uint32_t location, uint32_t binding, vk::Format format, uint32_t offset);
 
 
-        VulkanVertexConfigure &setVertexBuffer(uint32_t capacity);
+        VertexConfigure &setVertexBuffer(uint32_t capacity);
 
-        VulkanVertexConfigure &setVertexBuffer(uint32_t capacity, const void *data, uint32_t size);
+        VertexConfigure &setVertexBuffer(uint32_t capacity, const void *data, uint32_t size);
 
-        VulkanVertexConfigure &setVertexBuffer(const void *data, uint32_t size);
+        VertexConfigure &setVertexBuffer(const void *data, uint32_t size);
 
         template<class T>
-        VulkanVertexConfigure &setVertexBuffer(uint32_t capacity, const std::vector<T> &data) {
+        VertexConfigure &setVertexBuffer(uint32_t capacity, const std::vector<T> &data) {
             return setVertexBuffer(capacity, data.data(), data.size() * sizeof(T));
         }
 
         template<class T>
-        VulkanVertexConfigure &setVertexBuffer(const std::vector<T> &data) {
+        VertexConfigure &setVertexBuffer(const std::vector<T> &data) {
             uint32_t size = data.size() * sizeof(T);
             return setVertexBuffer(size, data.data(), size);
         }
 
-        VulkanVertexConfigure &setVertexBuffer(const std::shared_ptr<VulkanDeviceLocalVertexBuffer> &buffer);
+        VertexConfigure &setVertexBuffer(const std::shared_ptr<VulkanDeviceLocalVertexBuffer> &buffer);
 
         [[nodiscard]]
         std::shared_ptr<VulkanDeviceLocalVertexBuffer> createVertexBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const;

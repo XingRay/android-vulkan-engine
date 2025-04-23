@@ -24,10 +24,10 @@ namespace engine {
         return *this;
     }
 
-    GraphicsPipelineConfigure &GraphicsPipelineConfigure::addVertex(const std::function<void(VulkanVertexConfigure &)> &configure) {
-        VulkanVertexConfigure config{};
+    GraphicsPipelineConfigure &GraphicsPipelineConfigure::addVertex(const std::function<void(VertexConfigure &)> &configure) {
+        VertexConfigure config{};
         configure(config);
-        mVulkanVertexConfigures.addVulkanVertexConfigure(config);
+        mVulkanVertexConfigures.addVertexConfigure(config);
         return *this;
     }
 

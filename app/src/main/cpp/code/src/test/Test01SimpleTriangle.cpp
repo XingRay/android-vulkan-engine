@@ -45,7 +45,7 @@ namespace test01 {
                     graphicsPipelineConfigure
                             .vertexShaderCode(std::move(vertexShaderCode))
                             .fragmentShaderCode(std::move(fragmentShaderCode))
-                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+                            .addVertex([&](engine::VertexConfigure &vertexConfigure) {
                                 vertexConfigure
                                         .binding(0)
                                         .stride(sizeof(Vertex))

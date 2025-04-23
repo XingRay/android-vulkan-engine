@@ -36,7 +36,6 @@ namespace engine {
         std::vector<vk::Rect2D> mScissors;
 
         vk::Pipeline mPipeline;
-//        vk::PipelineLayout mPipelineLayout;
 
         std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> mVulkanVertexBuffers;
         std::vector<vk::Buffer> mVertexBuffers;
@@ -44,13 +43,13 @@ namespace engine {
 
         std::shared_ptr<VulkanDeviceLocalIndexBuffer> mIndexBuffer;
 
-//        std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
-
         // frame -> VulkanBufferDescriptorBindingSets
 //        std::vector<std::unique_ptr<VulkanDescriptorBindingSets>> mVulkanDescriptorBindingSets;
 
         // frame -> pipeline resource
         std::unique_ptr<PipelineLayout> mPipelineLayout;
+        std::unique_ptr<DescriptorPool> mDescriptorPool;
+        std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
         std::vector<PipelineResource> mPipelineResources;
 
 //        std::vector<vk::PushConstantRange> mPushConstantRanges;

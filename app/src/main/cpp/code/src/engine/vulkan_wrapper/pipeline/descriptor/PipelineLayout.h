@@ -40,8 +40,6 @@ namespace engine {
         [[nodiscard]]
         std::unique_ptr<DescriptorPool> createDescriptorPool(uint32_t frameCount) const;
 
-    private:
-
         [[nodiscard]]
         std::vector<vk::DescriptorSetLayout> createDescriptorSetLayouts() const;
     };

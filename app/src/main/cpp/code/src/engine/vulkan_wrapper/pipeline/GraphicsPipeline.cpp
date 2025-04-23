@@ -16,12 +16,12 @@ namespace engine {
                                        const std::vector<vk::VertexInputAttributeDescription> &vertexInputAttributeDescriptions,
                                        std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> &&vertexBuffers,
                                        std::shared_ptr<VulkanDeviceLocalIndexBuffer> indexBuffer,
-                                       std::unique_ptr<PipelineLayout>&& pipelineLayout,
+                                       std::unique_ptr<PipelineLayout> &&pipelineLayout,
                                        uint32_t frameCount
-                                       /*std::unique_ptr<DescriptorPool> &&vulkanDescriptorPool,
-                                       const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
-                                       std::vector<std::unique_ptr<VulkanDescriptorBindingSets>> &&vulkanDescriptorBindingSets,
-                                       std::vector<vk::PushConstantRange> &&pushConstantRanges*/)
+            /*std::unique_ptr<DescriptorPool> &&vulkanDescriptorPool,
+            const std::vector<vk::DescriptorSetLayout> &descriptorSetLayouts,
+            std::vector<std::unique_ptr<VulkanDescriptorBindingSets>> &&vulkanDescriptorBindingSets,
+            std::vector<vk::PushConstantRange> &&pushConstantRanges*/)
             : mVulkanDevice(vulkanDevice),
               mIndexBuffer(std::move(indexBuffer)),
               mVulkanVertexBuffers(std::move(vertexBuffers)),
@@ -29,7 +29,7 @@ namespace engine {
 //              mPushConstantRanges(std::move(pushConstantRanges))
 //              mVulkanDescriptorPool(std::move(vulkanDescriptorPool)),
 //              mVulkanDescriptorBindingSets(std::move(vulkanDescriptorBindingSets))
-              {
+    {
 
         vk::Device device = vulkanDevice.getDevice();
 
@@ -216,9 +216,11 @@ namespace engine {
             mVertexBufferOffsets.push_back(0);
         }
 
+        mDescriptorPool = mPipelineLayout->createDescriptorPool(frameCount);
+        std::vector<vk::DescriptorSetLayout> descriptorSetLayouts = mPipelineLayout->createDescriptorSetLayouts();
         // descriptors
         for (int i = 0; i < frameCount; i++) {
-//            mDescriptorSets.push_back(vulkanDescriptorPool->allocateDescriptorSets(descriptorSetLayouts));
+            mDescriptorSets.push_back(mDescriptorPool->allocateDescriptorSets(descriptorSetLayouts));
         }
 
 //        for (const vk::PushConstantRange &pushConstantRange: mPushConstantRanges) {
@@ -232,9 +234,6 @@ namespace engine {
         LOG_D("GraphicsPipeline::~GraphicsPipeline");
         vk::Device device = mVulkanDevice.getDevice();
         device.destroy(mPipeline);
-
-        mIndexBuffer.reset();
-        mVertexBuffers.clear();
     }
 
     const vk::Pipeline &GraphicsPipeline::getPipeline() const {
@@ -405,7 +404,7 @@ namespace engine {
          */
         commandBuffer.bindVertexBuffers(0, mVertexBuffers, mVertexBufferOffsets);
         commandBuffer.bindIndexBuffer(mIndexBuffer->getBuffer(), 0, vk::IndexType::eUint32);
-//        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout->getPipelineLayout(), 0, mDescriptorSets[frameIndex], nullptr);
+        commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, mPipelineLayout->getPipelineLayout(), 0, mDescriptorSets[frameIndex], nullptr);
 
         // push constants
 //        if (!mPushConstantRanges.empty()) {

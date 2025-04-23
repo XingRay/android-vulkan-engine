@@ -50,20 +50,20 @@ namespace test03 {
                 .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-                .graphicsPipeline([&](engine::GraphicsPipelineConfigure &graphicsPipelineConfigure) {
-                    graphicsPipelineConfigure
-                            .vertexShaderCode(std::move(vertexShaderCode))
-                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
-                                vertexConfigure
-                                        .binding(0)
-                                        .stride(sizeof(Vertex))
-                                        .addAttribute(ShaderFormat::Vec3)
-                                        .addAttribute(ShaderFormat::Vec3)
-                                        .setVertexBuffer(vertices);
-                            })
-                            .index(std::move(indices));
-                })
+//                .graphicsPipeline([&](engine::GraphicsPipelineConfigure &graphicsPipelineConfigure) {
+//                    graphicsPipelineConfigure
+//                            .vertexShaderCode(std::move(vertexShaderCode))
+//                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
+//                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+//                                vertexConfigure
+//                                        .binding(0)
+//                                        .stride(sizeof(Vertex))
+//                                        .addAttribute(ShaderFormat::Vec3)
+//                                        .addAttribute(ShaderFormat::Vec3)
+//                                        .setVertexBuffer(vertices);
+//                            })
+//                            .index(std::move(indices));
+//                })
                 .build();
     }
 

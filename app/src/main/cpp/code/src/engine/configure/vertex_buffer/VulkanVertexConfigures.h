@@ -6,7 +6,7 @@
 
 #include <memory>
 
-#include "VulkanVertexConfigure.h"
+#include "VertexConfigure.h"
 
 namespace engine {
 
@@ -15,14 +15,14 @@ namespace engine {
         /**
          * vertex
          */
-        std::vector<VulkanVertexConfigure> mVulkanVertexConfigures;
+        std::vector<VertexConfigure> mVertexConfigures;
 
     public:
         VulkanVertexConfigures();
 
         ~VulkanVertexConfigures();
 
-        VulkanVertexConfigures &addVulkanVertexConfigure(VulkanVertexConfigure vulkanVertexConfigure);
+        VulkanVertexConfigures &addVertexConfigure(VertexConfigure vertexConfigure);
 
         [[nodiscard]]
         std::vector<vk::VertexInputBindingDescription> createVertexInputBindingDescriptions() const;
