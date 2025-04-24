@@ -106,7 +106,7 @@ namespace engine {
 
         template<typename T>
         VulkanEngine &updateVertexBuffer(uint32_t index, const std::vector<T> &data) {
-            getGraphicsPipeline().updateVertexBuffer(*mVulkanCommandPool, data.data(), data.size() * sizeof(T));
+//            getGraphicsPipeline().updateVertexBuffer(*mVulkanCommandPool, data.data(), data.size() * sizeof(T));
             return *this;
         }
 

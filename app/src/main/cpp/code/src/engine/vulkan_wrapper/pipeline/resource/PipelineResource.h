@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "PipelineResourceSlot.h"
-
+#include "engine/vulkan_wrapper/push_constant/PushConstant.h"
 /**
  * resources for a frame used in pipeline
  * resources: uniform buffer, vk::ImageView ...
@@ -21,11 +21,35 @@ namespace engine {
         // set -> binding -> offset -> slot
         std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::unordered_map<uint32_t, PipelineResourceSlot>>> mPipelineResourceSlots;
 
+        std::vector<vk::Buffer> mVertexBuffers;
+
+        std::vector<vk::DeviceSize> mVertexBufferOffsets;
+
+        vk::Buffer mIndexBuffer;
+
+        uint32_t mIndicesCount;
+
+        std::vector<vk::DescriptorSet> mDescriptorSets;
+
+        std::vector<PushConstant> mPushConstants;
+
     public:
 
         PipelineResource();
 
         ~PipelineResource();
+
+        const std::vector<vk::Buffer> &getVertexBuffers() const;
+
+        const std::vector<vk::DeviceSize> &getVertexBufferOffsets() const;
+
+        const vk::Buffer &getIndexBuffer() const;
+
+        uint32_t getIndicesCount() const;
+
+        const std::vector<vk::DescriptorSet> &getDescriptorSets() const;
+
+        const std::vector<PushConstant> &getPushConstants() const;
     };
 
 } // engine

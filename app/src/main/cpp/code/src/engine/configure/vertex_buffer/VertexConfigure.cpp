@@ -18,6 +18,7 @@ namespace engine {
         return mBinding;
     }
 
+    // todo: calc stride by attributes size and align
     uint32_t VertexConfigure::getStride() const {
         return mStride;
     }
@@ -25,7 +26,7 @@ namespace engine {
     const std::vector<VertexAttributeConfigure> &VertexConfigure::getAttributes() const {
         return mAttributes;
     }
-
+    
     VertexConfigure &VertexConfigure::stride(uint32_t stride) {
         mStride = stride;
         return *this;

@@ -99,4 +99,12 @@ namespace engine {
         return std::make_unique<DescriptorPool>(mVulkanDevice, descriptorPoolSizes, (*mDescriptors).size() * frameCount);
     }
 
+    uint32_t PipelineLayout::calcTotalPushConstantSize() const {
+        uint32_t totalPushConstantSize = 0;
+        for (const vk::PushConstantRange &pushConstantRange: mPushConstantRanges) {
+            totalPushConstantSize += pushConstantRange.size;
+        }
+        return totalPushConstantSize;
+    }
+
 } // engine

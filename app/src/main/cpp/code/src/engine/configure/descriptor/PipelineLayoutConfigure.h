@@ -10,6 +10,7 @@
 #include "DescriptorSlotConfigure.h"
 #include "engine/vulkan_wrapper/pipeline/descriptor/VulkanDescriptorBindingSets.h"
 #include "engine/vulkan_wrapper/pipeline/descriptor/PipelineLayout.h"
+#include "engine/configure/push_constants/PushConstantConfigure.h"
 
 namespace engine {
 

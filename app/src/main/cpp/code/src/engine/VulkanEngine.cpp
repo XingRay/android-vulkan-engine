@@ -119,12 +119,12 @@ namespace engine {
     }
 
     VulkanEngine &VulkanEngine::createVertexBuffer(size_t size) {
-        getGraphicsPipeline().createVertexBuffer(0, size);
+//        getGraphicsPipeline().createVertexBuffer(0, size);
         return *this;
     }
 
     VulkanEngine &VulkanEngine::createVertexBuffer(uint32_t binding, size_t size) {
-        getGraphicsPipeline().createVertexBuffer(binding, size);
+//        getGraphicsPipeline().createVertexBuffer(binding, size);
         return *this;
     }
 
@@ -132,7 +132,7 @@ namespace engine {
         if (pipelineIndex != 0) {
             throw std::runtime_error("other pipeline (index > 0) not supported yet !");
         }
-        getGraphicsPipeline().createVertexBuffer(binding, size);
+//        getGraphicsPipeline().createVertexBuffer(binding, size);
         return *this;
     }
 
@@ -141,17 +141,17 @@ namespace engine {
     }
 
     VulkanEngine &VulkanEngine::updateVertexBuffer(uint32_t index, const void *data, size_t size) {
-        getGraphicsPipeline().updateVertexBuffer(*mVulkanCommandPool, data, size);
+//        getGraphicsPipeline().updateVertexBuffer(*mVulkanCommandPool, data, size);
         return *this;
     }
 
     VulkanEngine &VulkanEngine::createIndexBuffer(size_t size) {
-        getGraphicsPipeline().createIndexBuffer(size);
+//        getGraphicsPipeline().createIndexBuffer(size);
         return *this;
     }
 
     VulkanEngine &VulkanEngine::updateIndexBuffer(const std::vector<uint32_t> &indices) {
-        getGraphicsPipeline().updateIndexBuffer(*mVulkanCommandPool, indices);
+//        getGraphicsPipeline().updateIndexBuffer(*mVulkanCommandPool, indices);
         return *this;
     }
 
@@ -165,7 +165,7 @@ namespace engine {
     }
 
     VulkanEngine &VulkanEngine::updatePushConstant(uint32_t index, const void *data) {
-        getGraphicsPipeline().updatePushConstant(index, data);
+//        getGraphicsPipeline().updatePushConstant(index, data);
         return *this;
     }
 
@@ -240,7 +240,7 @@ namespace engine {
          */
         commandBuffer.beginRenderPass(&renderPassBeginInfo, vk::SubpassContents::eInline);
 
-        mGraphicsPipeline->drawFrame(commandBuffer, mCurrentFrameIndex);
+//        mGraphicsPipeline->drawFrame(commandBuffer, mCurrentFrameIndex);
 
         commandBuffer.endRenderPass();
         commandBuffer.end();

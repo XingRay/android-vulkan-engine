@@ -42,6 +42,9 @@ namespace engine {
 
         [[nodiscard]]
         std::vector<vk::DescriptorSetLayout> createDescriptorSetLayouts() const;
+
+        [[nodiscard]]
+        uint32_t calcTotalPushConstantSize() const;
     };
 
 } // engine

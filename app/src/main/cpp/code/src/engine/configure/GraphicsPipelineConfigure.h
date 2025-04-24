@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "engine/configure/vertex_buffer/VertexConfigures.h"
+#include "engine/configure/vertex_buffer/VertexBufferConfigure.h"
 #include "engine/configure/index_buffer/IndexBufferConfigure.h"
 #include "engine/configure/push_constants/PushConstantConfigures.h"
 #include "engine/vulkan_wrapper/pipeline/GraphicsPipeline.h"
@@ -27,7 +27,7 @@ namespace engine {
         /**
          * vertex
          */
-        VertexConfigures mVertexConfigures;
+        VertexBufferConfigure mVertexBufferConfigure;
 
         /**
          * index
@@ -37,7 +37,6 @@ namespace engine {
         /**
          * descriptor sets
          */
-//        VulkanDescriptorSetConfigures mVulkanDescriptorSetConfigures;
         std::unique_ptr<PipelineLayoutConfigure> mPipelineLayoutConfigure;
 
         /**

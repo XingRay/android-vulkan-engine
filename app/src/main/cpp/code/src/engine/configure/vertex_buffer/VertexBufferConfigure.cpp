@@ -2,23 +2,24 @@
 // Created by leixing on 2025/3/11.
 //
 
-#include "VertexConfigures.h"
+#include "VertexBufferConfigure.h"
 
 namespace engine {
-    VertexConfigures::VertexConfigures() {
+    
+    VertexBufferConfigure::VertexBufferConfigure() {
 
     }
 
-    VertexConfigures::~VertexConfigures() {
+    VertexBufferConfigure::~VertexBufferConfigure() {
 
     }
 
-    VertexConfigures &VertexConfigures::addVertexConfigure(VertexConfigure vertexConfigure){
+    VertexBufferConfigure &VertexBufferConfigure::addVertexConfigure(VertexConfigure vertexConfigure){
         mVertexConfigures.push_back(vertexConfigure);
         return *this;
     }
 
-    std::vector<vk::VertexInputBindingDescription> VertexConfigures::createVertexInputBindingDescriptions() const {
+    std::vector<vk::VertexInputBindingDescription> VertexBufferConfigure::createVertexInputBindingDescriptions() const {
         std::vector<vk::VertexInputBindingDescription> vertexInputBindingDescriptions;
 
         for (const VertexConfigure &vertexConfigure: mVertexConfigures) {
@@ -34,7 +35,7 @@ namespace engine {
     }
 
 
-    std::vector<vk::VertexInputAttributeDescription> VertexConfigures::createVertexInputAttributeDescriptions() const {
+    std::vector<vk::VertexInputAttributeDescription> VertexBufferConfigure::createVertexInputAttributeDescriptions() const {
 
         std::vector<vk::VertexInputAttributeDescription> vertexInputAttributeDescriptions;
 
@@ -54,7 +55,7 @@ namespace engine {
         return vertexInputAttributeDescriptions;
     }
 
-    std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> VertexConfigures::createVertexBuffers(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
+    std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> VertexBufferConfigure::createVertexBuffers(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
         std::vector<std::shared_ptr<VulkanDeviceLocalVertexBuffer>> vertexBuffers{};
 
         for (const VertexConfigure &configure: mVertexConfigures) {
