@@ -25,8 +25,8 @@
 
 #include "engine/VulkanEngine.h"
 #include "engine/VulkanSurfaceBuilder.h"
-#include "engine/configure/GraphicsPipelineConfigure.h"
-#include "engine/configure/ComputePipelineConfigure.h"
+#include "engine/configure/pipeline/GraphicsPipelineConfigure.h"
+#include "engine/configure/pipeline/ComputePipelineConfigure.h"
 
 #include "engine/common/Selector.h"
 

@@ -2,8 +2,8 @@
 // Created by leixing on 2025/1/8.
 //
 
-#include "engine/VulkanEngineBuilder.h"
-#include "common/StringUtil.h"
+#include "VulkanEngineBuilder.h"
+#include "engine/common/StringUtil.h"
 
 #include "engine/vulkan_wrapper/VulkanDevice.h"
 #include "engine/common/Uint32Selector.h"
@@ -151,13 +151,13 @@ namespace engine {
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::graphicsPipeline(const std::function<void(GraphicsPipelineConfigure & )> &configure) {
+    VulkanEngineBuilder &VulkanEngineBuilder::graphicsPipeline(const std::function<void(GraphicsPipelineConfigure &)> &configure) {
         mVulkanGraphicsPipelineConfigure = std::make_unique<GraphicsPipelineConfigure>();
         configure(*mVulkanGraphicsPipelineConfigure);
         return *this;
     }
 
-    VulkanEngineBuilder &VulkanEngineBuilder::computePipeline(const std::function<void(ComputePipelineConfigure & )> &configure) {
+    VulkanEngineBuilder &VulkanEngineBuilder::computePipeline(const std::function<void(ComputePipelineConfigure &)> &configure) {
         return *this;
     }
 
@@ -176,7 +176,6 @@ namespace engine {
         // select physical device
         std::unique_ptr<VulkanPhysicalDeviceCandidate> candidate = std::move(mVulkanPhysicalDeviceProvider->provide(*instance, *surface, mDeviceExtensions));
         std::unique_ptr<VulkanPhysicalDevice> &vulkanPhysicalDevice = candidate->getPhysicalDevice();
-
 
         // logical device
         uint32_t sampleCount = 0;
@@ -204,7 +203,7 @@ namespace engine {
         std::unique_ptr<GraphicsPipeline> vulkanGraphicsPipeline = nullptr;
         if (mVulkanGraphicsPipelineConfigure != nullptr) {
             LOG_D("create VulkanGraphicsPipeline");
-            vulkanGraphicsPipeline = mVulkanGraphicsPipelineConfigure->build(*vulkanDevice, *swapchain, *renderPass, *commandPool, mFrameCount);
+            vulkanGraphicsPipeline = mVulkanGraphicsPipelineConfigure->build(*vulkanDevice, *swapchain, *renderPass);
         }
 
         std::unique_ptr<ComputePipeline> vulkanComputePipeline = nullptr;

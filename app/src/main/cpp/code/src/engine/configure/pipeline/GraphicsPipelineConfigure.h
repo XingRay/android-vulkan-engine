@@ -4,11 +4,12 @@
 
 #pragma once
 
-#include "engine/configure/vertex_buffer/VertexBufferConfigure.h"
+#include "engine/vulkan_wrapper/pipeline/GraphicsPipeline.h"
+#include "engine/vertex/configure/VertexConfigure.h"
 #include "engine/configure/index_buffer/IndexBufferConfigure.h"
 #include "engine/configure/push_constants/PushConstantConfigures.h"
-#include "engine/vulkan_wrapper/pipeline/GraphicsPipeline.h"
 #include "engine/configure/descriptor/PipelineLayoutConfigure.h"
+#include "engine/vertex/configure/VertexBindingConfigure.h"
 
 namespace engine {
 
@@ -27,22 +28,12 @@ namespace engine {
         /**
          * vertex
          */
-        VertexBufferConfigure mVertexBufferConfigure;
-
-        /**
-         * index
-         */
-        IndexBufferConfigure mVulkanIndexConfigure;
+        VertexConfigure mVertexConfigure;
 
         /**
          * descriptor sets
          */
-        std::unique_ptr<PipelineLayoutConfigure> mPipelineLayoutConfigure;
-
-        /**
-         * push constant
-         */
-        PushConstantConfigures mPushConstantConfigures;
+        PipelineLayoutConfigure mPipelineLayoutConfigure;
 
     public:
         explicit GraphicsPipelineConfigure();
@@ -62,20 +53,7 @@ namespace engine {
         /**
          * vertex
          */
-        GraphicsPipelineConfigure &addVertex(const std::function<void(VertexConfigure &)> &configure);
-
-        /**
-         * index
-         */
-        GraphicsPipelineConfigure &index(const std::function<void(IndexBufferConfigure &)> &configure);
-
-        GraphicsPipelineConfigure &index(uint32_t capacity);
-
-        GraphicsPipelineConfigure &index(uint32_t capacity, std::vector<uint32_t> &&indices);
-
-        GraphicsPipelineConfigure &index(std::vector<uint32_t> &&indices);
-
-        GraphicsPipelineConfigure &index(const std::shared_ptr<VulkanDeviceLocalIndexBuffer> &indexBuffer);
+        GraphicsPipelineConfigure &addVertexBinding(const std::function<void(VertexBindingConfigure &)> &configure);
 
         /**
          *
@@ -96,9 +74,7 @@ namespace engine {
         [[nodiscard]]
         std::unique_ptr<GraphicsPipeline> build(const VulkanDevice &vulkanDevice,
                                                 const VulkanSwapchain &swapchain,
-                                                const VulkanRenderPass &renderPass,
-                                                const VulkanCommandPool &commandPool,
-                                                uint32_t frameCount) const;
+                                                const VulkanRenderPass &renderPass);
     };
 
 } // engine

@@ -6,7 +6,7 @@
 #include "FileUtil.h"
 
 #include "stb_image.h"
-#include "engine/VulkanEngineBuilder.h"
+#include "engine/configure/engine/VulkanEngineBuilder.h"
 #include "image/StbImage.h"
 
 namespace test05 {

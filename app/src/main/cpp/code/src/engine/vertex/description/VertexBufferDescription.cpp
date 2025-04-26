@@ -6,7 +6,10 @@
 
 namespace engine {
 
-    VertexBufferDescription::VertexBufferDescription() = default;
+    VertexBufferDescription::VertexBufferDescription(std::vector<vk::VertexInputBindingDescription> &&vertexInputBindingDescriptions,
+                                                     std::vector<vk::VertexInputAttributeDescription> &&vertexInputAttributeDescriptions)
+            : mVertexInputBindingDescriptions(std::move(vertexInputBindingDescriptions)),
+              mVertexInputAttributeDescriptions(std::move(vertexInputAttributeDescriptions)) {}
 
     VertexBufferDescription::~VertexBufferDescription() = default;
 

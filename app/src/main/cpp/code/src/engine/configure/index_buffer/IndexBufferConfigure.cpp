@@ -31,12 +31,12 @@ namespace engine {
         return *this;
     }
 
-    IndexBufferConfigure &IndexBufferConfigure::setIndexBuffer(const std::shared_ptr<VulkanDeviceLocalIndexBuffer>& indexBuffer) {
+    IndexBufferConfigure &IndexBufferConfigure::setIndexBuffer(const std::shared_ptr<VulkanDeviceLocalIndexBuffer> &indexBuffer) {
         mIndexBuffer = indexBuffer;
         return *this;
     }
 
-    std::shared_ptr<VulkanDeviceLocalIndexBuffer> IndexBufferConfigure::createVertexBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const{
+    std::shared_ptr<VulkanDeviceLocalIndexBuffer> IndexBufferConfigure::createIndexBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const {
         if (mIndexBuffer != nullptr) {
             return mIndexBuffer;
         }

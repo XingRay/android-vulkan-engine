@@ -4,28 +4,28 @@
 
 #pragma once
 
-#include "vulkan/vulkan.hpp"
 #include <stdint.h>
+
+#include "vulkan/vulkan.hpp"
+
 
 namespace engine {
 
     class VertexAttributeConfigure {
     private:
-        uint32_t mBinding;
-        uint32_t mLocation;
         vk::Format mFormat;
         uint32_t mOffset;
 
     public:
-        VertexAttributeConfigure(uint32_t binding, uint32_t location, vk::Format format, uint32_t offset);
+        VertexAttributeConfigure(vk::Format format, uint32_t offset);
 
         ~VertexAttributeConfigure();
 
-        [[nodiscard]]
-        uint32_t getBinding() const;
-
-        [[nodiscard]]
-        uint32_t getLocation() const;
+//        [[nodiscard]]
+//        uint32_t getBinding() const;
+//
+//        [[nodiscard]]
+//        uint32_t getLocation() const;
 
         [[nodiscard]]
         vk::Format getFormat() const;

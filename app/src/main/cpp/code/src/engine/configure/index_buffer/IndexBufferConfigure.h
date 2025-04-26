@@ -31,7 +31,7 @@ namespace engine {
         IndexBufferConfigure &setIndexBuffer(const std::shared_ptr<VulkanDeviceLocalIndexBuffer>& indexBuffer);
 
         [[nodiscard]]
-        std::shared_ptr<VulkanDeviceLocalIndexBuffer> createVertexBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const;
+        std::shared_ptr<VulkanDeviceLocalIndexBuffer> createIndexBuffer(const VulkanDevice &vulkanDevice, const VulkanCommandPool &commandPool) const;
     };
 
 } // engine

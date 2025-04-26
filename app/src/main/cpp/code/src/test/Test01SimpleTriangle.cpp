@@ -4,7 +4,7 @@
 
 #include "Test01SimpleTriangle.h"
 #include "FileUtil.h"
-#include "engine/VulkanEngineBuilder.h"
+#include "engine/configure/engine/VulkanEngineBuilder.h"
 
 namespace test01 {
 
@@ -45,8 +45,8 @@ namespace test01 {
                     graphicsPipelineConfigure
                             .vertexShaderCode(std::move(vertexShaderCode))
                             .fragmentShaderCode(std::move(fragmentShaderCode))
-                            .addVertex([&](engine::VertexConfigure &vertexConfigure) {
-                                vertexConfigure
+                            .addVertexBinding([&](engine::VertexBindingConfigure &vertexBindingConfigure) {
+                                vertexBindingConfigure
                                         .binding(0)
                                         .stride(sizeof(Vertex))
                                         .addAttribute(ShaderFormat::Vec3);

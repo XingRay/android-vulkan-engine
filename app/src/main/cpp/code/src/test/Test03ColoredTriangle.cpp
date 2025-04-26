@@ -5,7 +5,7 @@
 #include "Test03ColoredTriangle.h"
 #include "FileUtil.h"
 #include "engine/VulkanUtil.h"
-#include "engine/VulkanEngineBuilder.h"
+#include "engine/configure/engine/VulkanEngineBuilder.h"
 
 namespace test03 {
 

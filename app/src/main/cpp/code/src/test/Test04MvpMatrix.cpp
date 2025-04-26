@@ -4,7 +4,7 @@
 
 #include "Test04MvpMatrix.h"
 #include "FileUtil.h"
-#include "engine/VulkanEngineBuilder.h"
+#include "engine/configure/engine/VulkanEngineBuilder.h"
 
 namespace test04 {
 

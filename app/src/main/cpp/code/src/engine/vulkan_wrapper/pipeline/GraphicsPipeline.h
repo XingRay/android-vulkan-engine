@@ -22,7 +22,7 @@
 #include "engine/vulkan_wrapper/pipeline/resource/BufferInfo.h"
 #include "engine/vulkan_wrapper/pipeline/resource/ImageInfo.h"
 #include "engine/vulkan_wrapper/pipeline/descriptor/PipelineLayout.h"
-#include "engine/vulkan_wrapper/pipeline/VertexBufferDescription.h"
+#include "engine/vertex/description/VertexBufferDescription.h"
 #include "engine/vulkan_wrapper/pipeline/resource/PipelineResource.h"
 
 namespace engine {
@@ -36,22 +36,10 @@ namespace engine {
 
         vk::Pipeline mPipeline;
 
-//        std::unique_ptr<VertexBuffer> mVertexBuffer;
-//        std::shared_ptr<VulkanDeviceLocalIndexBuffer> mIndexBuffer;
-
-        // frame -> VulkanBufferDescriptorBindingSets
-//        std::vector<std::unique_ptr<VulkanDescriptorBindingSets>> mVulkanDescriptorBindingSets;
-
         std::unique_ptr<PipelineLayout> mPipelineLayout;
 
-//        std::unique_ptr<DescriptorPool> mDescriptorPool;
-//        std::vector<std::vector<vk::DescriptorSet>> mDescriptorSets;
-
         // frame -> pipeline resource
-        std::vector<PipelineResource> mPipelineResources;
-
-//        std::vector<vk::PushConstantRange> mPushConstantRanges;
-//        std::vector<std::vector<uint8_t>> mPushConstantDataList;
+//        std::vector<PipelineResource> mPipelineResources;
 
     public:
 
@@ -61,7 +49,8 @@ namespace engine {
                          const VulkanShaderModule &vertexShaderModule,
                          const VulkanShaderModule &fragmentShaderModule,
                          const VertexBufferDescription &vertexBufferDescription,
-                         std::unique_ptr<PipelineLayout> &&pipelineLayout);
+                         std::unique_ptr<PipelineLayout> &&pipelineLayout/*,
+                         std::vector<PipelineResource>&& pipelineResources*/);
 
         ~GraphicsPipeline();
 

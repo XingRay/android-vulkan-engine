@@ -18,8 +18,6 @@ namespace engine {
 
     class PipelineResource {
     private:
-        // set -> binding -> offset -> slot
-        std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::unordered_map<uint32_t, PipelineResourceSlot>>> mPipelineResourceSlots;
 
         std::vector<vk::Buffer> mVertexBuffers;
 
@@ -28,6 +26,9 @@ namespace engine {
         vk::Buffer mIndexBuffer;
 
         uint32_t mIndicesCount;
+
+        // set -> binding -> offset -> slot
+        std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::unordered_map<uint32_t, PipelineResourceSlot>>> mPipelineResourceSlots;
 
         std::vector<vk::DescriptorSet> mDescriptorSets;
 
@@ -39,17 +40,24 @@ namespace engine {
 
         ~PipelineResource();
 
+        [[nodiscard]]
         const std::vector<vk::Buffer> &getVertexBuffers() const;
 
+        [[nodiscard]]
         const std::vector<vk::DeviceSize> &getVertexBufferOffsets() const;
 
+        [[nodiscard]]
         const vk::Buffer &getIndexBuffer() const;
 
+        [[nodiscard]]
         uint32_t getIndicesCount() const;
 
+        [[nodiscard]]
         const std::vector<vk::DescriptorSet> &getDescriptorSets() const;
 
+        [[nodiscard]]
         const std::vector<PushConstant> &getPushConstants() const;
+
     };
 
 } // engine

@@ -19,7 +19,8 @@ namespace engine {
 
     public:
 
-        VertexBufferDescription();
+        VertexBufferDescription(std::vector<vk::VertexInputBindingDescription> &&vertexInputBindingDescriptions,
+                                std::vector<vk::VertexInputAttributeDescription> &&vertexInputAttributeDescriptions);
 
         ~VertexBufferDescription();
 

@@ -4,7 +4,7 @@
 
 #include "Test02SingleColorTriangle.h"
 #include "FileUtil.h"
-#include "engine/VulkanEngineBuilder.h"
+#include "engine/configure/engine/VulkanEngineBuilder.h"
 
 namespace test02 {
 

@@ -5,7 +5,7 @@
 #include "Test06Load3dModel.h"
 #include "FileUtil.h"
 
-#include "engine/VulkanEngineBuilder.h"
+#include "engine/configure/engine/VulkanEngineBuilder.h"
 #include "image/StbImage.h"
 
 #include <tiny_obj_loader.h>

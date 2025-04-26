@@ -179,7 +179,7 @@ namespace engine {
                 .setPDepthStencilState(&depthStencilStateCreateInfo)
                 .setPColorBlendState(&colorBlendStateCreateInfo)
                 .setPDynamicState(&dynamicStateCreateInfo)
-                .setLayout(pipelineLayout->getPipelineLayout())
+                .setLayout(mPipelineLayout->getPipelineLayout())
                 .setRenderPass(renderPass.getRenderPass())
                 .setSubpass(0)
                 .setBasePipelineHandle(nullptr)
