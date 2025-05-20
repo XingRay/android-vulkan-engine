@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "engine/Log.h"
+#include "vklite/Log.h"
 #include "test/common/TestBase.h"
 
-#include "engine/VulkanEngine.h"
-#include "engine/vulkan_wrapper/platform/android/AndroidVulkanSurface.h"
+#include "vklite/engine/VkLiteEngine.h"
+#include "vklite/platform/android/AndroidVulkanSurface.h"
 
 #include "game_activity/native_app_glue/android_native_app_glue.h"
 #include "test/common/glm.h"
@@ -19,24 +19,24 @@
 #include <functional>
 #include <memory>
 
-#include "engine/vulkan_wrapper/VulkanInstance.h"
-#include "engine/vulkan_wrapper/VulkanSurface.h"
-#include "engine/vulkan_wrapper/VulkanPhysicalDevice.h"
-#include "engine/vulkan_wrapper/VulkanDevice.h"
-#include "engine/vulkan_wrapper/VulkanShader.h"
-#include "engine/vulkan_wrapper/VulkanSwapchain.h"
-#include "engine/vulkan_wrapper/VulkanRenderPass.h"
-#include "engine/vulkan_wrapper/pipeline/GraphicsPipeline.h"
-#include "engine/vulkan_wrapper/VulkanCommandPool.h"
-//#include "engine/vulkan_wrapper/buffer/VulkanVertexBuffer.h"
-//#include "engine/vulkan_wrapper/buffer/VulkanIndexBuffer.h"
-//#include "engine/vulkan_wrapper/buffer/VulkanUniformBuffer.h"
-#include "engine/vulkan_wrapper/VulkanSyncObject.h"
-#include "engine/vulkan_wrapper/VulkanFrameBuffer.h"
-#include "engine/vulkan_wrapper/sampler/DefaultSampler.h"
+#include "vklite/instance/VulkanInstance.h"
+#include "vklite/VulkanSurface.h"
+#include "vklite/VulkanPhysicalDevice.h"
+#include "vklite/device/VulkanDevice.h"
+#include "vklite/shader/VulkanShader.h"
+#include "vklite/swapchain/VulkanSwapchain.h"
+#include "vklite/VulkanRenderPass.h"
+#include "vklite/pipeline/GraphicsPipeline.h"
+#include "vklite/command/VulkanCommandPool.h"
+//#include "vklite/vulkan_wrapper/buffer/VulkanVertexBuffer.h"
+//#include "vklite/vulkan_wrapper/buffer/VulkanIndexBuffer.h"
+//#include "vklite/vulkan_wrapper/buffer/VulkanUniformBuffer.h"
+#include "vklite/VulkanSyncObject.h"
+#include "vklite/VulkanFrameBuffer.h"
+#include "vklite/sampler/DefaultSampler.h"
 
-#include "engine/common/StringListSelector.h"
-#include "engine/configure/physical_device/VulkanPhysicalDeviceProvider.h"
+#include "vklite/common/StringListSelector.h"
+#include "vklite/configure/physical_device/VulkanPhysicalDeviceProvider.h"
 
 namespace test10 {
 
@@ -67,32 +67,32 @@ namespace test10 {
         const android_app &mApp;
         std::unique_ptr<ndkcamera::NdkCamera> mNdkCamera;
 
-        std::unique_ptr<engine::VulkanInstance> mInstance;
-        std::unique_ptr<engine::VulkanSurface> mSurface;
-        std::unique_ptr<engine::VulkanPhysicalDevice> mPhysicalDevice;
-        std::unique_ptr<engine::VulkanDevice> mDevice;
+        std::unique_ptr<vklite::VulkanInstance> mInstance;
+        std::unique_ptr<vklite::VulkanSurface> mSurface;
+        std::unique_ptr<vklite::VulkanPhysicalDevice> mPhysicalDevice;
+        std::unique_ptr<vklite::VulkanDevice> mDevice;
 
-        std::unique_ptr<engine::VulkanSwapchain> mSwapchain;
-        std::unique_ptr<engine::VulkanRenderPass> mRenderPass;
+        std::unique_ptr<vklite::VulkanSwapchain> mSwapchain;
+        std::unique_ptr<vklite::VulkanRenderPass> mRenderPass;
 
-//        std::unique_ptr<engine::VulkanPipeline> mPipeline;
-        std::unique_ptr<engine::VulkanCommandPool> mCommandPool;
-        std::unique_ptr<engine::VulkanFrameBuffer> mFrameBuffer;
+//        std::unique_ptr<vklite::VulkanPipeline> mPipeline;
+        std::unique_ptr<vklite::VulkanCommandPool> mCommandPool;
+        std::unique_ptr<vklite::VulkanFrameBuffer> mFrameBuffer;
 
-//        std::vector<std::unique_ptr<engine::VulkanVertexBuffer>> mVulkanVertexBuffers;
+//        std::vector<std::unique_ptr<vklite::VulkanVertexBuffer>> mVulkanVertexBuffers;
         std::vector<vk::Buffer> mVertexBuffers;
         std::vector<vk::DeviceSize> mVertexBufferOffsets;
 
-//        std::unique_ptr<engine::VulkanIndexBuffer> mIndexBuffer;
+//        std::unique_ptr<vklite::VulkanIndexBuffer> mIndexBuffer;
 
-        std::unique_ptr<engine::VulkanSyncObject> mSyncObject;
+        std::unique_ptr<vklite::VulkanSyncObject> mSyncObject;
 
         // shader
         std::vector<char> mVertexShaderCode;
         std::vector<char> mFragmentShaderCode;
-//        std::vector<engine::VulkanVertex> mVertices;
-//        std::vector<engine::VulkanDescriptorSet> mDescriptorSets;
-//        std::vector<engine::VulkanPushConstantConfigure> mPushConstants;
+//        std::vector<vklite::VulkanVertex> mVertices;
+//        std::vector<vklite::VulkanDescriptorSet> mDescriptorSets;
+//        std::vector<vklite::VulkanPushConstantConfigure> mPushConstants;
 
     public:
         // 构造函数初始化基类 TestBase，并传递 name

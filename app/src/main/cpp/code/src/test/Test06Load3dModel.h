@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include "engine/Log.h"
+#include "vklite/Log.h"
 #include "test/common/TestBase.h"
 
-#include "engine/VulkanEngine.h"
-#include "engine/vulkan_wrapper/platform/android/AndroidVulkanSurface.h"
+#include "vklite/engine/VkLiteEngine.h"
+#include "vklite/platform/android/AndroidVulkanSurface.h"
 
 #include "game_activity/native_app_glue/android_native_app_glue.h"
 #include "test/common/glm.h"
@@ -37,7 +37,7 @@ namespace test06 {
 
         const android_app &mApp;
 
-        std::unique_ptr<engine::VulkanEngine> mVulkanEngine;
+        std::unique_ptr<vklite::VkLiteEngine> mVkLiteEngine;
 
         MvpMatrix mMvpMatrix{};
     public:

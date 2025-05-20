@@ -6,7 +6,7 @@
 #include "FileUtil.h"
 
 #include "stb_image.h"
-#include "engine/configure/engine/VulkanEngineBuilder.h"
+#include "vklite/engine/configure/VkLiteEngineBuilder.h"
 #include "image/StbImage.h"
 
 namespace test05 {
@@ -45,20 +45,20 @@ namespace test05 {
 
         std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
 
-        std::unique_ptr<engine::ImageInterface> image = image::StbImage::loadImage("/storage/emulated/0/01.png");
+        std::unique_ptr<vklite::ImageInterface> image = image::StbImage::loadImage("/storage/emulated/0/01.png");
 
-        std::unique_ptr<engine::VulkanEngine> engine = engine::VulkanEngineBuilder{}
+        std::unique_ptr<vklite::VkLiteEngine> engine = vklite::VkLiteEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
-                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .surfaceBuilder(std::make_unique<vklite::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-//                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+//                .graphicsPipeline([&](vklite::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
 //                    graphicsPipelineConfigure
 //                            .vertexShaderCode(std::move(vertexShaderCode))
 //                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+//                            .addVertex([&](vklite::VulkanVertexConfigure &vertexConfigure) {
 //                                vertexConfigure
 //                                        .binding(0)
 //                                        .stride(sizeof(Vertex))
@@ -68,8 +68,8 @@ namespace test05 {
 //                            })
 //                            .index(std::move(indices))
 //                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex)
-//                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
-//                                descriptorSetConfigure.addSampler([&](engine::VulkanSamplerConfigure &samplerConfigure) {
+//                            .addDescriptorSet([&](vklite::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
+//                                descriptorSetConfigure.addSampler([&](vklite::VulkanSamplerConfigure &samplerConfigure) {
 //                                    samplerConfigure
 //                                            .binding(0)
 //                                            .descriptorRange(1)
@@ -81,7 +81,7 @@ namespace test05 {
 //                })
                 .build();
 
-        mVulkanEngine = std::move(engine);
+        mVkLiteEngine = std::move(engine);
     }
 
     void Test05TextureImage::init() {
@@ -118,15 +118,15 @@ namespace test05 {
 //        mMvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mMvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-        mVulkanEngine->updatePushConstant(0, &(mvp));
+        mVkLiteEngine->updatePushConstant(0, &(mvp));
 
-        mVulkanEngine->drawFrame();
+        mVkLiteEngine->drawFrame();
     }
 
     // 清理操作
     void Test05TextureImage::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-//        mVulkanEngine.reset();
+//        mVkLiteEngine.reset();
     }
 
 } // test

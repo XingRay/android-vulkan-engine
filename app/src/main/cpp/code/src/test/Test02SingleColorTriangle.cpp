@@ -4,7 +4,7 @@
 
 #include "Test02SingleColorTriangle.h"
 #include "FileUtil.h"
-#include "engine/configure/engine/VulkanEngineBuilder.h"
+#include "vklite/engine/configure/VkLiteEngineBuilder.h"
 
 namespace test02 {
 
@@ -44,18 +44,18 @@ namespace test02 {
 
         ColorUniformBufferObject colorUniformBufferObject{{0.8f, 0.2f, 0.4f}};
 
-        mVulkanEngine = engine::VulkanEngineBuilder{}
+        mVkLiteEngine = vklite::VkLiteEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
-                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .surfaceBuilder(std::make_unique<vklite::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-//                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+//                .graphicsPipeline([&](vklite::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
 //                    graphicsPipelineConfigure
 //                            .vertexShaderCode(std::move(vertexShaderCode))
 //                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+//                            .addVertex([&](vklite::VulkanVertexConfigure &vertexConfigure) {
 //                                vertexConfigure
 //                                        .binding(0)
 //                                        .stride(sizeof(Vertex))
@@ -64,14 +64,14 @@ namespace test02 {
 //                            })
 //                            .index(std::move(indices))
 //                                    // or
-////                            .index([&](engine::VulkanIndexConfigure &indexConfigure) {
+////                            .index([&](vklite::VulkanIndexConfigure &indexConfigure) {
 ////                                indexConfigure
 ////                                        .setIndexBuffer(std::move(indices));
 ////                            })
-////                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
+////                            .addDescriptorSet([&](vklite::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
 ////                                descriptorSetConfigure
 ////                                        .set(0)
-////                                        .addUniform([&](engine::VulkanUniformConfigure &uniformConfigure) {
+////                                        .addUniform([&](vklite::VulkanUniformConfigure &uniformConfigure) {
 ////                                            uniformConfigure
 ////                                                    .binding(0)
 ////                                                    .descriptorRange(1)
@@ -96,13 +96,13 @@ namespace test02 {
 
     // 绘制三角形帧
     void Test02SingleColorTriangle::drawFrame() {
-        mVulkanEngine->drawFrame();
+        mVkLiteEngine->drawFrame();
     }
 
     // 清理操作
     void Test02SingleColorTriangle::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-        mVulkanEngine.reset();
+        mVkLiteEngine.reset();
     }
 
 } // test

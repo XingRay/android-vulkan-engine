@@ -7,7 +7,7 @@
 #include <chrono>
 #include <thread>
 
-#include "engine/configure/engine/VulkanEngineBuilder.h"
+#include "vklite/engine/configure/VkLiteEngineBuilder.h"
 #include "FileUtil.h"
 
 namespace std {
@@ -89,18 +89,18 @@ namespace test07 {
 
         std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
 
-        mVulkanEngine = engine::VulkanEngineBuilder{}
+        mVkLiteEngine = vklite::VkLiteEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
-                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .surfaceBuilder(std::make_unique<vklite::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-//                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+//                .graphicsPipeline([&](vklite::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
 //                    graphicsPipelineConfigure
 //                            .vertexShaderCode(std::move(vertexShaderCode))
 //                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+//                            .addVertex([&](vklite::VulkanVertexConfigure &vertexConfigure) {
 //                                vertexConfigure
 //                                        .binding(0)
 //                                        .stride(sizeof(Vertex))
@@ -110,10 +110,10 @@ namespace test07 {
 //                            })
 //                            .index(std::move(indices))
 //                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex)
-//                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
+//                            .addDescriptorSet([&](vklite::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
 //                                descriptorSetConfigure
 //                                        .set(0)
-////                                        .addSampler([&](engine::VulkanSamplerConfigure &samplerConfigure) {
+////                                        .addSampler([&](vklite::VulkanSamplerConfigure &samplerConfigure) {
 ////                                            samplerConfigure
 ////                                                    .binding(1)
 ////                                                    .descriptorRange(1)
@@ -148,8 +148,8 @@ namespace test07 {
         AHardwareBuffer *buffer = mNdkCamera->getLatestHardwareBuffer();
 //        LOG_D("AHardwareBuffer:%p", buffer);
         if (buffer != nullptr) {
-//            mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
-//            mVulkanEngine->drawFrame();
+//            mVkLiteEngine->updateUniformBuffer(mVkLiteEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
+//            mVkLiteEngine->drawFrame();
 
             // 增加帧计数器
             frameCount++;
@@ -175,7 +175,7 @@ namespace test07 {
     // 清理操作
     void Test07NdkCamera::cleanup() {
 //        LOG_I("Cleaning up %s", getName().c_str());
-//        mVulkanEngine.reset();
+//        mVkLiteEngine.reset();
     }
 
 } // test

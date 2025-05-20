@@ -4,8 +4,8 @@
 
 #include "Test03ColoredTriangle.h"
 #include "FileUtil.h"
-#include "engine/VulkanUtil.h"
-#include "engine/configure/engine/VulkanEngineBuilder.h"
+#include "vklite/VulkanUtil.h"
+#include "vklite/engine/configure/VkLiteEngineBuilder.h"
 
 namespace test03 {
 
@@ -43,18 +43,18 @@ namespace test03 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-        mVulkanEngine = engine::VulkanEngineBuilder{}
+        mVkLiteEngine = vklite::VkLiteEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
-                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .surfaceBuilder(std::make_unique<vklite::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-//                .graphicsPipeline([&](engine::GraphicsPipelineConfigure &graphicsPipelineConfigure) {
+//                .graphicsPipeline([&](vklite::GraphicsPipelineConfigure &graphicsPipelineConfigure) {
 //                    graphicsPipelineConfigure
 //                            .vertexShaderCode(std::move(vertexShaderCode))
 //                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+//                            .addVertex([&](vklite::VulkanVertexConfigure &vertexConfigure) {
 //                                vertexConfigure
 //                                        .binding(0)
 //                                        .stride(sizeof(Vertex))
@@ -78,13 +78,13 @@ namespace test03 {
 
     // 绘制三角形帧
     void Test03ColoredTriangle::drawFrame() {
-        mVulkanEngine->drawFrame();
+        mVkLiteEngine->drawFrame();
     }
 
     // 清理操作
     void Test03ColoredTriangle::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-        mVulkanEngine.reset();
+        mVkLiteEngine.reset();
     }
 
 } // test

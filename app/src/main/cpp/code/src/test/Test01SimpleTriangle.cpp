@@ -4,7 +4,7 @@
 
 #include "Test01SimpleTriangle.h"
 #include "FileUtil.h"
-#include "engine/configure/engine/VulkanEngineBuilder.h"
+#include "vklite/engine/configure/VkLiteEngineBuilder.h"
 
 namespace test01 {
 
@@ -34,25 +34,28 @@ namespace test01 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/01_triangle.frag.spv");
 
-        mVulkanEngine = engine::VulkanEngineBuilder{}
+        mVkLiteEngine = vklite::VkLiteEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
-                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .surfaceBuilder(std::make_unique<vklite::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-                .graphicsPipeline([&](engine::GraphicsPipelineConfigure &graphicsPipelineConfigure) {
+                .graphicsPipeline([&](vklite::GraphicsPipelineConfigure &graphicsPipelineConfigure) {
                     graphicsPipelineConfigure
                             .vertexShaderCode(std::move(vertexShaderCode))
                             .fragmentShaderCode(std::move(fragmentShaderCode))
-                            .addVertexBinding([&](engine::VertexBindingConfigure &vertexBindingConfigure) {
+                            .addVertexBinding([&](vklite::VertexBindingConfigure &vertexBindingConfigure) {
                                 vertexBindingConfigure
                                         .binding(0)
                                         .stride(sizeof(Vertex))
-                                        .addAttribute(ShaderFormat::Vec3);
+                                        .addAttribute(0, ShaderFormat::Vec3);
                             });
                 })
+//                .pipelineResource([&])
                 .build();
+
+
     }
 
     void Test01SimpleTriangle::init() {
@@ -65,13 +68,13 @@ namespace test01 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-//        mVulkanEngine->getGraphicsPipeline()
+//        mVkLiteEngine->getGraphicsPipeline()
 //                .createVertexBuffer(vertices.size() * sizeof(Vertex))
-//                .updateVertexBuffer(mVulkanEngine->getVulkanCommandPool(), vertices)
+//                .updateVertexBuffer(mVkLiteEngine->getVulkanCommandPool(), vertices)
 //                .createIndexBuffer(indices.size() * sizeof(uint32_t))
-//                .updateIndexBuffer(mVulkanEngine->getVulkanCommandPool(), indices);
+//                .updateIndexBuffer(mVkLiteEngine->getVulkanCommandPool(), indices);
 
-        (*mVulkanEngine)
+        (*mVkLiteEngine)
                 .createVertexBuffer(vertices.size() * sizeof(Vertex))
                 .updateVertexBuffer(vertices)
                 .createIndexBuffer(indices.size() * sizeof(uint32_t))
@@ -86,13 +89,13 @@ namespace test01 {
 
     // 绘制三角形帧
     void Test01SimpleTriangle::drawFrame() {
-        mVulkanEngine->drawFrame();
+        mVkLiteEngine->drawFrame();
     }
 
     // 清理操作
     void Test01SimpleTriangle::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-        mVulkanEngine.reset();
+        mVkLiteEngine.reset();
     }
 
 } // test

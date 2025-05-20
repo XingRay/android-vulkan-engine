@@ -4,7 +4,7 @@
 
 #include "Test04MvpMatrix.h"
 #include "FileUtil.h"
-#include "engine/configure/engine/VulkanEngineBuilder.h"
+#include "vklite/engine/configure/VkLiteEngineBuilder.h"
 
 namespace test04 {
 
@@ -40,18 +40,18 @@ namespace test04 {
 
         std::vector<uint32_t> indices = {0, 1, 2};
 
-        mVulkanEngine = engine::VulkanEngineBuilder{}
+        mVkLiteEngine = vklite::VkLiteEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
-                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .surfaceBuilder(std::make_unique<vklite::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-//                .graphicsPipeline([&](engine::GraphicsPipelineConfigure &graphicsPipelineConfigure) {
+//                .graphicsPipeline([&](vklite::GraphicsPipelineConfigure &graphicsPipelineConfigure) {
 //                    graphicsPipelineConfigure
 //                            .vertexShaderCode(std::move(vertexShaderCode))
 //                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+//                            .addVertex([&](vklite::VulkanVertexConfigure &vertexConfigure) {
 //                                vertexConfigure
 //                                        .binding(0)
 //                                        .stride(sizeof(Vertex))
@@ -101,15 +101,15 @@ namespace test04 {
 //        mMvpMatrix.view = glm::mat4(1.0f);  // 单位矩阵
 //        mMvpMatrix.proj = glm::mat4(1.0f);  // 单位矩阵
         glm::mat4 mvp = mMvpMatrix.proj * mMvpMatrix.view * mMvpMatrix.model;
-        mVulkanEngine->updatePushConstant(0, &(mvp));
+        mVkLiteEngine->updatePushConstant(0, &(mvp));
 
-        mVulkanEngine->drawFrame();
+        mVkLiteEngine->drawFrame();
     }
 
     // 清理操作
     void Test04MvpMatrix::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-//        mVulkanEngine.reset();
+//        mVkLiteEngine.reset();
     }
 
 } // test

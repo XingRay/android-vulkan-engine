@@ -89,28 +89,28 @@ namespace test10 {
 
 
 
-//        mInstance = std::make_unique<engine::VulkanInstance>("app", 1, "engine", 1,
+//        mInstance = std::make_unique<vklite::VulkanInstance>("app", 1, "engine", 1,
 //                                                             common::FixStringListSelector(instanceExtensions),
 //                                                             common::FixStringListSelector(layers));
-//        mSurface = std::make_unique<engine::AndroidVulkanSurface>(mInstance->getInstance(), mApp.window);
+//        mSurface = std::make_unique<vklite::AndroidVulkanSurface>(mInstance->getInstance(), mApp.window);
 //
-//        std::unique_ptr<engine::VulkanPhysicalDeviceProvider> mVulkanPhysicalDeviceProvider = std::make_unique<engine::DefaultVulkanPhysicalDeviceProvider>
-//                (*mInstance, *mSurface, deviceExtensions, engine::VulkanPhysicalDeviceScoreConfig{}, vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute);
+//        std::unique_ptr<vklite::VulkanPhysicalDeviceProvider> mVulkanPhysicalDeviceProvider = std::make_unique<vklite::DefaultVulkanPhysicalDeviceProvider>
+//                (*mInstance, *mSurface, deviceExtensions, vklite::VulkanPhysicalDeviceScoreConfig{}, vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute);
 //
-//        std::unique_ptr<engine::VulkanPhysicalDeviceCandidate> vulkanPhysicalDeviceCandidate = mVulkanPhysicalDeviceProvider->provide();
+//        std::unique_ptr<vklite::VulkanPhysicalDeviceCandidate> vulkanPhysicalDeviceCandidate = mVulkanPhysicalDeviceProvider->provide();
 //
-//        std::unique_ptr<engine::VulkanPhysicalDevice> &vulkanPhysicalDevice = vulkanPhysicalDeviceCandidate->getPhysicalDevice();
-//        engine::VulkanPhysicalDeviceSurfaceSupport vulkanPhysicalDeviceSurfaceSupport = vulkanPhysicalDeviceCandidate->getSurfaceSupport().value();
+//        std::unique_ptr<vklite::VulkanPhysicalDevice> &vulkanPhysicalDevice = vulkanPhysicalDeviceCandidate->getPhysicalDevice();
+//        vklite::VulkanPhysicalDeviceSurfaceSupport vulkanPhysicalDeviceSurfaceSupport = vulkanPhysicalDeviceCandidate->getSurfaceSupport().value();
 //
-//        mDevice = std::make_unique<engine::VulkanDevice>(*vulkanPhysicalDevice, vulkanPhysicalDeviceSurfaceSupport, deviceExtensions, layers, mFrameCount);
+//        mDevice = std::make_unique<vklite::VulkanDevice>(*vulkanPhysicalDevice, vulkanPhysicalDeviceSurfaceSupport, deviceExtensions, layers, mFrameCount);
 //
 //        int32_t width = ANativeWindow_getWidth(mApp.window);
 //        int32_t height = ANativeWindow_getHeight(mApp.window);
-//        mSwapchain = std::make_unique<engine::VulkanSwapchain>(*mDevice, *mSurface, width, height);
+//        mSwapchain = std::make_unique<vklite::VulkanSwapchain>(*mDevice, *mSurface, width, height);
 //
-//        mRenderPass = std::make_unique<engine::VulkanRenderPass>(*mDevice, *mSwapchain);
+//        mRenderPass = std::make_unique<vklite::VulkanRenderPass>(*mDevice, *mSwapchain);
 //
-//        std::vector<engine::VulkanDescriptor> descriptors;
+//        std::vector<vklite::VulkanDescriptor> descriptors;
 //        descriptors.push_back();
 //        mDescriptorSets.push_back();
 //        std::array<vk::DescriptorSetLayoutBinding, 3> layoutBindings{};
@@ -142,27 +142,27 @@ namespace test10 {
 
 
 
-//        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
+//        std::unique_ptr<vklite::VulkanGraphicsEngine> engine = vklite::VkLiteEngineBuilder{}
 //                .layers({}, layers)
 //                .extensions({}, instanceExtensions)
 //                .asGraphics()
 //                .deviceExtensions(std::move(deviceExtensions))
-//                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
+//                .surface(vklite::AndroidVulkanSurface::surfaceBuilder(mApp.window))
 //                .enableMsaa(1)
-//                .physicalDeviceProvider(std::make_unique<engine::DefaultVulkanPhysicalDeviceProvider>(
-//                        *mInstance, *mSurface, deviceExtensions, engine::VulkanPhysicalDeviceScoreConfig{}, vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute))
-//                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
+//                .physicalDeviceProvider(std::make_unique<vklite::DefaultVulkanPhysicalDeviceProvider>(
+//                        *mInstance, *mSurface, deviceExtensions, vklite::VulkanPhysicalDeviceScoreConfig{}, vk::QueueFlagBits::eGraphics | vk::QueueFlagBits::eCompute))
+//                .shader([&](vklite::VulkanShaderConfigure &shaderConfigure) {
 //                    shaderConfigure
 //                            .vertexShaderCode(std::move(vertexShaderCode))
 //                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
+//                            .vertex([](vklite::VulkanVertexConfigure &vertexConfigure) {
 //                                vertexConfigure
 //                                        .binding(0)
 //                                        .size(sizeof(Vertex))
 //                                        .addAttribute(ShaderFormat::Vec3)
 //                                        .addAttribute(ShaderFormat::Vec2);
 //                            })
-//                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
+//                            .uniformSet([=](vklite::VulkanDescriptorSetConfigure &configure) {
 //                                configure
 //                                        .set(0)
 //                                        .addAndroidHardwareBufferSampler(0, vk::ShaderStageFlagBits::eFragment, hardwareBuffer);
@@ -170,7 +170,7 @@ namespace test10 {
 //                })
 //                .build();
 //
-//        mVulkanEngine = std::move(engine);
+//        mVkLiteEngine = std::move(engine);
     }
 
     void Test10ComputeShader::init() {
@@ -185,16 +185,16 @@ namespace test10 {
 
         std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
 
-//        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
-//        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
+//        LOG_D("mVkLiteEngine->createStagingTransferVertexBuffer");
+//        mVkLiteEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
 //
-//        LOG_D("mVulkanEngine->updateVertexBuffer");
-//        mVulkanEngine->updateVertexBuffer(vertices);
+//        LOG_D("mVkLiteEngine->updateVertexBuffer");
+//        mVkLiteEngine->updateVertexBuffer(vertices);
 //
-//        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
-//        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-//        LOG_D("mVulkanEngine->updateIndexBuffer");
-//        mVulkanEngine->updateIndexBuffer(indices);
+//        LOG_D("mVkLiteEngine->createStagingTransferIndexBuffer");
+//        mVkLiteEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
+//        LOG_D("mVkLiteEngine->updateIndexBuffer");
+//        mVkLiteEngine->updateIndexBuffer(indices);
 
 
         std::string original_img_path = R"(/storage/emulated/0/test/image/face_image_1080_1920.png)";
@@ -240,8 +240,8 @@ namespace test10 {
         AHardwareBuffer *buffer = mNdkCamera->getLatestHardwareBuffer();
 //        LOG_D("AHardwareBuffer:%p", buffer);
         if (buffer != nullptr) {
-//            mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
-//            mVulkanEngine->drawFrame();
+//            mVkLiteEngine->updateUniformBuffer(mVkLiteEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
+//            mVkLiteEngine->drawFrame();
 
             // 增加帧计数器
             frameCount++;
@@ -267,6 +267,6 @@ namespace test10 {
     // 清理操作
     void Test10ComputeShader::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-//        mVulkanEngine.reset();
+//        mVkLiteEngine.reset();
     }
 } // test

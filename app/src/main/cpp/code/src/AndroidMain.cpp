@@ -13,11 +13,11 @@
 // limitations under the License.
 #include <android/log.h>
 #include "game_activity/native_app_glue/android_native_app_glue.h"
-#include "engine/VulkanEngine.h"
-#include "engine/vulkan_wrapper/platform/android/AndroidVulkanSurface.h"
+#include "vklite/engine/VkLiteEngine.h"
+#include "vklite/platform/android/AndroidVulkanSurface.h"
 #include "pthread.h"
 
-#include "engine/Log.h"
+#include "vklite/Log.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 

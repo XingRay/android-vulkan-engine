@@ -5,7 +5,7 @@
 #include "Test06Load3dModel.h"
 #include "FileUtil.h"
 
-#include "engine/configure/engine/VulkanEngineBuilder.h"
+#include "vklite/engine/configure/VkLiteEngineBuilder.h"
 #include "image/StbImage.h"
 
 #include <tiny_obj_loader.h>
@@ -118,18 +118,18 @@ namespace test06 {
         mMvpMatrix.proj[1][1] *= -1;
 
 
-        mVulkanEngine = engine::VulkanEngineBuilder{}
+        mVkLiteEngine = vklite::VkLiteEngineBuilder{}
                 .layers({}, std::move(layers))
                 .extensions({}, std::move(instanceExtensions))
                 .deviceExtensions(std::move(deviceExtensions))
-                .surfaceBuilder(std::make_unique<engine::AndroidVulkanSurfaceBuilder>(mApp.window))
+                .surfaceBuilder(std::make_unique<vklite::AndroidVulkanSurfaceBuilder>(mApp.window))
                 .enableMsaa()
                 .physicalDeviceAsDefault()
-//                .graphicsPipeline([&](engine::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
+//                .graphicsPipeline([&](vklite::VulkanGraphicsPipelineConfigure &graphicsPipelineConfigure) {
 //                    graphicsPipelineConfigure
 //                            .vertexShaderCode(std::move(vertexShaderCode))
 //                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .addVertex([&](engine::VulkanVertexConfigure &vertexConfigure) {
+//                            .addVertex([&](vklite::VulkanVertexConfigure &vertexConfigure) {
 //                                vertexConfigure
 //                                        .binding(0)
 //                                        .stride(sizeof(Vertex))
@@ -139,10 +139,10 @@ namespace test06 {
 //                            })
 //                            .index(std::move(indices))
 //                            .addPushConstant(sizeof(glm::mat4), 0, vk::ShaderStageFlagBits::eVertex)
-//                            .addDescriptorSet([&](engine::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
+//                            .addDescriptorSet([&](vklite::VulkanDescriptorSetConfigure &descriptorSetConfigure) {
 //                                descriptorSetConfigure
 //                                        .set(0)
-//                                        .addUniform([&](engine::VulkanUniformConfigure &uniformConfigure) {
+//                                        .addUniform([&](vklite::VulkanUniformConfigure &uniformConfigure) {
 //                                            uniformConfigure
 //                                                    .binding(0)
 //                                                    .descriptorRange(1)
@@ -150,7 +150,7 @@ namespace test06 {
 //                                                    .shaderStageFlags(vk::ShaderStageFlagBits::eVertex)
 //                                                    .setUniformBuffer(mMvpMatrix);
 //                                        })
-//                                        .addSampler([&](engine::VulkanSamplerConfigure &samplerConfigure) {
+//                                        .addSampler([&](vklite::VulkanSamplerConfigure &samplerConfigure) {
 //                                            samplerConfigure
 //                                                    .binding(1)
 //                                                    .descriptorRange(1)
@@ -185,8 +185,8 @@ namespace test06 {
         model = glm::rotate(model, time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         mMvpMatrix.model = model;
 
-        mVulkanEngine->updateCurrentFrameUniformBuffer(0, 0, mMvpMatrix);
-        mVulkanEngine->drawFrame();
+        mVkLiteEngine->updateCurrentFrameUniformBuffer(0, 0, mMvpMatrix);
+        mVkLiteEngine->drawFrame();
     }
 
     // 清理操作

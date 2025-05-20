@@ -345,26 +345,26 @@ namespace test09 {
         std::vector<char> vertexShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/07_ndk_camera.vert.spv");
         std::vector<char> fragmentShaderCode = FileUtil::loadFile(mApp.activity->assetManager, "shaders/07_ndk_camera.frag.spv");
 
-//        std::unique_ptr<engine::VulkanGraphicsEngine> engine = engine::VulkanEngineBuilder{}
+//        std::unique_ptr<vklite::VulkanGraphicsEngine> engine = vklite::VkLiteEngineBuilder{}
 //                .layers({}, layers)
 //                .extensions({}, instanceExtensions)
 //                .asGraphics()
 //                .deviceExtensions(std::move(deviceExtensions))
-//                .surface(engine::AndroidVulkanSurface::surfaceBuilder(mApp.window))
+//                .surface(vklite::AndroidVulkanSurface::surfaceBuilder(mApp.window))
 //                .enableMsaa(1)
 //                .physicalDeviceAsDefault()
-//                .shader([&](engine::VulkanShaderConfigure &shaderConfigure) {
+//                .shader([&](vklite::VulkanShaderConfigure &shaderConfigure) {
 //                    shaderConfigure
 //                            .vertexShaderCode(std::move(vertexShaderCode))
 //                            .fragmentShaderCode(std::move(std::move(fragmentShaderCode)))
-//                            .vertex([](engine::VulkanVertexConfigure &vertexConfigure) {
+//                            .vertex([](vklite::VulkanVertexConfigure &vertexConfigure) {
 //                                vertexConfigure
 //                                        .binding(0)
 //                                        .size(sizeof(Vertex))
 //                                        .addAttribute(ShaderFormat::Vec3)
 //                                        .addAttribute(ShaderFormat::Vec2);
 //                            })
-//                            .uniformSet([=](engine::VulkanDescriptorSetConfigure &configure) {
+//                            .uniformSet([=](vklite::VulkanDescriptorSetConfigure &configure) {
 //                                configure
 //                                        .set(0)
 //                                        .addAndroidHardwareBufferSampler(0, vk::ShaderStageFlagBits::eFragment, hardwareBuffer);
@@ -372,7 +372,7 @@ namespace test09 {
 //                })
 //                .build();
 //
-//        mVulkanEngine = std::move(engine);
+//        mVkLiteEngine = std::move(engine);
 
         mMnnDetector = std::make_unique<detector::MnnDetector>();
     }
@@ -389,16 +389,16 @@ namespace test09 {
 
         std::vector<uint32_t> indices = {0, 2, 1, 1, 2, 3};
 
-//        LOG_D("mVulkanEngine->createStagingTransferVertexBuffer");
-//        mVulkanEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
+//        LOG_D("mVkLiteEngine->createStagingTransferVertexBuffer");
+//        mVkLiteEngine->createStagingTransferVertexBuffer(vertices.size() * sizeof(Vertex));
 //
-//        LOG_D("mVulkanEngine->updateVertexBuffer");
-//        mVulkanEngine->updateVertexBuffer(vertices);
+//        LOG_D("mVkLiteEngine->updateVertexBuffer");
+//        mVkLiteEngine->updateVertexBuffer(vertices);
 //
-//        LOG_D("mVulkanEngine->createStagingTransferIndexBuffer");
-//        mVulkanEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
-//        LOG_D("mVulkanEngine->updateIndexBuffer");
-//        mVulkanEngine->updateIndexBuffer(indices);
+//        LOG_D("mVkLiteEngine->createStagingTransferIndexBuffer");
+//        mVkLiteEngine->createStagingTransferIndexBuffer(indices.size() * sizeof(uint32_t));
+//        LOG_D("mVkLiteEngine->updateIndexBuffer");
+//        mVkLiteEngine->updateIndexBuffer(indices);
 
 
         std::string original_img_path = R"(/storage/emulated/0/test/image/face_image_1080_1920.png)";
@@ -460,8 +460,8 @@ namespace test09 {
         AHardwareBuffer *buffer = mNdkCamera->getLatestHardwareBuffer();
 //        LOG_D("AHardwareBuffer:%p", buffer);
         if (buffer != nullptr) {
-//            mVulkanEngine->updateUniformBuffer(mVulkanEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
-//            mVulkanEngine->drawFrame();
+//            mVkLiteEngine->updateUniformBuffer(mVkLiteEngine->getCurrentFrameIndex(), 0, 0, buffer, 0);
+//            mVkLiteEngine->drawFrame();
 
             // 增加帧计数器
             frameCount++;
@@ -487,7 +487,7 @@ namespace test09 {
     // 清理操作
     void Test09NdkCameraFaceDetection::cleanup() {
         LOG_I("Cleaning up %s", getName().c_str());
-//        mVulkanEngine.reset();
+//        mVkLiteEngine.reset();
     }
 
 
